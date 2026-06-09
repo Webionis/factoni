@@ -1,0 +1,68 @@
+import { Badge } from "@/components/ui/badge";
+import {
+  INVOICE_STATUS_LABELS,
+  type InvoiceStatus,
+} from "@/lib/invoices/status";
+import { cn } from "@/lib/utils";
+
+const STATUS_STYLES: Record<
+  InvoiceStatus,
+  { className: string; dot: string }
+> = {
+  draft: {
+    className:
+      "bg-[#f1f5f9] text-[#64748b] dark:bg-slate-800/80 dark:text-slate-300",
+    dot: "bg-[#94a3b8] dark:bg-slate-400",
+  },
+  ready: {
+    className:
+      "bg-[#eef2ff] text-[#4338ca] dark:bg-[#312e81]/55 dark:text-[#a5b4fc]",
+    dot: "bg-[#6366f1] dark:bg-[#818cf8]",
+  },
+  sent: {
+    className:
+      "bg-[#eff6ff] text-[#1d4ed8] dark:bg-[#1e3a8a]/55 dark:text-[#93c5fd]",
+    dot: "bg-[#3b82f6] dark:bg-[#60a5fa]",
+  },
+  paid: {
+    className:
+      "bg-[#ecfdf5] text-[#047857] dark:bg-[#14532d]/50 dark:text-[#86efac]",
+    dot: "bg-[#10b981] dark:bg-[#4ade80]",
+  },
+  overdue: {
+    className:
+      "bg-[#fffbeb] text-[#b45309] dark:bg-[#78350f]/45 dark:text-[#fcd34d]",
+    dot: "bg-[#f59e0b] dark:bg-[#fbbf24]",
+  },
+  cancelled: {
+    className:
+      "bg-[#fef2f2] text-[#b91c1c] dark:bg-[#7f1d1d]/45 dark:text-[#fca5a5]",
+    dot: "bg-[#ef4444] dark:bg-[#f87171]",
+  },
+};
+
+interface InvoiceStatusBadgeProps {
+  status: InvoiceStatus;
+  className?: string;
+}
+
+export function InvoiceStatusBadge({ status, className }: InvoiceStatusBadgeProps) {
+  const styles = STATUS_STYLES[status] ?? STATUS_STYLES.draft;
+
+  return (
+    <Badge
+      variant="secondary"
+      className={cn(
+        "h-6 gap-1.5 rounded-lg border-0 px-2.5 text-xs font-medium",
+        styles.className,
+        className,
+      )}
+    >
+      <span
+        className={cn("size-1.5 shrink-0 rounded-full", styles.dot)}
+        aria-hidden
+      />
+      {INVOICE_STATUS_LABELS[status] ?? status}
+    </Badge>
+  );
+}

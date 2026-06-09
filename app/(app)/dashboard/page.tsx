@@ -1,63 +1,86 @@
-import Link from "next/link";
-import { Plus } from "lucide-react";
+import { redirect } from "next/navigation";
 
-import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { ClientStatsCard } from "@/components/dashboard/client-stats-card";
+import { pageMetadata } from "@/lib/metadata";
+import { DashboardShortcuts } from "@/components/dashboard/dashboard-shortcuts";
+import { DashboardQuoteStats } from "@/components/dashboard/dashboard-quote-stats";
+import { DashboardStatGrid } from "@/components/dashboard/dashboard-stat-grid";
+import { MonthEmptyBanner } from "@/components/dashboard/month-empty-banner";
+import { DashboardNotifications } from "@/components/dashboard/dashboard-notifications";
+import { RecentInvoices } from "@/components/dashboard/recent-invoices";
+import { RevenueChart } from "@/components/dashboard/revenue-chart";
+import { DashboardHero } from "@/components/dashboard/dashboard-hero";
+import { OnboardingChecklist } from "@/components/dashboard/onboarding-checklist";
+import { getCompanyForUser, isOnboardingCompleted } from "@/lib/auth/profile";
+import { buildOnboardingSteps } from "@/lib/dashboard/onboarding-steps";
+import { getDashboardData } from "@/lib/data/dashboard";
+import { createClient } from "@/lib/supabase/server";
 
-export default function DashboardPage() {
+export const metadata = pageMetadata("dashboard");
+
+export default async function DashboardPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const [data, company, onboardingDone] = await Promise.all([
+    getDashboardData(supabase, user.id),
+    getCompanyForUser(supabase, user.id),
+    isOnboardingCompleted(supabase, user.id),
+  ]);
+
+  const onboardingSteps = buildOnboardingSteps({
+    companyConfigured: onboardingDone && !!company?.trade_name?.trim(),
+    clientCount: data.stats.clientCount,
+    invoiceCount: data.stats.totalInvoices,
+  });
+  const dashboardTitle =
+    company?.trade_name?.trim() ||
+    user.email?.split("@")[0] ||
+    "Mon entreprise";
+
+  const monthLabel = new Intl.DateTimeFormat("fr-FR", {
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
+
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Tableau de bord</h1>
-          <p className="text-muted-foreground">
-            Vue d&apos;ensemble — données en Phase 4.
-          </p>
-        </div>
-        <Link
-          href="/invoices/new"
-          className={cn(buttonVariants(), "shrink-0 gap-1.5")}
-        >
-          <Plus className="size-4" aria-hidden />
-          <span className="hidden sm:inline">Nouvelle facture</span>
-          <span className="sm:hidden">Facture</span>
-        </Link>
+    <div className="space-y-12 pb-8">
+      <div className="space-y-3">
+        <DashboardHero title={dashboardTitle} />
+        <p className="text-xs font-medium text-[#64748b] dark:text-[#94a3b8]">
+          {monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)}
+        </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        {[
-          { label: "Brouillons", value: "—" },
-          { label: "En retard", value: "—" },
-          { label: "Ce mois", value: "—" },
-        ].map((stat) => (
-          <Card key={stat.label}>
-            <CardHeader className="pb-2">
-              <CardDescription>{stat.label}</CardDescription>
-              <CardTitle className="text-3xl tabular-nums">{stat.value}</CardTitle>
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
+      <OnboardingChecklist steps={onboardingSteps} />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Bienvenue sur FactureFlash</CardTitle>
-          <CardDescription>
-            Phase 0 terminée. Prochaine étape : migrations Supabase (Phase 1).
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          Complétez votre profil entreprise, ajoutez des clients, puis créez
-          votre première facture.
-        </CardContent>
-      </Card>
+      <DashboardStatGrid stats={data.stats} />
+
+      <DashboardQuoteStats stats={data.quoteStats} />
+
+      {!data.stats.hasRevenueThisMonth && data.stats.totalInvoices > 0 ? (
+        <MonthEmptyBanner />
+      ) : null}
+
+      <ClientStatsCard clientCount={data.stats.clientCount} />
+
+      <RevenueChart chart={data.revenueChart} />
+
+      <DashboardShortcuts />
+
+      <DashboardNotifications
+        notifications={data.notifications}
+        unreadCount={data.unreadNotificationCount}
+        hasMoreActivities={data.hasMoreActivities}
+      />
+
+      <RecentInvoices invoices={data.recentInvoices} />
     </div>
   );
 }

@@ -3,16 +3,14 @@ import type { FrenchVatRate, VatRegime } from "@/lib/constants/vat";
 /** Statuts facture MVP */
 export type InvoiceStatus =
   | "draft"
+  | "ready"
   | "sent"
   | "paid"
   | "overdue"
   | "cancelled";
 
-/** Extension future : abonnements SaaS (non implémenté au MVP) */
-export interface SubscriptionPlaceholder {
-  plan: "free" | "pro" | "business";
-  status: "active" | "trialing" | "canceled";
-}
+/** @deprecated Utiliser `SubscriptionPlan` depuis `@/lib/billing/types` */
+export type { SubscriptionPlan, SubscriptionStatus } from "@/lib/billing/types";
 
 export interface CompanyProfile {
   tradeName: string;

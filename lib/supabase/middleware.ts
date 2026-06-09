@@ -1,18 +1,31 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
+import { isOnboardingCompleted } from "@/lib/auth/profile";
+import { DASHBOARD_PATH, ONBOARDING_PATH } from "@/lib/auth/redirect";
 import {
-  DEFAULT_AUTHENTICATED_REDIRECT,
   DEFAULT_UNAUTHENTICATED_REDIRECT,
   isAuthRoute,
+  isOnboardingRoute,
   isProtectedRoute,
   isPublicRoute,
 } from "@/lib/constants/routes";
+import type { Database } from "@/types/database";
 
 export async function updateSession(request: NextRequest) {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()
+  ) {
+    return new NextResponse(
+      "Configuration serveur incomplète (variables Supabase manquantes).",
+      { status: 503 },
+    );
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -39,22 +52,46 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  if (!user && isProtectedRoute(pathname)) {
+  if (!user) {
+    if (isProtectedRoute(pathname)) {
+      const url = request.nextUrl.clone();
+      url.pathname = DEFAULT_UNAUTHENTICATED_REDIRECT;
+      url.searchParams.set("redirectTo", pathname);
+      return NextResponse.redirect(url);
+    }
+
+    if (!isPublicRoute(pathname)) {
+      const url = request.nextUrl.clone();
+      url.pathname = DEFAULT_UNAUTHENTICATED_REDIRECT;
+      return NextResponse.redirect(url);
+    }
+
+    return supabaseResponse;
+  }
+
+  const onboardingDone = await isOnboardingCompleted(supabase, user.id);
+
+  if (isAuthRoute(pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = DEFAULT_UNAUTHENTICATED_REDIRECT;
-    url.searchParams.set("redirectTo", pathname);
+    url.pathname = onboardingDone ? DASHBOARD_PATH : ONBOARDING_PATH;
     return NextResponse.redirect(url);
   }
 
-  if (user && isAuthRoute(pathname)) {
+  if (!onboardingDone && isProtectedRoute(pathname) && !isOnboardingRoute(pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = DEFAULT_AUTHENTICATED_REDIRECT;
+    url.pathname = ONBOARDING_PATH;
     return NextResponse.redirect(url);
   }
 
-  if (!user && !isPublicRoute(pathname) && !isProtectedRoute(pathname)) {
+  if (onboardingDone && isOnboardingRoute(pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = DEFAULT_UNAUTHENTICATED_REDIRECT;
+    url.pathname = DASHBOARD_PATH;
+    return NextResponse.redirect(url);
+  }
+
+  if (pathname === "/" && onboardingDone) {
+    const url = request.nextUrl.clone();
+    url.pathname = DASHBOARD_PATH;
     return NextResponse.redirect(url);
   }
 

@@ -3,10 +3,7 @@ export const FRENCH_VAT_RATES = [0, 5.5, 10, 20] as const;
 
 export type FrenchVatRate = (typeof FRENCH_VAT_RATES)[number];
 
-export const VAT_REGIMES = [
-  "standard",
-  "franchise_base",
-] as const;
+export const VAT_REGIMES = ["standard", "franchise"] as const;
 
 export type VatRegime = (typeof VAT_REGIMES)[number];
 

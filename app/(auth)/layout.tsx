@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { Zap } from "lucide-react";
+
+import { BrandLogo } from "@/components/brand/brand-logo";
+import { PublicThemeGuard } from "@/components/theme/public-theme-guard";
+import { transitionPremiumClassName } from "@/lib/constants/ui";
+import { cn } from "@/lib/utils";
 
 export default function AuthLayout({
   children,
@@ -7,15 +11,19 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center px-4 py-12">
+    <div className="ff-app-gradient flex min-h-dvh flex-col items-center justify-start overflow-y-auto px-5 pb-[max(3.5rem,env(safe-area-inset-bottom))] pt-[max(3.5rem,env(safe-area-inset-top))] sm:justify-center sm:px-6 sm:py-16">
+      <PublicThemeGuard />
       <Link
         href="/"
-        className="mb-8 flex items-center gap-2 text-lg font-semibold"
+        className={cn(
+          "mb-12 flex flex-col items-center sm:mb-14",
+          transitionPremiumClassName,
+          "hover:opacity-90",
+        )}
       >
-        <Zap className="size-5 text-primary" aria-hidden />
-        FactureFlash
+        <BrandLogo variant="black" size="xl" priority />
       </Link>
-      <div className="w-full max-w-sm">{children}</div>
+      <div className="w-full max-w-[26rem]">{children}</div>
     </div>
   );
 }

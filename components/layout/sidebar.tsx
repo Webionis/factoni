@@ -2,27 +2,65 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, LayoutDashboard, Settings, Users, Zap } from "lucide-react";
+import {
+  ClipboardList,
+  CreditCard,
+  Download,
+  FileText,
+  LayoutDashboard,
+  Settings,
+  Users,
+  Wallet,
+} from "lucide-react";
 
+import { BrandLogo } from "@/components/brand/brand-logo";
+import { SignOutButton } from "@/components/auth/sign-out-button";
+import { UnreadNotificationBadge } from "@/components/layout/unread-notification-badge";
+import { useUnreadNotifications } from "@/components/notifications/unread-notifications-provider";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { sidebarWidthClassName } from "@/lib/constants/layout";
+import {
+  sidebarNavItemActiveClassName,
+  sidebarNavItemClassName,
+} from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
+  { href: "/quotes", label: "Devis", icon: ClipboardList },
   { href: "/invoices", label: "Factures", icon: FileText },
   { href: "/clients", label: "Clients", icon: Users },
   { href: "/settings/company", label: "Mon entreprise", icon: Settings },
+  { href: "/settings/payments", label: "Paiements", icon: Wallet },
+  { href: "/settings/billing", label: "Abonnement", icon: CreditCard },
+  { href: "/settings/exports", label: "Exports", icon: Download },
 ] as const;
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { unreadCount } = useUnreadNotifications();
 
   return (
-    <aside className="hidden w-64 shrink-0 border-r bg-sidebar md:flex md:flex-col">
-      <div className="flex h-14 items-center gap-2 border-b px-4">
-        <Zap className="size-5 text-primary" aria-hidden />
-        <span className="font-semibold">FactureFlash</span>
+    <aside
+      className={cn(
+        "fixed top-0 left-0 z-40 hidden h-dvh flex-col border-r border-[rgba(15,23,42,0.06)] bg-[#fcfcfd] dark:border-[rgba(148,163,184,0.12)] dark:bg-[rgba(15,23,42,0.92)] md:flex",
+        sidebarWidthClassName,
+      )}
+      aria-label="Navigation principale"
+    >
+      <div className="flex h-[4.75rem] shrink-0 items-center px-5">
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center py-1 outline-none transition-opacity hover:opacity-90 focus-visible:ring-4 focus-visible:ring-[#2563eb]/20"
+        >
+          <BrandLogo variant="auto" size="md" />
+        </Link>
       </div>
-      <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="Navigation">
+
+      <nav
+        className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-3 py-2"
+        aria-label="Navigation"
+      >
         {navItems.map(({ href, label, icon: Icon }) => {
           const active =
             pathname === href || pathname.startsWith(`${href}/`);
@@ -31,18 +69,27 @@ export function Sidebar() {
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
-                active
-                  ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/60",
+                sidebarNavItemClassName,
+                "w-full justify-between",
+                active && sidebarNavItemActiveClassName,
               )}
             >
-              <Icon className="size-4 shrink-0" aria-hidden />
-              {label}
+              <span className="flex min-w-0 items-center gap-3">
+                <Icon className="size-[1.125rem] shrink-0" aria-hidden />
+                <span className="truncate">{label}</span>
+              </span>
+              {href === "/dashboard" ? (
+                <UnreadNotificationBadge count={unreadCount} />
+              ) : null}
             </Link>
           );
         })}
       </nav>
+
+      <div className="shrink-0 space-y-2 border-t border-[rgba(15,23,42,0.06)] p-3 dark:border-[rgba(148,163,184,0.12)]">
+        <ThemeToggle />
+        <SignOutButton />
+      </div>
     </aside>
   );
 }

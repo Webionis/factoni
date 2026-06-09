@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "regions": ["cdg1"],
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "crons": [
+    {
+      "path": "/api/cron/invoice-reminders",
+      "schedule": "0 9 * * *"
+    }
+  ]
+}
