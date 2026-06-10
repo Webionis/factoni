@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 export default function DashboardLoading() {
   return (
     <div className={cn("min-w-0 w-full pb-8", dashboardSectionStackClassName)}>
-      <div className="-mx-4 space-y-3 rounded-none bg-[#f0f5ff]/60 px-4 py-5 md:mx-0 md:bg-transparent md:p-0">
+      <div className="-mx-4 space-y-3 rounded-none bg-[#f0f5ff]/60 px-4 py-5 dark:bg-[rgba(30,41,59,0.4)] md:mx-0 md:bg-transparent md:p-0">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-4 w-56" />
         <div className="flex gap-2">

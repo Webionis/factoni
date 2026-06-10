@@ -35,7 +35,11 @@ export function DashboardHero({
   return (
     <header className={dashboardHeroMobileClassName}>
       <div
-        className="pointer-events-none absolute -right-8 -top-10 size-32 rounded-full bg-[rgba(37,99,235,0.08)] blur-2xl md:hidden"
+        className="pointer-events-none absolute -right-8 -top-10 size-32 rounded-full bg-[rgba(37,99,235,0.08)] blur-2xl dark:bg-[rgba(59,130,246,0.14)] md:hidden"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -left-6 bottom-0 size-24 rounded-full bg-[rgba(37,99,235,0.05)] blur-2xl dark:bg-[rgba(59,130,246,0.08)] md:hidden"
         aria-hidden
       />
 

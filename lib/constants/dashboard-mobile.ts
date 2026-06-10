@@ -5,7 +5,11 @@ export const dashboardHeroMobileClassName = cn(
   "relative -mx-4 overflow-hidden rounded-none px-4 py-5",
   "bg-gradient-to-br from-[#eff6ff] via-[#f8fafc] to-[#f1f5f9]",
   "ring-1 ring-inset ring-[rgba(37,99,235,0.06)]",
-  "md:mx-0 md:rounded-none md:bg-transparent md:p-0 md:ring-0",
+  "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6)]",
+  "dark:bg-gradient-to-br dark:from-[rgba(30,41,59,0.88)] dark:via-[#0f172a] dark:to-[#111827]",
+  "dark:ring-[rgba(148,163,184,0.1)]",
+  "dark:shadow-[inset_0_1px_0_0_rgba(148,163,184,0.08)]",
+  "md:mx-0 md:rounded-none md:bg-transparent md:p-0 md:ring-0 md:shadow-none",
 );
 
 /** Pill date / indicateur hero. */
@@ -13,7 +17,8 @@ export const dashboardHeroPillClassName = cn(
   "inline-flex shrink-0 items-center rounded-full border border-[rgba(37,99,235,0.12)]",
   "bg-white/80 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-[#2563eb]",
   "shadow-[0_1px_2px_rgba(15,23,42,0.04)] backdrop-blur-sm",
-  "dark:border-[rgba(96,165,250,0.2)] dark:bg-[rgba(30,41,59,0.6)] dark:text-[#93c5fd]",
+  "dark:border-[rgba(96,165,250,0.22)] dark:bg-[rgba(30,41,59,0.75)] dark:text-[#93c5fd]",
+  "dark:shadow-[0_1px_3px_rgba(0,0,0,0.25)]",
 );
 
 /** Chip indicateur positif sous le hero. */
@@ -27,7 +32,7 @@ export const dashboardHeroInsightClassName = cn(
 export const dashboardHeroInsightPositiveClassName = cn(
   dashboardHeroInsightClassName,
   "border-[rgba(16,185,129,0.18)] bg-[rgba(16,185,129,0.06)] text-[#047857]",
-  "dark:border-[rgba(52,211,153,0.2)] dark:bg-[rgba(16,185,129,0.1)] dark:text-emerald-400",
+  "dark:border-[rgba(52,211,153,0.28)] dark:bg-[rgba(16,185,129,0.14)] dark:text-emerald-300",
 );
 
 /** KPI compact mobile — carte blanche premium. */
