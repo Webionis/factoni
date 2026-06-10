@@ -37,25 +37,27 @@ export function DashboardQuoteStats({ stats }: DashboardQuoteStatsProps) {
           Voir tout
         </Link>
       </div>
-      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-2 md:gap-4 xl:grid-cols-4">
         {items.map(({ label, value }, index) => (
           <article
             key={label}
             className={cn(
               surfaceCardStatClassName,
               fadeInUpClassName,
-              "min-w-0 overflow-hidden p-5 sm:p-6",
+              "min-w-0 overflow-hidden p-3 md:p-6",
             )}
             style={{ animationDelay: `${index * 50}ms` }}
           >
-            <div className="flex size-9 items-center justify-center rounded-lg bg-[rgba(37,99,235,0.08)] text-[#2563eb] dark:bg-blue-500/15 dark:text-[#60a5fa]">
-              <ClipboardList className="size-4" strokeWidth={2} aria-hidden />
+            <div className="flex items-center justify-between gap-2 md:block">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-[rgba(37,99,235,0.08)] text-[#2563eb] dark:bg-blue-500/15 dark:text-[#60a5fa] md:mb-0 md:size-9">
+                <ClipboardList className="size-3.5 md:size-4" strokeWidth={2} aria-hidden />
+              </div>
+              <p className="text-lg font-semibold tabular-nums tracking-tight md:mt-0 md:text-xl">
+                {value}
+              </p>
             </div>
-            <p className="mt-4 text-xs font-medium text-[#64748b] dark:text-[#94a3b8]">
+            <p className="mt-1 text-[10px] font-medium uppercase tracking-wide text-[#94a3b8] md:mt-4 md:text-xs md:normal-case md:tracking-normal md:text-[#64748b]">
               {label}
-            </p>
-            <p className="mt-1 text-xl font-semibold tabular-nums tracking-tight">
-              {value}
             </p>
           </article>
         ))}

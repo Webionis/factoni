@@ -32,7 +32,7 @@ export function MobileQuickFab() {
       href={href}
       className={cn(
         buttonVariants(),
-        "fixed right-4 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-40 flex size-14 touch-manipulation items-center justify-center rounded-2xl shadow-lg shadow-primary/35 transition-transform duration-150 active:scale-95 md:hidden",
+        "fixed right-4 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-40 flex size-14 touch-manipulation items-center justify-center rounded-2xl shadow-lg shadow-primary/35 transition-transform duration-150 active:scale-95 md:hidden",
       )}
       aria-label={label}
     >

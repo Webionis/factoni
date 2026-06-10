@@ -54,7 +54,7 @@ export function DashboardNotifications({
   }, []);
 
   return (
-    <section className="space-y-3" aria-labelledby="notifications-heading">
+    <section className="space-y-3.5 md:space-y-3" aria-labelledby="notifications-heading">
       <div className="flex flex-wrap items-center gap-2">
         <h2 id="notifications-heading" className={sectionHeadingClassName}>
           Activité récente
@@ -89,7 +89,7 @@ export function DashboardNotifications({
           <ul
             className={cn(
               surfaceCardClassName,
-              "divide-y divide-border/50 overflow-hidden",
+              "divide-y divide-[rgba(15,23,42,0.06)] overflow-hidden dark:divide-[rgba(148,163,184,0.1)]",
             )}
           >
             {visibleNotifications.map((notification, index) => (

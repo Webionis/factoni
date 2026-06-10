@@ -12,9 +12,12 @@ import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { OnboardingChecklist } from "@/components/dashboard/onboarding-checklist";
 import { getCompanyForUser, isOnboardingCompleted } from "@/lib/auth/profile";
+import { buildHeroInsights, getGreetingName } from "@/lib/dashboard/hero-insights";
 import { buildOnboardingSteps } from "@/lib/dashboard/onboarding-steps";
+import { dashboardSectionStackClassName } from "@/lib/constants/dashboard-mobile";
 import { getDashboardData } from "@/lib/data/dashboard";
 import { createClient } from "@/lib/supabase/server";
+import { cn } from "@/lib/utils";
 
 export const metadata = pageMetadata("dashboard");
 
@@ -44,19 +47,32 @@ export default async function DashboardPage() {
     user.email?.split("@")[0] ||
     "Mon entreprise";
 
+  const reference = new Date();
   const monthLabel = new Intl.DateTimeFormat("fr-FR", {
     month: "long",
     year: "numeric",
-  }).format(new Date());
+  })
+    .format(reference)
+    .replace(/^\w/, (c) => c.toUpperCase());
+
+  const heroInsights = buildHeroInsights({
+    stats: data.stats,
+    revenueChart: data.revenueChart,
+    notifications: data.notifications,
+    reference,
+  });
 
   return (
-    <div className="min-w-0 space-y-12 pb-8">
-      <div className="space-y-3">
-        <DashboardHero title={dashboardTitle} />
-        <p className="text-xs font-medium text-[#64748b] dark:text-[#94a3b8]">
-          {monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)}
-        </p>
-      </div>
+    <div className={cn("min-w-0 pb-8", dashboardSectionStackClassName)}>
+      <DashboardHero
+        title={dashboardTitle}
+        greetingName={getGreetingName({
+          tradeName: company?.trade_name,
+          email: user.email,
+        })}
+        monthLabel={monthLabel}
+        insights={heroInsights}
+      />
 
       <OnboardingChecklist steps={onboardingSteps} />
 

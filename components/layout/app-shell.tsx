@@ -31,7 +31,7 @@ export function AppShell({
 
   return (
     <UnreadNotificationsProvider initialCount={unreadNotificationCount}>
-      <div className="flex min-h-dvh overflow-x-hidden bg-[#fcfcfd] dark:bg-transparent md:h-dvh md:min-h-0">
+      <div className="flex min-h-dvh overflow-x-hidden bg-[#f1f5f9] dark:bg-transparent md:h-dvh md:min-h-0 md:bg-[#fcfcfd]">
         <Sidebar />
 
         <div className={cn(appContentAreaClassName, "min-h-dvh")}>
@@ -47,20 +47,11 @@ export function AppShell({
 
           <main
             className={cn(
-              "relative z-0 min-w-0 w-full flex-1 px-4 py-4 sm:py-6 md:min-h-0 md:overflow-y-auto md:px-8 md:py-10 lg:px-10",
+              "relative z-0 min-w-0 w-full flex-1 px-4 py-3 sm:py-6 md:min-h-0 md:overflow-y-auto md:px-8 md:py-10 lg:px-10",
               mobileMainPaddingBottomClassName,
             )}
-            data-mobile-main="mounted"
           >
             <div className={cn(appContentInnerClassName, contentMaxWidth)}>
-              {process.env.NODE_ENV === "development" ? (
-                <p
-                  className="mb-2 font-mono text-[10px] text-amber-600 md:hidden"
-                  data-mobile-debug="content-mounted"
-                >
-                  content mounted
-                </p>
-              ) : null}
               {children}
             </div>
           </main>

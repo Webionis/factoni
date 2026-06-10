@@ -179,6 +179,17 @@
     background: #f8fafc;
   }
 
+  @media (max-width: 767px) {
+    .ff-app-surface {
+      background: linear-gradient(
+        180deg,
+        #eef4ff 0%,
+        #f4f7fb 18%,
+        #f1f5f9 100%
+      );
+    }
+  }
+
   .dark .ff-app-surface,
   .dark .ff-app-gradient {
     background:

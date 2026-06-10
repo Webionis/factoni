@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 
 export type KpiValueType = "money" | "count";
 
-/** Typographie fluide selon la largeur de la card (@container), pas la longueur du texte. */
 export function getKpiValueClassName({
   type,
 }: {
@@ -15,9 +14,10 @@ export function getKpiValueClassName({
   type: KpiValueType;
 }): string {
   return cn(
-    "mt-1.5 min-w-0 max-w-full font-semibold tabular-nums tracking-tight whitespace-nowrap leading-none text-foreground",
-    type === "money" && "text-[length:clamp(0.875rem,8.5cqw,2rem)]",
-    type === "count" && "text-[length:clamp(1.125rem,10.5cqw,2rem)]",
+    "min-w-0 max-w-full font-semibold tabular-nums tracking-tight whitespace-nowrap leading-none text-[#0f172a] dark:text-[#f8fafc]",
+    "text-lg sm:text-xl",
+    "md:mt-1.5 md:text-[length:clamp(1.125rem,10.5cqw,2rem)]",
+    type === "money" && "md:text-[length:clamp(0.875rem,8.5cqw,2rem)]",
   );
 }
 
@@ -32,7 +32,8 @@ const STAT_ITEMS = [
   },
   {
     key: "monthRevenueTtc" as const,
-    label: "CA TTC ce mois",
+    label: "CA TTC",
+    shortLabel: "CA TTC",
     icon: PiggyBank,
     iconBg: "bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400",
     valueType: "money" as const,
@@ -62,37 +63,45 @@ interface DashboardStatGridProps {
 
 export function DashboardStatGrid({ stats }: DashboardStatGridProps) {
   return (
-    <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+    <div className="grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-2 md:gap-4 xl:grid-cols-4">
       {STAT_ITEMS.map(({ key, label, icon: Icon, iconBg, valueType, format }, index) => {
         const display = format(stats[key]);
+        const mobileLabel = key === "monthRevenueTtc" ? "CA TTC" : label;
+
         return (
           <article
             key={key}
             className={cn(
               surfaceCardStatClassName,
               fadeInUpClassName,
-              "@container/kpi min-w-0 overflow-hidden p-5 sm:p-6 xl:p-7",
+              "@container/kpi min-w-0 overflow-hidden p-3",
+              "shadow-[0_1px_2px_rgba(15,23,42,0.04),0_4px_12px_rgba(15,23,42,0.03)]",
+              "md:p-6 md:shadow-none xl:p-7",
             )}
             style={{ animationDelay: `${index * 60}ms` }}
           >
-            <div
-              className={cn(
-                "flex size-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset ring-black/[0.04] dark:ring-white/[0.06]",
-                iconBg,
-              )}
-            >
-              <Icon className="size-[1.125rem]" strokeWidth={2} aria-hidden />
+            <div className="flex items-start justify-between gap-2 md:block">
+              <div
+                className={cn(
+                  "flex size-8 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ring-black/[0.04] dark:ring-white/[0.06]",
+                  "md:mb-0 md:size-10 md:rounded-xl",
+                  iconBg,
+                )}
+              >
+                <Icon className="size-4 md:size-[1.125rem]" strokeWidth={2} aria-hidden />
+              </div>
+              <p
+                className={getKpiValueClassName({
+                  value: display,
+                  type: valueType,
+                })}
+              >
+                {display}
+              </p>
             </div>
-            <p className="mt-5 text-xs font-medium text-[#64748b] dark:text-[#94a3b8]">
-              {label}
-            </p>
-            <p
-              className={getKpiValueClassName({
-                value: display,
-                type: valueType,
-              })}
-            >
-              {display}
+            <p className="mt-1.5 text-[10px] font-medium uppercase tracking-wide text-[#94a3b8] dark:text-[#64748b] md:mt-5 md:text-xs md:normal-case md:tracking-normal">
+              <span className="md:hidden">{mobileLabel}</span>
+              <span className="hidden md:inline">{label}</span>
             </p>
           </article>
         );

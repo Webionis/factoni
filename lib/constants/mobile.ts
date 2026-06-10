@@ -9,7 +9,7 @@ export const touchTargetClassName =
 
 /** Padding bas du contenu principal (bottom nav + FAB). */
 export const mobileMainPaddingBottomClassName =
-  "pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-10";
+  "pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-10";
 
 /** Position sticky des barres d'action formulaire au-dessus de la bottom nav. */
 export const mobileStickyFooterClassName = cn(

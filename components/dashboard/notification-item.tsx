@@ -7,6 +7,7 @@ import { Bell, CircleDollarSign, FileCheck } from "lucide-react";
 import { useUnreadNotifications } from "@/components/notifications/unread-notifications-provider";
 import { markNotificationAsReadAction } from "@/lib/actions/notifications";
 import { formatRelativeTimeFr } from "@/lib/date/relative";
+import { dashboardActivityNewBadgeClassName } from "@/lib/constants/dashboard-mobile";
 import {
   fadeInUpClassName,
   interactiveRowClassName,
@@ -97,7 +98,7 @@ export function NotificationItem({
         onClick={handleOpen}
         disabled={isPending}
         className={cn(
-          "group flex w-full items-start gap-3 px-5 py-4 text-left sm:items-center sm:px-6",
+          "group flex w-full items-start gap-3 px-4 py-3.5 text-left sm:items-center sm:px-6 sm:py-4",
           interactiveRowClassName,
           transitionPremiumClassName,
         )}
@@ -134,9 +135,7 @@ export function NotificationItem({
               {notification.title}
             </p>
             {notification.isUnread ? (
-              <span className="inline-flex shrink-0 items-center rounded-full bg-[rgba(37,99,235,0.1)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#2563eb] dark:bg-[rgba(59,130,246,0.18)] dark:text-[#93c5fd]">
-                Nouveau
-              </span>
+              <span className={dashboardActivityNewBadgeClassName}>Nouveau</span>
             ) : null}
           </div>
           <p className="text-sm leading-relaxed text-[#64748b] dark:text-[#94a3b8]">

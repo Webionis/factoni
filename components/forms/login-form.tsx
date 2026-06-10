@@ -34,15 +34,6 @@ const AUTH_ERRORS: Record<string, string> = {
   session_expired: "Votre session a expiré. Reconnectez-vous.",
 };
 
-function devLog(message: string, detail?: unknown) {
-  if (process.env.NODE_ENV !== "development") return;
-  if (detail !== undefined) {
-    console.log(message, detail);
-  } else {
-    console.log(message);
-  }
-}
-
 function readLoginValues(form: HTMLFormElement) {
   const email = (
     form.elements.namedItem("email") as HTMLInputElement | null
@@ -69,7 +60,6 @@ export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function submitLogin(email: string, password: string) {
-    devLog("[auth.login] start", { email });
     setIsSubmitting(true);
     setServerError(null);
     setFieldErrors({});
@@ -82,7 +72,6 @@ export function LoginForm() {
       });
 
       if (error) {
-        devLog("[auth.login] error", error.message);
         setServerError(
           error.message.includes("Invalid login")
             ? AUTH_ERRORS.invalid_credentials
@@ -91,7 +80,6 @@ export function LoginForm() {
         return;
       }
 
-      devLog("[auth.login] success");
       router.refresh();
       router.push(redirectTo);
 
@@ -102,7 +90,6 @@ export function LoginForm() {
         }
       }, 400);
     } catch (error) {
-      devLog("[auth.login] error", error);
       setServerError(
         error instanceof Error
           ? error.message
@@ -115,7 +102,6 @@ export function LoginForm() {
 
   async function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    devLog("[auth.login] submit");
 
     const form = event.currentTarget;
     const values = readLoginValues(form);
@@ -132,7 +118,6 @@ export function LoginForm() {
           issues.password?.[0] ??
           "Vérifiez votre email et votre mot de passe.",
       );
-      devLog("[auth.login] validation error", parsed.error.flatten());
       return;
     }
 
