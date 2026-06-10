@@ -132,7 +132,7 @@ export function InvoiceExportSection() {
             expert-comptable.
           </p>
         </div>
-        <span className={betaBadgeClassName}>Offert pendant la bêta</span>
+        <span className={betaBadgeClassName}>Inclus — offre de lancement</span>
       </div>
 
       <FeaturePlanHint feature="accountingExport" variant="beta-offered" className="mt-3" />

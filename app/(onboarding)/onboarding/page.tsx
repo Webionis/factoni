@@ -39,7 +39,7 @@ export default async function OnboardingPage() {
           Votre entreprise
         </h1>
         <p className="mt-2 text-sm font-medium text-[#64748b]">
-          Accès gratuit pendant la bêta.
+          Offre de lancement — accès anticipé.
         </p>
         <p className="mt-2 text-[15px] leading-relaxed text-[#64748b]">
           Ces informations apparaîtront sur vos factures. Vous pourrez les

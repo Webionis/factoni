@@ -1,74 +1,74 @@
 import type { SubscriptionPlan } from "@/lib/billing/types";
 
+/** Wording public — offre de lancement (plan interne DB : `beta`). */
+export const LAUNCH_OFFER = {
+  name: "Offre de lancement",
+  earlyAccess: "Accès anticipé",
+  foundersPro: "Plan Pro offert aux membres fondateurs",
+  foundersProFootnote:
+    "Le plan Pro est offert pendant la phase de lancement aux premiers professionnels utilisant Factoni.",
+  noCardRequired: "Aucune carte bancaire requise pendant l'offre de lancement.",
+  signupHint: "Plan Pro offert aux membres fondateurs — accès anticipé.",
+} as const;
+
 export interface PlanMarketingInfo {
   id: SubscriptionPlan;
   name: string;
+  badge: string;
   tagline: string;
   description: string;
   priceLabel: string;
   priceSuffix?: string;
   highlighted?: boolean;
   ctaLabel: string;
+  ctaFootnote?: string;
   features: string[];
 }
 
-/** Offres affichées sur la landing (futur — pas de paiement) */
+/** Offres affichées sur la landing */
 export const PUBLIC_PRICING_PLANS: PlanMarketingInfo[] = [
-  {
-    id: "free",
-    name: "Gratuit",
-    tagline: "Pour démarrer simplement",
-    description:
-      "L'essentiel pour tester Factoni avec un volume modeste de factures et clients.",
-    priceLabel: "0 €",
-    priceSuffix: "/ mois",
-    ctaLabel: "Bientôt disponible",
-    features: [
-      "Jusqu'à 10 factures",
-      "Jusqu'à 5 clients",
-      "PDF avec mention Factoni",
-      "Fonctionnalités essentielles",
-    ],
-  },
   {
     id: "starter",
     name: "Starter",
-    tagline: "Offre professionnelle principale",
+    badge: "Le plus populaire",
+    tagline: "Pour facturer au quotidien",
     description:
-      "Pour les indépendants qui facturent régulièrement et veulent une image pro.",
-    priceLabel: "—",
-    priceSuffix: "prix annoncé avant lancement",
+      "L'essentiel pour les indépendants qui veulent des factures pro, sans friction.",
+    priceLabel: "19 €",
+    priceSuffix: "/ mois",
     highlighted: true,
-    ctaLabel: "Bientôt disponible",
+    ctaLabel: "Commencer gratuitement",
     features: [
       "Factures & clients illimités",
-      "Logo personnalisé",
+      "PDF pro avec votre logo",
+      "Numérotation légale automatique",
+      "Exports comptables CSV",
       "Sans branding Factoni",
-      "Exports comptables",
-      "Analytics simples",
     ],
   },
   {
     id: "pro",
     name: "Pro",
-    tagline: "Automatisation & gestion avancée",
+    badge: "Professionnels",
+    tagline: "Automatisation & suivi avancé",
     description:
-      "Pour une activité plus structurée : relances, suivi avancé et automatisations.",
-    priceLabel: "—",
-    priceSuffix: "prix annoncé avant lancement",
-    ctaLabel: "Bientôt disponible",
+      "Relances, analytics et automatisations pour structurer votre activité.",
+    priceLabel: "39 €",
+    priceSuffix: "/ mois",
+    ctaLabel: "Accès fondateurs",
+    ctaFootnote: LAUNCH_OFFER.foundersProFootnote,
     features: [
       "Tout Starter inclus",
       "Relances automatiques",
       "Suivi & analytics avancés",
-      "Automatisations",
-      "Fonctionnalités premium à venir",
+      "Portail client premium",
+      "Automatisations métier",
     ],
   },
 ];
 
 export const PLAN_DISPLAY_NAMES: Record<SubscriptionPlan, string> = {
-  beta: "Bêta gratuite",
+  beta: LAUNCH_OFFER.name,
   free: "Gratuit",
   starter: "Starter",
   pro: "Pro",
@@ -76,40 +76,24 @@ export const PLAN_DISPLAY_NAMES: Record<SubscriptionPlan, string> = {
 
 /** Config cartes — page app /settings/billing */
 export interface BillingPlanCardConfig {
-  id: Exclude<SubscriptionPlan, "beta">;
+  id: Exclude<SubscriptionPlan, "beta" | "free">;
   tierBadge: string;
   name: string;
   description: string;
   features: string[];
-  footerNote?: string;
+  price: string;
   ctaLabel: string;
+  ctaFootnote?: string;
   highlighted?: boolean;
-  recommended?: boolean;
-  futurePrice?: string;
   disabled: boolean;
 }
 
 export const BILLING_PAGE_PLANS: BillingPlanCardConfig[] = [
   {
-    id: "free",
-    tierBadge: "Essentiel",
-    name: "Gratuit",
-    description: "Pour démarrer simplement.",
-    features: [
-      "Factures limitées",
-      "Clients limités",
-      "PDF standard",
-      "Fonctionnalités essentielles",
-    ],
-    footerNote: "Disponible après la bêta",
-    ctaLabel: "Offre future",
-    disabled: true,
-  },
-  {
     id: "starter",
-    tierBadge: "Professionnel",
+    tierBadge: "Le plus populaire",
     name: "Starter",
-    description: "Pour les indépendants réguliers.",
+    description: "Pour les indépendants qui facturent régulièrement.",
     features: [
       "Factures illimitées",
       "Clients illimités",
@@ -117,24 +101,26 @@ export const BILLING_PAGE_PLANS: BillingPlanCardConfig[] = [
       "Exports comptables",
       "Branding supprimé",
     ],
+    price: "19 € / mois",
     highlighted: true,
-    recommended: true,
-    ctaLabel: "Disponible bientôt",
+    ctaLabel: "Commencer gratuitement",
     disabled: true,
   },
   {
     id: "pro",
-    tierBadge: "Automatisation",
+    tierBadge: "Professionnels",
     name: "Pro",
-    description: "Pour automatiser et gagner du temps.",
+    description: "Pour automatiser relances et suivi avancé.",
     features: [
       "Tout Starter inclus",
       "Relances automatiques",
       "Analytics avancées",
+      "Portail client",
       "Automatisations",
-      "Suivi avancé",
     ],
-    ctaLabel: "Disponible bientôt",
+    price: "39 € / mois",
+    ctaLabel: "Accès fondateurs",
+    ctaFootnote: LAUNCH_OFFER.foundersProFootnote,
     disabled: true,
   },
 ];

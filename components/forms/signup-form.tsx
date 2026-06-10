@@ -84,7 +84,9 @@ export function SignupForm() {
     <Card className={authCardClassName}>
       <CardHeader className={authCardHeaderClassName}>
         <CardTitle className={authCardTitleClassName}>Créer un compte</CardTitle>
-        <p className={betaBadgeHintClassName}>Accès gratuit pendant la bêta.</p>
+        <p className={betaBadgeHintClassName}>
+          Offre de lancement — Plan Pro offert aux membres fondateurs.
+        </p>
         <CardDescription className={authCardDescriptionClassName}>
           Commencez à facturer en quelques minutes.
         </CardDescription>

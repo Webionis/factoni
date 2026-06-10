@@ -17,14 +17,14 @@ import { marketingEyebrowClassName, marketingTrustPillClassName } from "@/lib/co
 import { cn } from "@/lib/utils";
 
 const TRUST_POINTS_MOBILE = [
-  "Bêta gratuite — sans carte",
+  "Offre de lancement — sans carte",
   "Mentions légales conformes",
   "Export comptable CSV",
 ] as const;
 
 const TRUST_POINTS_DESKTOP = [
   "Configuration en moins d'une minute",
-  "Bêta gratuite — sans carte bancaire",
+  "Offre de lancement — sans carte bancaire",
   "Numérotation légale automatique à l'envoi",
   "Hébergement Europe · sauvegardes automatiques",
 ] as const;
@@ -96,7 +96,7 @@ export function LandingFinalCta() {
                     landingMotionClassName,
                   )}
                 >
-                  Créer mon compte gratuitement
+                  Créer mon compte
                 </Link>
                 <Link
                   href="/login"
@@ -119,7 +119,7 @@ export function LandingFinalCta() {
                 ))}
               </div>
               <p className="mt-4 text-[12px] font-medium text-[#94a3b8] md:text-sm">
-                Déjà utilisé par des artisans, consultants et TPE en bêta
+                Déjà utilisé par des artisans, consultants et TPE en accès anticipé
               </p>
             </div>
           </div>

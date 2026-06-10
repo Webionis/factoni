@@ -1,8 +1,6 @@
+import { LAUNCH_OFFER } from "@/lib/billing/plans";
 import { betaBadgeClassName } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
-
-const BETA_TOOLTIP =
-  "Vous utilisez actuellement la version bêta gratuite.";
 
 interface BetaBadgeProps {
   className?: string;
@@ -14,9 +12,9 @@ export function BetaBadge({ className, showHint = true }: BetaBadgeProps) {
   return (
     <span
       className={cn(betaBadgeClassName, className)}
-      title={showHint ? BETA_TOOLTIP : undefined}
+      title={showHint ? LAUNCH_OFFER.signupHint : undefined}
     >
-      Bêta
+      {LAUNCH_OFFER.earlyAccess}
     </span>
   );
 }

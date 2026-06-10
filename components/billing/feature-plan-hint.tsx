@@ -1,5 +1,5 @@
 import { FEATURE_MIN_PLAN } from "@/lib/billing/features";
-import { PLAN_DISPLAY_NAMES } from "@/lib/billing/plans";
+import { LAUNCH_OFFER, PLAN_DISPLAY_NAMES } from "@/lib/billing/plans";
 import type { FeatureKey } from "@/lib/billing/types";
 import { cn } from "@/lib/utils";
 
@@ -7,7 +7,7 @@ type FeaturePlanHintVariant = "beta-offered" | "future-plan";
 
 interface FeaturePlanHintProps {
   feature: FeatureKey;
-  /** Pendant la bêta : message généreux. Après : plan cible. */
+  /** Offre de lancement : message généreux. Après : plan cible. */
   variant?: FeaturePlanHintVariant;
   className?: string;
 }
@@ -22,7 +22,7 @@ export function FeaturePlanHint({
 
   const message =
     variant === "beta-offered"
-      ? "Fonctionnalité offerte pendant la bêta"
+      ? `Inclus dans l'${LAUNCH_OFFER.name.toLowerCase()}`
       : `Disponible dans ${planName}`;
 
   return (

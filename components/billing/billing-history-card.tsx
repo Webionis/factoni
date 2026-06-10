@@ -28,7 +28,7 @@ export function BillingHistoryCard({ className }: BillingHistoryCardProps) {
           Aucun paiement pour le moment
         </p>
         <p className="mt-1.5 max-w-sm text-[13px] leading-relaxed text-[#64748b] dark:text-[#94a3b8]">
-          Factoni est actuellement gratuit pendant la phase bêta. Vos futures
+          Aucun prélèvement pendant l&apos;offre de lancement. Vos futures
           factures d&apos;abonnement apparaîtront ici.
         </p>
       </div>

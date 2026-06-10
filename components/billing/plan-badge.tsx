@@ -1,4 +1,4 @@
-import { PLAN_DISPLAY_NAMES } from "@/lib/billing/plans";
+import { LAUNCH_OFFER, PLAN_DISPLAY_NAMES } from "@/lib/billing/plans";
 import type { SubscriptionPlan } from "@/lib/billing/types";
 import { betaBadgeClassName } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,7 @@ export function PlanBadge({ plan, className }: PlanBadgeProps) {
       )}
       title={
         isBeta
-          ? "Accès complet gratuit pendant la bêta — aucune limite active."
+          ? `${LAUNCH_OFFER.foundersPro} — ${LAUNCH_OFFER.earlyAccess.toLowerCase()}.`
           : undefined
       }
     >

@@ -47,8 +47,8 @@ const TESTIMONIALS = [
 
 const FAQ = [
   {
-    q: "Factoni est-il gratuit ?",
-    a: "Oui, pendant la bêta gratuite. Les premiers professionnels bénéficient d'un accès sans frais. Les offres payantes seront annoncées avant toute ouverture publique.",
+    q: "Quels sont les tarifs ?",
+    a: "Starter à 19 €/mois et Pro à 39 €/mois. Pendant l'offre de lancement, le plan Pro est offert aux membres fondateurs — accès anticipé, sans carte bancaire.",
   },
   {
     q: "Factoni est-il prêt pour la facturation électronique 2026 ?",
@@ -101,7 +101,7 @@ export function LandingTestimonials() {
             Ils facturent déjà avec Factoni
           </h2>
           <p className={cn(marketingSectionLeadClassName, "text-[15px] md:text-base")}>
-            Artisans et indépendants en bêta — noms modifiés.
+            Artisans et indépendants en accès anticipé — noms modifiés.
           </p>
         </LandingScrollReveal>
         <ul className="mt-7 flex w-full flex-col gap-3.5 md:mt-12 md:grid md:grid-cols-3 md:gap-4">

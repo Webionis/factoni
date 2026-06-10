@@ -30,7 +30,7 @@ export default async function BillingSettingsPage() {
     <div className="w-full space-y-10 pb-4">
       <PageHeader
         title="Abonnement & offres"
-        description="Gérez votre offre actuelle et découvrez les futures fonctionnalités premium."
+        description="Gérez votre offre actuelle et consultez les tarifs Starter et Pro."
       />
 
       <CurrentPlanCard access={access} className="relative" />
@@ -38,15 +38,15 @@ export default async function BillingSettingsPage() {
       <section aria-labelledby="future-plans-heading" className="space-y-5">
         <div>
           <h2 id="future-plans-heading" className={sectionHeadingClassName}>
-            Offres à venir
+            Nos offres
           </h2>
           <p className={sectionSubheadingClassName}>
-            Présentation des futurs plans — aucun changement ni paiement pendant la
-            bêta.
+            Starter 19 €/mois · Pro 39 €/mois — plan Pro offert aux membres
+            fondateurs pendant l&apos;offre de lancement.
           </p>
         </div>
 
-        <ul className="grid gap-5 lg:grid-cols-3">
+        <ul className="mx-auto grid w-full min-w-0 max-w-[52rem] gap-5 sm:gap-6 md:grid-cols-2 md:gap-6 lg:gap-8">
           {BILLING_PAGE_PLANS.map((plan) => (
             <li key={plan.id} className="min-h-0">
               <PricingCard {...plan} currentPlan={access.plan} />

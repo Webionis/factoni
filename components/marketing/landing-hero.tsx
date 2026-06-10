@@ -113,7 +113,7 @@ export function LandingHero() {
                   landingMotionClassName,
                 )}
               >
-                Commencer gratuitement
+                Commencer maintenant
               </Link>
               <Link
                 href="/login"
@@ -135,7 +135,7 @@ export function LandingHero() {
               ))}
             </div>
             <p className="mt-3 text-center text-[12px] font-medium text-[#94a3b8] md:text-left md:text-xs">
-              Accès gratuit pendant la bêta
+              Offre de lancement · Accès anticipé
             </p>
           </div>
         </LandingScrollReveal>

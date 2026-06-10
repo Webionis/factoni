@@ -38,8 +38,7 @@ export function OnboardingChecklist({ steps }: OnboardingChecklistProps) {
             Premiers pas
           </h2>
           <p className="mt-1 text-xs text-[#64748b] dark:text-[#94a3b8]">
-            {doneCount} sur {steps.length} terminés — accès gratuit pendant la
-            bêta
+            {doneCount} sur {steps.length} terminés — offre de lancement
           </p>
         </div>
         <span className="shrink-0 text-xs font-semibold tabular-nums text-[#2563eb] dark:text-[#93c5fd]">

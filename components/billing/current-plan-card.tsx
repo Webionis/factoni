@@ -1,7 +1,7 @@
 import { CheckCircle2 } from "lucide-react";
 
 import { PlanBadge } from "@/components/billing/plan-badge";
-import { PLAN_DISPLAY_NAMES } from "@/lib/billing/plans";
+import { LAUNCH_OFFER, PLAN_DISPLAY_NAMES } from "@/lib/billing/plans";
 import type { SubscriptionAccess } from "@/lib/billing/types";
 import {
   formSectionDescriptionClassName,
@@ -12,10 +12,10 @@ import {
 } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
-const BETA_BENEFITS = [
+const LAUNCH_BENEFITS = [
+  LAUNCH_OFFER.foundersPro,
   "Toutes les fonctionnalités débloquées",
-  "Aucun paiement requis",
-  "Accès premium temporaire",
+  "Aucun paiement requis pendant l'offre de lancement",
 ] as const;
 
 interface CurrentPlanCardProps {
@@ -24,7 +24,7 @@ interface CurrentPlanCardProps {
 }
 
 export function CurrentPlanCard({ access, className }: CurrentPlanCardProps) {
-  const isBeta = access.isBeta;
+  const isLaunchOffer = access.isBeta;
 
   return (
     <section
@@ -48,10 +48,10 @@ export function CurrentPlanCard({ access, className }: CurrentPlanCardProps) {
           >
             Votre offre actuelle
           </h2>
-          {isBeta ? (
+          {isLaunchOffer ? (
             <p className={cn("mt-3 max-w-xl text-[15px] leading-relaxed", formSectionDescriptionClassName)}>
-              Vous profitez actuellement de toutes les fonctionnalités premium
-              pendant la phase bêta.
+              Vous profitez de l&apos;{LAUNCH_OFFER.name.toLowerCase()} avec
+              l&apos;ensemble des fonctionnalités Pro.
             </p>
           ) : (
             <p className={cn("mt-3 text-[15px]", formSectionDescriptionClassName)}>
@@ -63,18 +63,18 @@ export function CurrentPlanCard({ access, className }: CurrentPlanCardProps) {
         <PlanBadge plan={access.plan} />
       </div>
 
-      {isBeta ? (
+      {isLaunchOffer ? (
         <>
           <p className={cn("mt-5 px-4 py-3.5", surfaceInsetClassName)}>
-            Les futures offres{" "}
-            <span className={surfaceInsetEmphasisClassName}>Gratuit</span>,{" "}
-            <span className={surfaceInsetEmphasisClassName}>Starter</span> et{" "}
-            <span className={surfaceInsetEmphasisClassName}>Pro</span> seront activées
-            plus tard. Aucun paiement n&apos;est demandé actuellement.
+            {LAUNCH_OFFER.foundersPro}.{" "}
+            <span className={surfaceInsetEmphasisClassName}>Starter (19 €/mois)</span>{" "}
+            et{" "}
+            <span className={surfaceInsetEmphasisClassName}>Pro (39 €/mois)</span>{" "}
+            s&apos;appliqueront après l&apos;offre de lancement.
           </p>
 
           <ul className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-x-6">
-            {BETA_BENEFITS.map((benefit) => (
+            {LAUNCH_BENEFITS.map((benefit) => (
               <li
                 key={benefit}
                 className={cn("flex items-center gap-2 text-sm font-medium", formSectionDescriptionClassName)}

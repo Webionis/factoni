@@ -67,7 +67,7 @@ export function MarketingFooter() {
               Pensé pour artisans, indépendants et petites entreprises en France.
             </p>
             <p className="mt-4 inline-flex rounded-full border border-[rgba(37,99,235,0.12)] bg-[rgba(37,99,235,0.05)] px-3.5 py-1.5 text-[15px] font-medium text-[#2563eb]">
-              Phase bêta — accès gratuit
+              Offre de lancement · Accès anticipé
             </p>
           </div>
 

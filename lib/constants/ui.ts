@@ -147,7 +147,7 @@ export const marketingSectionMutedClassName = "bg-[#f1f5f9]/60";
 export const marketingEyebrowClassName =
   "inline-flex items-center rounded-full border border-[rgba(37,99,235,0.15)] bg-[rgba(37,99,235,0.06)] px-3.5 py-1 text-[13px] font-semibold tracking-tight text-[#2563eb]";
 
-/** Badge bêta — dashboard & surfaces produit */
+/** Badge offre de lancement — dashboard & surfaces produit */
 export const betaBadgeClassName =
   "inline-flex shrink-0 items-center rounded-full border border-[rgba(37,99,235,0.12)] bg-[rgba(37,99,235,0.06)] px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-[#2563eb] dark:border-[rgba(96,165,250,0.2)] dark:bg-[rgba(59,130,246,0.12)] dark:text-[#93c5fd]";
 

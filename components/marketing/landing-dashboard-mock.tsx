@@ -57,7 +57,7 @@ export function LandingDashboardMock({ className }: { className?: string }) {
             </p>
           </div>
           <span className="rounded-full border border-[rgba(37,99,235,0.14)] bg-[rgba(37,99,235,0.07)] px-2.5 py-0.5 text-[10px] font-semibold text-[#2563eb] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.5)]">
-            Bêta
+            Pro
           </span>
         </div>
       </div>
