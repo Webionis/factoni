@@ -11,6 +11,7 @@
     "start": "next start",
     "lint": "eslint",
     "generate:favicons": "node scripts/generate-favicons.mjs",
+    "generate:pwa": "node scripts/generate-favicons.mjs",
     "stripe:check": "node scripts/stripe-local-check.mjs",
     "stripe:diagnose": "node scripts/diagnose-stripe-connect.mjs",
     "stripe:migrate": "node scripts/apply-stripe-migrations.mjs",
