@@ -50,7 +50,7 @@ export default async function DashboardPage() {
   }).format(new Date());
 
   return (
-    <div className="space-y-12 pb-8">
+    <div className="min-w-0 space-y-12 pb-8">
       <div className="space-y-3">
         <DashboardHero title={dashboardTitle} />
         <p className="text-xs font-medium text-[#64748b] dark:text-[#94a3b8]">

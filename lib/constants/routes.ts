@@ -43,6 +43,9 @@ export function isPublicRoute(pathname: string): boolean {
   if (pathname.startsWith("/api/stripe/")) {
     return true;
   }
+  if (pathname.startsWith("/api/webhooks/")) {
+    return true;
+  }
   return false;
 }
 

@@ -30,7 +30,7 @@ export default async function InvoicesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <PageHeader
         title="Factures"
         description="Brouillons, envoyées et suivies en un coup d'œil."

@@ -14,7 +14,7 @@ export function ClientStatsCard({ clientCount }: ClientStatsCardProps) {
     <div
       className={cn(
         surfaceCardStatClassName,
-        "flex items-center justify-between gap-4 p-5 sm:p-6",
+        "flex min-w-0 items-center justify-between gap-4 p-5 sm:p-6",
       )}
     >
       <div className="flex items-center gap-4">

@@ -1,7 +1,13 @@
-/** Sidebar desktop — largeur fixe (aligner margin contenu). */
+/** Sidebar desktop — largeur fixe (flex shrink-0, pas de margin sur le contenu). */
 export const SIDEBAR_WIDTH_REM = "17rem" as const;
-export const sidebarWidthClassName = "w-[17rem]";
-export const sidebarOffsetClassName = "md:ml-[17rem]";
+export const sidebarWidthClassName = "w-[17rem] shrink-0";
+
+/** Zone contenu principale — flex-1 + min-w-0 évite l’overflow horizontal. */
+export const appContentAreaClassName =
+  "ff-app-surface flex min-h-0 min-w-0 flex-1 flex-col md:h-dvh md:min-h-0";
+
+/** Wrapper centré des pages app. */
+export const appContentInnerClassName = "mx-auto min-w-0 w-full";
 
 /** Largeur du contenu principal selon la route (desktop). */
 

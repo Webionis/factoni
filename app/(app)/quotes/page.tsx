@@ -30,7 +30,7 @@ export default async function QuotesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <PageHeader
         title="Devis"
         description="Créez, envoyez et transformez vos devis en factures."

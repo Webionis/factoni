@@ -25,7 +25,7 @@ export default async function ClientsPage() {
   const clients = await listClientsForUser(supabase, user.id);
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <PageHeader
         title="Clients"
         description="Vos clients pour facturer plus vite."

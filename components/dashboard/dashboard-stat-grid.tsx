@@ -62,7 +62,7 @@ interface DashboardStatGridProps {
 
 export function DashboardStatGrid({ stats }: DashboardStatGridProps) {
   return (
-    <div className="grid min-w-0 grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)]">
+    <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
       {STAT_ITEMS.map(({ key, label, icon: Icon, iconBg, valueType, format }, index) => {
         const display = format(stats[key]);
         return (
@@ -71,7 +71,7 @@ export function DashboardStatGrid({ stats }: DashboardStatGridProps) {
             className={cn(
               surfaceCardStatClassName,
               fadeInUpClassName,
-              "@container/kpi min-w-0 overflow-hidden p-6 sm:p-7",
+              "@container/kpi min-w-0 overflow-hidden p-5 sm:p-6 xl:p-7",
             )}
             style={{ animationDelay: `${index * 60}ms` }}
           >

@@ -25,7 +25,7 @@ export function DashboardQuoteStats({ stats }: DashboardQuoteStatsProps) {
   ];
 
   return (
-    <section className="space-y-3">
+    <section className="min-w-0 space-y-3">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-base font-semibold tracking-tight text-foreground">
           Devis
@@ -37,14 +37,14 @@ export function DashboardQuoteStats({ stats }: DashboardQuoteStatsProps) {
           Voir tout
         </Link>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {items.map(({ label, value }, index) => (
           <article
             key={label}
             className={cn(
               surfaceCardStatClassName,
               fadeInUpClassName,
-              "p-5 sm:p-6",
+              "min-w-0 overflow-hidden p-5 sm:p-6",
             )}
             style={{ animationDelay: `${index * 50}ms` }}
           >

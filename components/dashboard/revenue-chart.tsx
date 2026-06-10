@@ -33,7 +33,7 @@ function ChartBars({
       className={cn(
         "relative flex items-end",
         dense
-          ? "min-w-[34rem] justify-between gap-1 px-0.5 sm:min-w-0 sm:gap-1.5"
+          ? "min-w-0 justify-between gap-1 px-0.5 sm:gap-1.5 lg:min-w-[34rem]"
           : "justify-between gap-2 sm:gap-3",
       )}
       role="presentation"
@@ -107,7 +107,7 @@ export function RevenueChart({ chart }: RevenueChartProps) {
 
   return (
     <section
-      className={cn(surfaceCardClassName, fadeInUpClassName, "p-7 sm:p-8")}
+      className={cn(surfaceCardClassName, fadeInUpClassName, "min-w-0 p-7 sm:p-8")}
       style={{ animationDelay: "120ms" }}
       aria-labelledby="revenue-chart-heading"
     >

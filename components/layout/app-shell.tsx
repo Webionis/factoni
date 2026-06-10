@@ -8,8 +8,9 @@ import { MobileQuickFab } from "@/components/layout/mobile-quick-fab";
 import { Sidebar } from "@/components/layout/sidebar";
 import { UnreadNotificationsProvider } from "@/components/notifications/unread-notifications-provider";
 import {
+  appContentAreaClassName,
+  appContentInnerClassName,
   appContentMaxWidthClass,
-  sidebarOffsetClassName,
 } from "@/lib/constants/layout";
 import { mobileMainPaddingBottomClassName } from "@/lib/constants/mobile";
 import { cn } from "@/lib/utils";
@@ -30,16 +31,10 @@ export function AppShell({
 
   return (
     <UnreadNotificationsProvider initialCount={unreadNotificationCount}>
-      <div className="min-h-dvh overflow-x-hidden bg-[#fcfcfd] dark:bg-transparent md:h-dvh md:overflow-hidden">
+      <div className="flex min-h-dvh overflow-x-hidden bg-[#fcfcfd] dark:bg-transparent md:h-dvh md:min-h-0">
         <Sidebar />
 
-        <div
-          className={cn(
-            "ff-app-surface w-full",
-            sidebarOffsetClassName,
-            "min-h-dvh md:flex md:h-dvh md:min-h-0 md:flex-col md:overflow-y-auto",
-          )}
-        >
+        <div className={cn(appContentAreaClassName, "min-h-dvh")}>
           <MobileHeader />
 
           {title ? (
@@ -52,12 +47,12 @@ export function AppShell({
 
           <main
             className={cn(
-              "relative z-0 w-full px-4 py-4 sm:py-6 md:min-h-0 md:flex-1 md:overflow-y-auto md:px-10 md:py-10",
+              "relative z-0 min-w-0 w-full flex-1 px-4 py-4 sm:py-6 md:min-h-0 md:overflow-y-auto md:px-8 md:py-10 lg:px-10",
               mobileMainPaddingBottomClassName,
             )}
             data-mobile-main="mounted"
           >
-            <div className={cn("mx-auto w-full", contentMaxWidth)}>
+            <div className={cn(appContentInnerClassName, contentMaxWidth)}>
               {process.env.NODE_ENV === "development" ? (
                 <p
                   className="mb-2 font-mono text-[10px] text-amber-600 md:hidden"
