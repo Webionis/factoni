@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { MapPin, Pencil, Plus, Star, Trash2 } from "lucide-react";
 
 import {
@@ -31,6 +30,15 @@ const emptyForm: ClientLocationFormValues = {
   notes: "",
 };
 
+function sortLocations(locations: ClientLocationRow[]): ClientLocationRow[] {
+  return [...locations].sort((a, b) => {
+    if (a.is_default !== b.is_default) {
+      return a.is_default ? -1 : 1;
+    }
+    return a.label.localeCompare(b.label, "fr");
+  });
+}
+
 function locationToForm(location: ClientLocationRow): ClientLocationFormValues {
   return {
     label: location.label,
@@ -53,13 +61,38 @@ export function ClientLocationsSection({
   clientId,
   initialLocations,
 }: ClientLocationsSectionProps) {
-  const router = useRouter();
-  const [locations, setLocations] = useState(initialLocations);
+  const [locations, setLocations] = useState(() =>
+    sortLocations(initialLocations),
+  );
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState<ClientLocationFormValues>(emptyForm);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setLocations(sortLocations(initialLocations));
+  }, [initialLocations]);
+
+  function upsertLocation(location: ClientLocationRow) {
+    setLocations((current) => {
+      const exists = current.some((item) => item.id === location.id);
+      const next = exists
+        ? current.map((item) => (item.id === location.id ? location : item))
+        : [...current, location];
+
+      if (location.is_default) {
+        return sortLocations(
+          next.map((item) => ({
+            ...item,
+            is_default: item.id === location.id,
+          })),
+        );
+      }
+
+      return sortLocations(next);
+    });
+  }
 
   function resetForm() {
     setForm(emptyForm);
@@ -101,8 +134,11 @@ export function ClientLocationsSection({
         return;
       }
 
+      if (result.location) {
+        upsertLocation(result.location);
+      }
+
       resetForm();
-      router.refresh();
     });
   }
 

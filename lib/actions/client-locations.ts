@@ -8,7 +8,10 @@ import {
 } from "@/lib/actions/errors";
 import { requireAuthenticatedUser } from "@/lib/actions/utils";
 import { getClientById } from "@/lib/data/clients";
-import { getClientLocationById } from "@/lib/data/client-locations";
+import {
+  getClientLocationById,
+  type ClientLocationRow,
+} from "@/lib/data/client-locations";
 import { sanitizeOptionalText, sanitizeText } from "@/lib/sanitize";
 import {
   clientLocationFormSchema,
@@ -24,7 +27,7 @@ function revalidateClientLocationPaths(clientId: string) {
 export async function createClientLocationAction(
   clientId: string,
   rawValues: ClientLocationFormValues,
-): Promise<ActionResult & { locationId?: string }> {
+): Promise<ActionResult & { location?: ClientLocationRow }> {
   const parsed = clientLocationFormSchema.safeParse(rawValues);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Données invalides" };
@@ -53,7 +56,9 @@ export async function createClientLocationAction(
       notes: sanitizeOptionalText(parsed.data.notes),
       is_default: parsed.data.is_default ?? false,
     })
-    .select("id")
+    .select(
+      "id, user_id, client_id, label, address_line1, address_line2, postal_code, city, country, notes, is_default, archived_at, created_at, updated_at",
+    )
     .single();
 
   if (error || !data) {
@@ -61,13 +66,13 @@ export async function createClientLocationAction(
   }
 
   revalidateClientLocationPaths(clientId);
-  return { success: true, locationId: data.id };
+  return { success: true, location: data };
 }
 
 export async function updateClientLocationAction(
   locationId: string,
   rawValues: ClientLocationFormValues,
-): Promise<ActionResult> {
+): Promise<ActionResult & { location?: ClientLocationRow }> {
   const parsed = clientLocationFormSchema.safeParse(rawValues);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Données invalides" };
@@ -101,8 +106,13 @@ export async function updateClientLocationAction(
     return actionErrorFromSupabase(error, "Erreur lors de la mise à jour");
   }
 
+  const updated = await getClientLocationById(supabase, locationId, user.id);
+  if (!updated || updated.archived_at) {
+    return { error: "Lieu introuvable après mise à jour." };
+  }
+
   revalidateClientLocationPaths(existing.client_id);
-  return { success: true };
+  return { success: true, location: updated };
 }
 
 export async function archiveClientLocationAction(

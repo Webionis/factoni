@@ -127,8 +127,8 @@ export function InterventionLocationSelect({
       const nextLocations = data.locations ?? [];
       setLocations(nextLocations);
 
-      if (result.locationId) {
-        setValue("client_location_id", result.locationId, { shouldValidate: true });
+      if (result.location?.id) {
+        setValue("client_location_id", result.location.id, { shouldValidate: true });
       }
 
       setShowQuickAdd(false);
