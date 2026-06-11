@@ -7,12 +7,16 @@ export function buildInvoiceMailtoDefaults(params: {
   totalTtc: number;
   publicDocumentUrl: string;
   clientPortalUrl?: string | null;
+  interventionLocationLine?: string | null;
 }): { subject: string; message: string } {
   const subject = `Votre facture ${params.invoiceNumber} — ${params.companyName}`;
+  const locationLine = params.interventionLocationLine
+    ? `\n${params.interventionLocationLine}\n`
+    : "";
   const message = `Bonjour ${params.clientName},
 
 Je vous transmets la facture ${params.invoiceNumber} d'un montant de ${formatCurrency(params.totalTtc)} TTC.
-
+${locationLine}
 Vous pouvez la consulter, la télécharger et la régler en ligne depuis le lien sécurisé ci-dessous :
 
 ${params.publicDocumentUrl.trim()}

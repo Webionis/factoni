@@ -2,6 +2,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { getCompanyForUser } from "@/lib/auth/profile";
 import { getClientById } from "@/lib/data/clients";
+import { getActiveClientLocationById } from "@/lib/data/client-locations";
+import {
+  buildClientLocationSnapshot,
+  clientLocationToPdfParty,
+  parseClientLocationSnapshot,
+} from "@/lib/invoices/location-snapshot";
 import type { InvoiceDetail } from "@/lib/data/invoices";
 import {
   parseClientSnapshot,
@@ -192,6 +198,28 @@ export async function prepareInvoicePdfData(
     logoPath = company.logo_path;
   }
 
+  let interventionLocation: PdfParty | null = null;
+  const parsedLocation = parseClientLocationSnapshot(
+    invoice.client_location_snapshot,
+  );
+  if (parsedLocation) {
+    interventionLocation = clientLocationToPdfParty(parsedLocation);
+  } else if (invoice.client_location_id) {
+    const liveLocation = await getActiveClientLocationById(
+      supabase,
+      invoice.client_location_id,
+      userId,
+    );
+    if (liveLocation) {
+      const snapshot = parseClientLocationSnapshot(
+        buildClientLocationSnapshot(liveLocation),
+      );
+      if (snapshot) {
+        interventionLocation = clientLocationToPdfParty(snapshot);
+      }
+    }
+  }
+
   const logoUrl = await resolveLogoUrl(supabase, logoPath);
   const signatureUrl = await resolveSignatureUrl(invoice.accepted_signature_url);
 
@@ -254,6 +282,7 @@ export async function prepareInvoicePdfData(
     notes: invoice.notes,
     emitter,
     client,
+    interventionLocation,
     lines,
     totalHt: Number(invoice.total_ht),
     totalVat: Number(invoice.total_vat),

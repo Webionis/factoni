@@ -13,6 +13,10 @@ import { getCompanyForUser } from "@/lib/auth/profile";
 import { getClientById } from "@/lib/data/clients";
 import { getQuoteById } from "@/lib/data/quotes";
 import { calculateLinesAndTotals } from "@/lib/invoices/calculate";
+import {
+  assertClientLocationForDocument,
+  buildValidationLocationFields,
+} from "@/lib/invoices/document-location";
 import { buildClientSnapshot, buildCompanySnapshot } from "@/lib/invoices/snapshots";
 import { ensurePublicDocumentUrl } from "@/lib/data/public-documents";
 import { invoiceToDuplicateFormValues } from "@/lib/invoices/duplicate";
@@ -126,6 +130,16 @@ export async function createQuoteAction(
     return { error: "Client introuvable." };
   }
 
+  const locationCheck = await assertClientLocationForDocument(
+    supabase,
+    user.id,
+    parsed.data.client_id,
+    parsed.data.client_location_id,
+  );
+  if (locationCheck.error) {
+    return { error: locationCheck.error };
+  }
+
   const totals = computeTotalsPayload(parsed.data, company.vat_regime);
   const discounts = parseInvoiceDiscounts(parsed.data);
 
@@ -135,6 +149,7 @@ export async function createQuoteAction(
       user_id: user.id,
       company_id: company.id,
       client_id: parsed.data.client_id,
+      client_location_id: locationCheck.locationId,
       document_type: "quote",
       issue_date: parsed.data.issue_date,
       due_date: parsed.data.due_date,
@@ -198,6 +213,16 @@ export async function updateQuoteAction(
     return { error: "Client introuvable." };
   }
 
+  const locationCheck = await assertClientLocationForDocument(
+    supabase,
+    user.id,
+    parsed.data.client_id,
+    parsed.data.client_location_id,
+  );
+  if (locationCheck.error) {
+    return { error: locationCheck.error };
+  }
+
   const totals = computeTotalsPayload(parsed.data, company.vat_regime);
   const discounts = parseInvoiceDiscounts(parsed.data);
 
@@ -205,6 +230,8 @@ export async function updateQuoteAction(
     .from("invoices")
     .update({
       client_id: parsed.data.client_id,
+      client_location_id: locationCheck.locationId,
+      client_location_snapshot: null,
       issue_date: parsed.data.issue_date,
       due_date: parsed.data.due_date,
       notes: sanitizeOptionalText(parsed.data.notes),
@@ -340,12 +367,20 @@ export async function validateQuoteDraftAction(
     return { error: urlResult.error };
   }
 
+  const locationFields = await buildValidationLocationFields(
+    supabase,
+    user.id,
+    existing.client_id,
+    existing.client_location_id,
+  );
+
   const { error } = await supabase
     .from("invoices")
     .update({
       status: "ready",
       client_snapshot: buildClientSnapshot(client),
       company_snapshot: buildCompanySnapshot(company),
+      ...locationFields,
     })
     .eq("id", quoteId)
     .eq("user_id", user.id)
@@ -455,6 +490,7 @@ export async function duplicateQuoteAction(
       user_id: user.id,
       company_id: company.id,
       client_id: parsed.data.client_id,
+      client_location_id: parsed.data.client_location_id ?? null,
       issue_date: parsed.data.issue_date,
       due_date: parsed.data.due_date,
       document_type: "quote",
@@ -462,6 +498,7 @@ export async function duplicateQuoteAction(
       invoice_number: null,
       client_snapshot: null,
       company_snapshot: null,
+      client_location_snapshot: null,
       notes: sanitizeOptionalText(parsed.data.notes),
       payment_terms: sanitizeOptionalText(parsed.data.payment_terms),
       discount_percent: discounts.discount_percent,
@@ -575,6 +612,8 @@ export async function convertQuoteToInvoiceAction(
       user_id: user.id,
       company_id: company.id,
       client_id: parsed.data.client_id,
+      client_location_id: quote.client_location_id,
+      client_location_snapshot: quote.client_location_snapshot,
       document_type: "invoice",
       source_quote_id: quote.id,
       issue_date: parsed.data.issue_date,

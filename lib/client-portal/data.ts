@@ -104,7 +104,7 @@ export async function getClientPortalDocuments(
   const { data, error } = await admin
     .from("invoices")
     .select(
-      "id, document_type, status, invoice_number, issue_date, due_date, total_ttc, public_document_token, quote_deposit_status, quote_deposit_amount, quote_deposit_paid_at, paid_at, converted_to_invoice_id",
+      "id, document_type, status, invoice_number, issue_date, due_date, total_ttc, public_document_token, quote_deposit_status, quote_deposit_amount, quote_deposit_paid_at, paid_at, converted_to_invoice_id, client_location_snapshot",
     )
     .eq("client_id", clientId)
     .eq("user_id", ownerUserId)

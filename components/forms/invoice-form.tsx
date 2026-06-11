@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { FormProvider, useFieldArray, useForm, useWatch } from "react-hook-form";
+import { InterventionLocationSelect } from "@/components/forms/intervention-location-select";
 import { InvoiceLinesEditor } from "@/components/invoices/invoice-lines-editor";
 import {
   createInvoiceAction,
@@ -71,19 +72,21 @@ export function InvoiceForm({
     initialValues.payment_terms,
   );
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    setValue,
-    formState: { errors, isSubmitting },
-  } = useForm<InvoiceFormValues>({
+  const form = useForm<InvoiceFormValues>({
     resolver: zodResolver(invoiceFormSchema),
     defaultValues: {
       ...initialValues,
       payment_terms: initialPaymentTerms,
     },
   });
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = form;
 
   const hasManualDueDateEdit = useRef(false);
   const issueDate = useWatch({ control, name: "issue_date" });
@@ -142,6 +145,7 @@ export function InvoiceForm({
   }
 
   return (
+    <FormProvider {...form}>
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
       {serverError ? (
         <p
@@ -181,6 +185,8 @@ export function InvoiceForm({
             ))}
           </select>
         </FormField>
+
+        <InterventionLocationSelect disabled={clients.length === 0} />
 
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField
@@ -326,5 +332,6 @@ export function InvoiceForm({
         </div>
       </div>
     </form>
+    </FormProvider>
   );
 }

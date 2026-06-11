@@ -9,7 +9,8 @@ import {
 import { canAcceptQuote } from "@/lib/quotes/expiry";
 import { normalizeQuoteStatus } from "@/lib/quotes/status";
 import { canDownloadPaymentReceipt } from "@/lib/invoices/receipt-eligibility";
-import type { Database } from "@/types/database";
+import { parseClientLocationSnapshot } from "@/lib/invoices/location-snapshot";
+import type { Database, Json } from "@/types/database";
 
 export type PortalDocumentKind = "quote" | "invoice";
 
@@ -27,6 +28,7 @@ export type PortalDocumentRow = {
   quote_deposit_paid_at?: string | null;
   paid_at: string | null;
   converted_to_invoice_id: string | null;
+  client_location_snapshot?: Json | null;
 };
 
 export type PortalClientStatus =
@@ -50,6 +52,7 @@ export type PortalDocumentView = {
   dueDate: string;
   totalTtc: number;
   depositAmount: number | null;
+  interventionLocationLabel: string | null;
   publicToken: string;
   clientStatus: PortalClientStatus;
   clientStatusLabel: string;
@@ -234,6 +237,10 @@ export function mapDocumentToPortalView(
 
   if (clientStatus === "cancelled") return null;
 
+  const interventionLocationLabel =
+    parseClientLocationSnapshot(doc.client_location_snapshot ?? null)?.label ??
+    null;
+
   return {
     id: doc.id,
     kind,
@@ -245,6 +252,7 @@ export function mapDocumentToPortalView(
       doc.quote_deposit_amount != null
         ? Number(doc.quote_deposit_amount)
         : null,
+    interventionLocationLabel,
     publicToken: doc.public_document_token!.trim(),
     clientStatus,
     clientStatusLabel: PORTAL_STATUS_LABELS[clientStatus],

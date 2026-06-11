@@ -4,6 +4,7 @@ import { ArrowLeft, Calendar, Pencil } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 
 import { CopyPublicDocumentLinkButton } from "@/components/documents/copy-public-document-link-button";
+import { InterventionLocationCard } from "@/components/documents/intervention-location-card";
 import { DuplicateQuoteButton } from "@/components/quotes/duplicate-quote-button";
 import { QuoteClientReminderButton } from "@/components/quotes/quote-client-reminder-button";
 import { QuoteInvoiceActionButton } from "@/components/quotes/quote-invoice-action-button";
@@ -237,6 +238,8 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
       ) : null}
 
       {showDepositSection ? <QuoteDepositSection quote={quote} /> : null}
+
+      <InterventionLocationCard snapshot={quote.client_location_snapshot} />
 
       <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
         <Card>

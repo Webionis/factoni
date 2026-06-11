@@ -42,6 +42,7 @@ export interface InvoicePdfData {
   notes: string | null;
   emitter: PdfParty;
   client: PdfParty;
+  interventionLocation?: PdfParty | null;
   lines: PdfInvoiceLine[];
   /** Montants stockés sur la facture — jamais recalculés */
   totalHt: number;

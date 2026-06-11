@@ -109,7 +109,11 @@ export function InvoicePdfDocument({ data }: InvoicePdfDocumentProps) {
 
           <View style={pdfStyles.partiesRow}>
             <PdfPartyBlock label="Émetteur" party={data.emitter} />
-            <PdfPartyBlock label="Client" party={data.client} />
+            <PdfPartyBlock
+              label={data.interventionLocation ? "Client / Facturation" : "Client"}
+              party={data.client}
+              interventionLocation={data.interventionLocation}
+            />
           </View>
 
           <PdfLinesTable lines={data.lines} />

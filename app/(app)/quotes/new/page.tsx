@@ -55,6 +55,7 @@ export default async function NewQuotePage() {
 
   const initialValues: InvoiceFormValues = {
     client_id: clients[0]?.id ?? "",
+    client_location_id: null,
     issue_date: today,
     due_date: defaultQuoteValidityDate(today),
     notes: "",

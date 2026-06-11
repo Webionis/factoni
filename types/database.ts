@@ -108,6 +108,65 @@ export type Database = {
         }
         Relationships: []
       }
+      client_locations: {
+        Row: {
+          address_line1: string | null
+          address_line2: string | null
+          archived_at: string | null
+          city: string | null
+          client_id: string
+          country: string
+          created_at: string
+          id: string
+          is_default: boolean
+          label: string
+          notes: string | null
+          postal_code: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address_line1?: string | null
+          address_line2?: string | null
+          archived_at?: string | null
+          city?: string | null
+          client_id: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label: string
+          notes?: string | null
+          postal_code?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address_line1?: string | null
+          address_line2?: string | null
+          archived_at?: string | null
+          city?: string | null
+          client_id?: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          notes?: string | null
+          postal_code?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_locations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           address_line1: string
@@ -453,6 +512,8 @@ export type Database = {
           auto_reminders_disabled: boolean
           cancelled_at: string | null
           client_id: string
+          client_location_id: string | null
+          client_location_snapshot: Json | null
           client_snapshot: Json | null
           company_id: string
           company_snapshot: Json | null
@@ -505,6 +566,8 @@ export type Database = {
           auto_reminders_disabled?: boolean
           cancelled_at?: string | null
           client_id: string
+          client_location_id?: string | null
+          client_location_snapshot?: Json | null
           client_snapshot?: Json | null
           company_id: string
           company_snapshot?: Json | null
@@ -557,6 +620,8 @@ export type Database = {
           auto_reminders_disabled?: boolean
           cancelled_at?: string | null
           client_id?: string
+          client_location_id?: string | null
+          client_location_snapshot?: Json | null
           client_snapshot?: Json | null
           company_id?: string
           company_snapshot?: Json | null

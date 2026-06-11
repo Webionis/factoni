@@ -73,6 +73,11 @@ export function PortalDocumentCard({ doc }: PortalDocumentCardProps) {
           <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
             {metaParts.join(" · ")}
           </p>
+          {doc.interventionLocationLabel ? (
+            <p className="text-xs text-muted-foreground">
+              Pour : {doc.interventionLocationLabel}
+            </p>
+          ) : null}
           <p className="text-xl font-semibold tabular-nums tracking-tight sm:text-2xl">
             {formatCurrency(doc.totalTtc)}
             <span className="ml-1.5 text-sm font-medium text-muted-foreground">

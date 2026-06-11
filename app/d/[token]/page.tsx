@@ -11,6 +11,7 @@ import { PayQuoteDepositButton } from "@/components/public/pay-quote-deposit-but
 import { PublicInvoicePaymentBanner } from "@/components/public/public-invoice-payment-banner";
 import { PublicQuoteAcceptedBanner } from "@/components/public/public-quote-accepted-banner";
 import { buttonVariants } from "@/components/ui/button";
+import { InterventionLocationCard } from "@/components/documents/intervention-location-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getClientPortalUrlForDocument } from "@/lib/client-portal/data";
 import { countInvoiceReminders } from "@/lib/data/invoice-reminders";
@@ -330,6 +331,11 @@ export default async function PublicDocumentPage({
             ) : null}
           </div>
         ) : null}
+
+        <InterventionLocationCard
+          snapshot={doc.client_location_snapshot}
+          className="gap-0 shadow-sm"
+        />
 
         <Card className="gap-0 shadow-sm">
           <CardHeader className="border-b border-border/40 px-5 pb-3 pt-5 sm:px-6 sm:pt-6">

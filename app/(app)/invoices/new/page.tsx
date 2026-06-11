@@ -63,6 +63,7 @@ export default async function NewInvoicePage({
 
   let initialValues: InvoiceFormValues = {
     client_id: clients[0]?.id ?? "",
+    client_location_id: null,
     issue_date: today,
     due_date: addOneMonthToIsoDate(today) ?? today,
     notes: "",

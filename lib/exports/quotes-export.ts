@@ -6,6 +6,10 @@ import {
   formatFrenchDateTime,
 } from "@/lib/exports/formatting";
 import type { QuoteExportFilters } from "@/lib/exports/types";
+import {
+  formatClientLocationAddress,
+  parseClientLocationSnapshot,
+} from "@/lib/invoices/location-snapshot";
 import { parseClientSnapshot } from "@/lib/pdf/parse-snapshots";
 import { getEffectiveQuoteStatus } from "@/lib/quotes/expiry";
 import {
@@ -76,16 +80,16 @@ function quoteToRow(quote: QuoteWithClient, reference = new Date()): string[] {
           )
         : "";
 
+  const location = parseClientLocationSnapshot(quote.client_location_snapshot);
+
   return [
     quoteDisplayNumber(quote.invoice_number, quote.id),
     clientName(quote),
     formatFrenchAmount(quote.total_ttc),
     QUOTE_STATUS_LABELS[effective],
-    depositLabel,
-    remainingLabel,
-    quote.quote_deposit_paid_at
-      ? formatFrenchDateTime(quote.quote_deposit_paid_at)
-      : "",
+    location?.label ?? "",
+    location ? formatClientLocationAddress(location).replace(/\n/g, ", ") : "",
+    location?.city ?? "",
     quote.accepted_at ? formatFrenchDateTime(quote.accepted_at) : "",
     formatFrenchDate(quote.issue_date),
     formatFrenchDate(quote.due_date),

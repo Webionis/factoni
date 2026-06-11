@@ -8,6 +8,7 @@ import {
 import { notFound, redirect } from "next/navigation";
 
 import { CopyPublicDocumentLinkButton } from "@/components/documents/copy-public-document-link-button";
+import { InterventionLocationCard } from "@/components/documents/intervention-location-card";
 import { ArchiveInvoiceDialog } from "@/components/invoices/archive-invoice-dialog";
 import { DeleteDraftInvoiceDialog } from "@/components/invoices/delete-draft-invoice-dialog";
 import { InvoiceArchivedBadge } from "@/components/invoices/invoice-archived-badge";
@@ -267,6 +268,8 @@ export default async function InvoiceDetailPage({
           </Link>
         ) : null}
       </div>
+
+      <InterventionLocationCard snapshot={invoice.client_location_snapshot} />
 
       <Card>
         <CardHeader className="px-5 pb-2 pt-5 sm:px-6">

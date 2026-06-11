@@ -20,6 +20,9 @@ export type InvoiceLineFormValues = z.infer<typeof invoiceLineSchema>;
 export const invoiceFormSchema = z
   .object({
     client_id: z.string().min(1, "Client requis").uuid("Client invalide"),
+    client_location_id: z
+      .union([z.string().uuid("Lieu invalide"), z.literal(""), z.null()])
+      .optional(),
     issue_date: z.string().min(1, "Date d'émission requise"),
     due_date: z.string().min(1, "Date d'échéance requise"),
     notes: z.string().optional(),
@@ -54,6 +57,7 @@ export type InvoiceFormValues = z.infer<typeof invoiceFormSchema>;
 export function invoiceToFormValues(invoice: InvoiceDetail): InvoiceFormValues {
   return {
     client_id: invoice.client_id,
+    client_location_id: invoice.client_location_id ?? null,
     issue_date: invoice.issue_date,
     due_date: invoice.due_date,
     notes: invoice.notes ?? "",

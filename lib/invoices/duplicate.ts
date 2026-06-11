@@ -10,6 +10,7 @@ export function invoiceToDuplicateFormValues(
 
   return {
     client_id: invoice.client_id,
+    client_location_id: invoice.client_location_id ?? null,
     issue_date: today,
     due_date: addOneMonthToIsoDate(today) ?? today,
     notes: invoice.notes ?? "",

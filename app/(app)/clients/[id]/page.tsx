@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 
+import { ClientLocationsSection } from "@/components/clients/client-locations-section";
 import { ClientPortalAccessToggle } from "@/components/clients/client-portal-access-toggle";
 import { CopyClientPortalLinkButton } from "@/components/clients/copy-client-portal-link-button";
 import { DeleteClientDialog } from "@/components/clients/delete-client-dialog";
@@ -18,6 +19,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { getClientById } from "@/lib/data/clients";
+import { listClientLocationsForClientPage } from "@/lib/data/client-locations";
 import {
   clientDisplayName,
   clientSubtitle,
@@ -97,7 +99,10 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
     redirect("/login");
   }
 
-  const client = await getClientById(supabase, id);
+  const [client, locations] = await Promise.all([
+    getClientById(supabase, id),
+    listClientLocationsForClientPage(supabase, id, user.id),
+  ]);
 
   if (!client || client.user_id !== user.id) {
     notFound();
@@ -158,6 +163,8 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
           />
         </CardContent>
       </Card>
+
+      <ClientLocationsSection clientId={client.id} initialLocations={locations} />
 
       <Card>
         <CardHeader>

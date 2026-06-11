@@ -217,6 +217,22 @@ export const pdfStyles = StyleSheet.create({
     color: pdfColors.inkMuted,
     marginBottom: 4,
   },
+  partySubsection: {
+    marginTop: 6,
+  },
+  partySubsectionDivider: {
+    height: 1,
+    backgroundColor: pdfColors.border,
+    marginBottom: 6,
+  },
+  partySubsectionLabel: {
+    fontSize: 7,
+    fontFamily: "Helvetica-Bold",
+    color: pdfColors.inkLight,
+    marginBottom: 4,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
   partyLine: {
     fontSize: 7,
     color: pdfColors.inkMuted,

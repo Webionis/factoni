@@ -9,6 +9,7 @@ export function quoteToInvoiceFormValues(quote: QuoteDetail): InvoiceFormValues 
 
   return {
     client_id: quote.client_id,
+    client_location_id: quote.client_location_id ?? null,
     issue_date: today,
     due_date: addOneMonthToIsoDate(today) ?? today,
     notes: quote.notes ?? "",

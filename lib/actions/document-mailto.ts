@@ -25,6 +25,7 @@ import {
   buildInvoiceMailtoDefaults,
 } from "@/lib/invoices/email-message";
 import { canSendInvoiceReminder } from "@/lib/invoices/reminder-eligibility";
+import { interventionLocationEmailLine } from "@/lib/invoices/location-snapshot";
 import { buildClientSnapshot, buildCompanySnapshot } from "@/lib/invoices/snapshots";
 import {
   invoiceDisplayNumber,
@@ -156,6 +157,9 @@ export async function prepareQuoteMailtoAction(
     totalTtc: Number(quote.total_ttc),
     publicDocumentUrl: urlResult.url,
     clientPortalUrl: portalResult?.ok ? portalResult.url : null,
+    interventionLocationLine: interventionLocationEmailLine(
+      quote.client_location_snapshot,
+    ),
   });
 
   return {
@@ -415,6 +419,9 @@ export async function prepareInvoiceMailtoAction(
     totalTtc: Number(invoice.total_ttc),
     publicDocumentUrl: urlResult.url,
     clientPortalUrl: portalResult?.ok ? portalResult.url : null,
+    interventionLocationLine: interventionLocationEmailLine(
+      invoice.client_location_snapshot,
+    ),
   });
 
   return {

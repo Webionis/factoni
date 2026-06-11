@@ -11,6 +11,10 @@ import {
   getEffectiveInvoiceStatus,
   todayIsoDate,
 } from "@/lib/invoices/overdue";
+import {
+  formatClientLocationAddress,
+  parseClientLocationSnapshot,
+} from "@/lib/invoices/location-snapshot";
 import { parseClientSnapshot } from "@/lib/pdf/parse-snapshots";
 import {
   INVOICE_STATUS_LABELS,
@@ -37,6 +41,12 @@ const VAT_DETAIL_HEADERS = [
   "Taux TVA",
   "Date paiement",
   "Mode de paiement",
+] as const;
+
+const LOCATION_HEADERS = [
+  "Lieu d'intervention",
+  "Adresse lieu d'intervention",
+  "Ville lieu d'intervention",
 ] as const;
 
 const EXTRA_HEADERS = [
@@ -186,12 +196,22 @@ function sortInvoices(invoices: InvoiceWithClientExport[]): InvoiceWithClientExp
   });
 }
 
+function locationExportFields(invoice: InvoiceWithClientExport): string[] {
+  const location = parseClientLocationSnapshot(invoice.client_location_snapshot);
+  if (!location) return ["", "", ""];
+  return [
+    location.label,
+    formatClientLocationAddress(location).replace(/\n/g, ", "),
+    location.city ?? "",
+  ];
+}
+
 function getHeaders(filters: InvoiceExportFilters): string[] {
   const headers: string[] = [...BASE_HEADERS];
   if (filters.includeVatDetail) {
     headers.push(...VAT_DETAIL_HEADERS);
   }
-  headers.push(...EXTRA_HEADERS);
+  headers.push(...LOCATION_HEADERS, ...EXTRA_HEADERS);
   return headers;
 }
 
@@ -222,6 +242,7 @@ function invoiceToRow(
     );
   }
 
+  row.push(...locationExportFields(invoice));
   row.push(
     invoice.deposit_applied_amount != null
       ? formatFrenchAmount(invoice.deposit_applied_amount)
