@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  CalendarDays,
   CreditCard,
   Download,
   LogOut,
@@ -13,13 +12,11 @@ import {
 import { useTransition } from "react";
 
 import { MobileBottomSheet } from "@/components/layout/mobile-bottom-sheet";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { signOut } from "@/lib/actions/auth";
 import { sidebarNavItemActiveClassName, sidebarNavItemClassName } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
 const moreNavItems = [
-  { href: "/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/settings/company", label: "Mon entreprise", icon: Settings },
   { href: "/settings/payments", label: "Paiements", icon: Wallet },
   { href: "/settings/billing", label: "Abonnement", icon: CreditCard },
@@ -62,11 +59,7 @@ export function MobileMoreMenu({ open, onClose }: MobileMoreMenuProps) {
         </ul>
       </nav>
 
-      <div className="mt-3 space-y-2 border-t border-border/50 px-2 pt-3">
-        <div className="flex min-h-12 items-center justify-between rounded-xl px-3">
-          <span className="text-sm font-medium">Thème</span>
-          <ThemeToggle />
-        </div>
+      <div className="mt-3 border-t border-border/50 px-2 pt-3">
         <button
           type="button"
           onClick={() => {

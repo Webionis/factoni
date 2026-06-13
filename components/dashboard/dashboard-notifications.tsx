@@ -14,6 +14,7 @@ import {
   sectionHeadingClassName,
   surfaceCardClassName,
 } from "@/lib/constants/ui";
+import { DASHBOARD_ACTIVITY_SECTION_ID } from "@/lib/navigation/dashboard-activity";
 import { cn } from "@/lib/utils";
 
 interface DashboardNotificationsProps {
@@ -54,7 +55,11 @@ export function DashboardNotifications({
   }, []);
 
   return (
-    <section className="space-y-3.5 md:space-y-3" aria-labelledby="notifications-heading">
+    <section
+      id={DASHBOARD_ACTIVITY_SECTION_ID}
+      className="scroll-mt-[calc(3.5rem+env(safe-area-inset-top)+0.75rem)] space-y-3.5 md:scroll-mt-6 md:space-y-3"
+      aria-labelledby="notifications-heading"
+    >
       <div className="flex flex-wrap items-center gap-2">
         <h2 id="notifications-heading" className={sectionHeadingClassName}>
           Activité récente

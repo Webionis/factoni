@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Plus } from "lucide-react";
 
+import { agendaCopy } from "@/lib/agenda/copy";
 import { ScheduledJobCard } from "@/components/agenda/scheduled-job-card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import type { ScheduledJobWithRelations } from "@/lib/data/scheduled-jobs";
@@ -17,7 +18,7 @@ export function DashboardUpcomingJobs({ jobs }: DashboardUpcomingJobsProps) {
     <section className="space-y-4" aria-labelledby="upcoming-jobs-heading">
       <div className="flex items-center justify-between gap-3">
         <h2 id="upcoming-jobs-heading" className={sectionHeadingClassName}>
-          Chantiers à venir
+          {agendaCopy.upcomingSection}
         </h2>
         <Link
           href="/agenda"
@@ -37,16 +38,16 @@ export function DashboardUpcomingJobs({ jobs }: DashboardUpcomingJobsProps) {
             className="mx-auto mb-3 size-8 text-muted-foreground"
             aria-hidden
           />
-          <p className="font-medium">Aucun chantier planifié</p>
+          <p className="font-medium">{agendaCopy.nonePlanned}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Organisez vos prochains travaux dans l&apos;agenda.
+            {agendaCopy.noneDashboardHint}
           </p>
           <Link
             href="/agenda?create=1"
             className={cn(buttonVariants(), "mt-4 inline-flex h-11 gap-1.5")}
           >
             <Plus className="size-4" aria-hidden />
-            Planifier un chantier
+            {agendaCopy.plan}
           </Link>
         </div>
       ) : (

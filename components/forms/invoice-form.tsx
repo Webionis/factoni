@@ -311,7 +311,7 @@ export function InvoiceForm({
               : mode === "create"
                 ? isQuote
                   ? "Enregistrer le devis"
-                  : "Enregistrer le brouillon"
+                  : "Enregistrer la facture"
                 : isQuote
                   ? "Mettre à jour le devis"
                   : "Mettre à jour le brouillon"}

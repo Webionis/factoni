@@ -23,7 +23,7 @@ import {
 } from "@/lib/validations/scheduled-job";
 import { SCHEDULED_JOB_STATUS_LABELS } from "@/lib/scheduled-jobs/status";
 import type { ClientRow } from "@/lib/validations/client";
-import { toIsoDate } from "@/lib/dates/calendar-range";
+import { agendaCopy } from "@/lib/agenda/copy";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -100,32 +100,32 @@ function ScheduledJobFormFields({
   updateField,
 }: ScheduledJobFormFieldsProps) {
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-4">
       <FormField label="Titre" htmlFor="job_title">
         <Input
           id="job_title"
           className={inputClassName}
           value={form.title}
           onChange={(e) => updateField("title", e.target.value)}
-          placeholder="Ex. Rénovation salle de bain"
+          placeholder={agendaCopy.titlePlaceholder}
         />
       </FormField>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <FormField label="Date" htmlFor="job_date">
+      <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2">
+        <FormField label="Date" htmlFor="job_date" className="min-w-0">
           <Input
             id="job_date"
             type="date"
-            className={inputClassName}
+            className={cn(inputClassName, "min-w-0 max-w-full")}
             value={form.scheduled_date}
             onChange={(e) => updateField("scheduled_date", e.target.value)}
           />
         </FormField>
-        <FormField label="Heure (optionnel)" htmlFor="job_time">
+        <FormField label="Heure (optionnel)" htmlFor="job_time" className="min-w-0">
           <Input
             id="job_time"
             type="time"
-            className={inputClassName}
+            className={cn(inputClassName, "min-w-0 max-w-full")}
             value={form.scheduled_time ?? ""}
             onChange={(e) => updateField("scheduled_time", e.target.value)}
           />
@@ -228,11 +228,11 @@ function ScheduledJobFormActions({
 }: ScheduledJobFormActionsProps) {
   return (
     <div className="flex w-full flex-col gap-2">
-      <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-end">
+      <div className="grid w-full grid-cols-2 gap-2">
         <Button
           type="button"
           variant="outline"
-          className="h-11 w-full sm:w-auto"
+          className="h-11 w-full"
           disabled={isPending}
           onClick={onClose}
         >
@@ -240,7 +240,7 @@ function ScheduledJobFormActions({
         </Button>
         <Button
           type="button"
-          className="h-11 w-full sm:w-auto"
+          className="h-11 w-full"
           disabled={isPending}
           onClick={onSubmit}
         >
@@ -369,7 +369,7 @@ export function ScheduledJobFormSheet({
 
   function handleArchive() {
     if (!editingJob || !onArchived) return;
-    if (!confirm("Supprimer ce chantier de l'agenda ?")) return;
+    if (!confirm(agendaCopy.deleteConfirm)) return;
 
     startTransition(async () => {
       const result = await archiveScheduledJobAction(editingJob.id);
@@ -382,7 +382,7 @@ export function ScheduledJobFormSheet({
     });
   }
 
-  const title = editingJob ? "Modifier le chantier" : "Planifier un chantier";
+  const title = editingJob ? agendaCopy.edit : agendaCopy.plan;
 
   const formBody = (
     <ScheduledJobFormFields

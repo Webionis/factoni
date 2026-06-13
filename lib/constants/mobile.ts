@@ -3,6 +3,10 @@ import { cn } from "@/lib/utils";
 /** Hauteur de la bottom nav mobile (52px). */
 export const MOBILE_BOTTOM_NAV_HEIGHT = "3.25rem";
 
+/** Espace sous le header mobile fixe (min-h-14 + encoche). */
+export const mobileMainPaddingTopClassName =
+  "pt-[calc(3.5rem+env(safe-area-inset-top))] md:pt-10";
+
 /** Cible tactile minimale iOS / Material (44px). */
 export const touchTargetClassName =
   "min-h-11 min-w-11 touch-manipulation";

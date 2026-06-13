@@ -9,6 +9,7 @@ import {
   startOfWeek,
   toIsoDate,
 } from "@/lib/dates/calendar-range";
+import { agendaCopy } from "@/lib/agenda/copy";
 import { pageMetadata } from "@/lib/metadata";
 import { createClient } from "@/lib/supabase/server";
 
@@ -44,7 +45,7 @@ export default async function AgendaPage({ searchParams }: AgendaPageProps) {
     <div className="w-full space-y-6 pb-8">
       <PageHeader
         title="Agenda"
-        description="Planifiez vos chantiers et gardez une vue sur les semaines à venir."
+        description={agendaCopy.pageDescription}
       />
 
       <AgendaView

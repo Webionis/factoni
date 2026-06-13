@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   CalendarDays,
   ClipboardList,
@@ -20,6 +20,10 @@ import { UnreadNotificationBadge } from "@/components/layout/unread-notification
 import { useUnreadNotifications } from "@/components/notifications/unread-notifications-provider";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { sidebarWidthClassName } from "@/lib/constants/layout";
+import {
+  clearDashboardActivityIntent,
+  stripDashboardActivityHash,
+} from "@/lib/navigation/dashboard-activity";
 import {
   sidebarNavItemActiveClassName,
   sidebarNavItemClassName,
@@ -40,7 +44,30 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { unreadCount } = useUnreadNotifications();
+
+  function handleDashboardClick(event: React.MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+    clearDashboardActivityIntent();
+    stripDashboardActivityHash();
+
+    if (pathname === "/dashboard") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    router.push("/dashboard", { scroll: true });
+  }
+
+  function handleLogoClick(event: React.MouseEvent<HTMLAnchorElement>) {
+    if (pathname !== "/dashboard") return;
+
+    event.preventDefault();
+    clearDashboardActivityIntent();
+    stripDashboardActivityHash();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   return (
     <aside
@@ -53,6 +80,7 @@ export function Sidebar() {
       <div className="flex h-[4.75rem] shrink-0 items-center px-5">
         <Link
           href="/dashboard"
+          onClick={handleLogoClick}
           className="inline-flex items-center py-1 outline-none transition-opacity hover:opacity-90 focus-visible:ring-4 focus-visible:ring-[#2563eb]/20"
         >
           <BrandLogo variant="auto" size="md" />
@@ -70,6 +98,7 @@ export function Sidebar() {
             <Link
               key={href}
               href={href}
+              onClick={href === "/dashboard" ? handleDashboardClick : undefined}
               className={cn(
                 sidebarNavItemClassName,
                 "w-full justify-between",

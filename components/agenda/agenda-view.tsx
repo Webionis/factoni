@@ -31,6 +31,7 @@ import {
   startOfWeek,
   toIsoDate,
 } from "@/lib/dates/calendar-range";
+import { agendaCopy } from "@/lib/agenda/copy";
 import type { ClientRow } from "@/lib/validations/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -305,7 +306,7 @@ export function AgendaView({
 
                 {dayJobs.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
-                    Aucun chantier planifié
+                    Aucun rendez-vous planifié
                   </p>
                 ) : (
                   <ul className="space-y-2">
@@ -402,13 +403,13 @@ export function AgendaView({
                 onClick={() => openCreate(selectedDay)}
               >
                 <Plus className="size-4" aria-hidden />
-                Chantier
+                Ajouter
               </Button>
             </div>
 
             {selectedJobs.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Aucun chantier ce jour-là.
+                {agendaCopy.noneThisDay}
               </p>
             ) : (
               <ul className="space-y-2">
@@ -442,16 +443,16 @@ export function AgendaView({
       {jobs.length === 0 && !loading ? (
         <div className="flex flex-col items-center rounded-xl border border-dashed px-6 py-10 text-center">
           <CalendarDays className="mb-3 size-8 text-muted-foreground" aria-hidden />
-          <p className="font-medium">Aucun chantier sur cette période</p>
+          <p className="font-medium">{agendaCopy.noneThisPeriod}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Planifiez vos prochains travaux pour garder une vue claire.
+            {agendaCopy.noneOrganizeHint}
           </p>
           <Button
             type="button"
             className="mt-4 h-11"
             onClick={() => openCreate(selectedDay)}
           >
-            Planifier un chantier
+            {agendaCopy.plan}
           </Button>
         </div>
       ) : null}

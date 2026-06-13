@@ -7,13 +7,39 @@ import { useEffect, useState } from "react";
 import { transitionPremiumClassName } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
-export function ThemeToggle() {
+interface ThemeToggleProps {
+  variant?: "menu" | "icon";
+  className?: string;
+}
+
+export function ThemeToggle({ variant = "menu", className }: ThemeToggleProps) {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
   const isDark = mounted && resolvedTheme === "dark";
+
+  if (variant === "icon") {
+    return (
+      <button
+        type="button"
+        onClick={() => setTheme(isDark ? "light" : "dark")}
+        className={cn(
+          "flex size-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+          className,
+        )}
+        aria-pressed={isDark}
+        aria-label={isDark ? "Activer le mode jour" : "Activer le mode nuit"}
+      >
+        {isDark ? (
+          <Sun className="size-5" aria-hidden />
+        ) : (
+          <Moon className="size-5" aria-hidden />
+        )}
+      </button>
+    );
+  }
 
   return (
     <button

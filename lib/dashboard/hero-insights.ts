@@ -1,3 +1,4 @@
+import { agendaCopy } from "@/lib/agenda/copy";
 import { formatCurrency } from "@/lib/invoices/calculate";
 import type { DashboardStats, RevenueChartPayload } from "@/lib/data/dashboard";
 import type { DashboardNotification } from "@/lib/data/notifications";
@@ -35,7 +36,7 @@ export function buildHeroInsights({
 
   if (jobsThisWeek > 0) {
     insights.push({
-      label: `${jobsThisWeek} chantier${jobsThisWeek > 1 ? "s" : ""} cette semaine`,
+      label: agendaCopy.thisWeek(jobsThisWeek),
       tone: "neutral",
     });
   }

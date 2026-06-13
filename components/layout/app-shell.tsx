@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { MobileHeader } from "@/components/layout/mobile-header";
-import { MobileQuickFab } from "@/components/layout/mobile-quick-fab";
 import { Sidebar } from "@/components/layout/sidebar";
 import { UnreadNotificationsProvider } from "@/components/notifications/unread-notifications-provider";
 import {
@@ -12,7 +11,7 @@ import {
   appContentInnerClassName,
   appContentMaxWidthClass,
 } from "@/lib/constants/layout";
-import { mobileMainPaddingBottomClassName } from "@/lib/constants/mobile";
+import { mobileMainPaddingBottomClassName, mobileMainPaddingTopClassName } from "@/lib/constants/mobile";
 import { cn } from "@/lib/utils";
 
 interface AppShellProps {
@@ -47,7 +46,8 @@ export function AppShell({
 
           <main
             className={cn(
-              "relative z-0 min-w-0 w-full flex-1 px-4 py-3 sm:py-6 md:min-h-0 md:overflow-y-auto md:px-8 md:py-10 lg:px-10",
+              "relative z-0 min-w-0 w-full flex-1 px-4 pb-3 sm:pb-6 md:min-h-0 md:overflow-y-auto md:px-8 md:py-10 lg:px-10",
+              mobileMainPaddingTopClassName,
               mobileMainPaddingBottomClassName,
             )}
           >
@@ -56,7 +56,6 @@ export function AppShell({
             </div>
           </main>
 
-          <MobileQuickFab />
           <BottomNav />
         </div>
       </div>

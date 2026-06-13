@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { agendaCopy } from "@/lib/agenda/copy";
 import {
   actionErrorFromSupabase,
   type ActionResult,
@@ -117,7 +118,7 @@ export async function updateScheduledJobAction(
 
   const existing = await getScheduledJobById(supabase, jobId, user.id);
   if (!existing || existing.archived_at) {
-    return { error: "Chantier introuvable." };
+    return { error: agendaCopy.notFound };
   }
 
   const clientId = normalizeOptionalId(parsed.data.client_id);

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CalendarDays, ClipboardList, FileText, UserPlus } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
+import { agendaCopy } from "@/lib/agenda/copy";
 import { cn } from "@/lib/utils";
 
 export function DashboardShortcuts() {
@@ -15,7 +16,7 @@ export function DashboardShortcuts() {
         )}
       >
         <CalendarDays className="size-5" aria-hidden />
-        Planifier un chantier
+        {agendaCopy.plan}
       </Link>
       <Link
         href="/quotes/new"

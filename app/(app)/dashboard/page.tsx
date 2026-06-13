@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { ClientStatsCard } from "@/components/dashboard/client-stats-card";
+import { DashboardActivityScroll } from "@/components/dashboard/dashboard-activity-scroll";
 import { pageMetadata } from "@/lib/metadata";
 import { DashboardUpcomingJobs } from "@/components/dashboard/dashboard-upcoming-jobs";
 import { DashboardShortcuts } from "@/components/dashboard/dashboard-shortcuts";
@@ -81,6 +82,7 @@ export default async function DashboardPage() {
 
   return (
     <div className={cn("min-w-0 pb-8", dashboardSectionStackClassName)}>
+      <DashboardActivityScroll />
       <DashboardHero
         title={dashboardTitle}
         greetingName={getGreetingName({
