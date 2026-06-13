@@ -27,7 +27,7 @@ import { agendaCopy } from "@/lib/agenda/copy";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { inputClassName, selectClassName } from "@/lib/constants/ui";
+import { inputClassName, selectClassName, dateTimeInputClassName, nativeDateTimeFieldClassName } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
 type LocationOption = {
@@ -113,22 +113,26 @@ function ScheduledJobFormFields({
 
       <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2">
         <FormField label="Date" htmlFor="job_date" className="min-w-0">
-          <Input
-            id="job_date"
-            type="date"
-            className={cn(inputClassName, "min-w-0 max-w-full")}
-            value={form.scheduled_date}
-            onChange={(e) => updateField("scheduled_date", e.target.value)}
-          />
+          <div className={nativeDateTimeFieldClassName}>
+            <Input
+              id="job_date"
+              type="date"
+              className={dateTimeInputClassName}
+              value={form.scheduled_date}
+              onChange={(e) => updateField("scheduled_date", e.target.value)}
+            />
+          </div>
         </FormField>
         <FormField label="Heure (optionnel)" htmlFor="job_time" className="min-w-0">
-          <Input
-            id="job_time"
-            type="time"
-            className={cn(inputClassName, "min-w-0 max-w-full")}
-            value={form.scheduled_time ?? ""}
-            onChange={(e) => updateField("scheduled_time", e.target.value)}
-          />
+          <div className={nativeDateTimeFieldClassName}>
+            <Input
+              id="job_time"
+              type="time"
+              className={dateTimeInputClassName}
+              value={form.scheduled_time ?? ""}
+              onChange={(e) => updateField("scheduled_time", e.target.value)}
+            />
+          </div>
         </FormField>
       </div>
 

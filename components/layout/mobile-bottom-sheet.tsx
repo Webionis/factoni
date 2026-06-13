@@ -120,7 +120,7 @@ export function MobileBottomSheet({
             <X className="size-5" aria-hidden />
           </button>
         </div>
-        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-3 py-2">
+        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-4 py-2">
           {children}
         </div>
         {footer ? (
