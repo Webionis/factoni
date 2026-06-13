@@ -13,7 +13,11 @@ import { useTransition } from "react";
 
 import { MobileBottomSheet } from "@/components/layout/mobile-bottom-sheet";
 import { signOut } from "@/lib/actions/auth";
-import { sidebarNavItemActiveClassName, sidebarNavItemClassName } from "@/lib/constants/ui";
+import {
+  mobileMoreMenuItemActiveClassName,
+  mobileMoreMenuItemClassName,
+  mobileNavItemActiveClassName,
+} from "@/lib/constants/mobile";
 import { cn } from "@/lib/utils";
 
 const moreNavItems = [
@@ -45,12 +49,18 @@ export function MobileMoreMenu({ open, onClose }: MobileMoreMenuProps) {
                   href={href}
                   onClick={onClose}
                   className={cn(
-                    sidebarNavItemClassName,
-                    "min-h-12 w-full rounded-xl px-4",
-                    active && sidebarNavItemActiveClassName,
+                    mobileMoreMenuItemClassName,
+                    active && mobileMoreMenuItemActiveClassName,
                   )}
                 >
-                  <Icon className="size-[1.125rem] shrink-0" aria-hidden />
+                  <Icon
+                    className={cn(
+                      "size-[1.125rem] shrink-0",
+                      active ? mobileNavItemActiveClassName : "text-inherit",
+                    )}
+                    strokeWidth={active ? 2.25 : 2.15}
+                    aria-hidden
+                  />
                   <span>{label}</span>
                 </Link>
               </li>
@@ -68,8 +78,8 @@ export function MobileMoreMenu({ open, onClose }: MobileMoreMenuProps) {
           }}
           disabled={isPending}
           className={cn(
-            sidebarNavItemClassName,
-            "min-h-12 w-full rounded-xl px-4 text-destructive hover:bg-destructive/10 hover:text-destructive",
+            mobileMoreMenuItemClassName,
+            "text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/10",
           )}
         >
           <LogOut className="size-[1.125rem] shrink-0" aria-hidden />

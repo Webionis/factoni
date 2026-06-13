@@ -19,6 +19,11 @@ import {
   clearDashboardActivityIntent,
   stripDashboardActivityHash,
 } from "@/lib/navigation/dashboard-activity";
+import {
+  mobileNavItemActiveBgClassName,
+  mobileNavItemActiveClassName,
+  mobileNavItemInactiveClassName,
+} from "@/lib/constants/mobile";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -28,9 +33,6 @@ const navItems = [
   { href: "/clients", label: "Clients", icon: Users },
   { href: "/agenda", label: "Agenda", icon: CalendarDays },
 ] as const;
-
-const navItemInactiveClassName =
-  "text-[#1e293b] hover:text-[#0f172a] dark:text-[#cbd5e1] dark:hover:text-[#f8fafc]";
 
 function NavActiveIndicator({ active }: { active: boolean }) {
   return (
@@ -95,21 +97,21 @@ export function BottomNav() {
                   className={cn(
                     "relative flex min-h-[48px] flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 text-[10px] font-semibold transition-[color,background-color,transform] duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.96] touch-manipulation",
                     active
-                      ? "text-[#1d4ed8]"
-                      : navItemInactiveClassName,
+                      ? mobileNavItemActiveClassName
+                      : mobileNavItemInactiveClassName,
                   )}
                   aria-current={active ? "page" : undefined}
                 >
                   <span
                     className={cn(
                       "relative inline-flex rounded-xl p-1.5 transition-colors duration-[180ms]",
-                      active && "bg-[rgba(37,99,235,0.08)] dark:bg-[rgba(59,130,246,0.14)]",
+                      active && mobileNavItemActiveBgClassName,
                     )}
                   >
                     <Icon
                       className={cn(
                         "size-[1.125rem]",
-                        active ? "text-[#1d4ed8]" : "text-inherit",
+                        active ? mobileNavItemActiveClassName : "text-inherit",
                       )}
                       strokeWidth={active ? 2.25 : 2.15}
                       aria-hidden
@@ -134,8 +136,8 @@ export function BottomNav() {
               className={cn(
                 "relative flex min-h-[48px] w-full flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 text-[10px] font-semibold transition-[color,transform] duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.96] touch-manipulation",
                 moreActive
-                  ? "text-[#1d4ed8]"
-                  : navItemInactiveClassName,
+                  ? mobileNavItemActiveClassName
+                  : mobileNavItemInactiveClassName,
               )}
               aria-expanded={moreOpen}
               aria-haspopup="dialog"
@@ -143,13 +145,13 @@ export function BottomNav() {
               <span
                 className={cn(
                   "rounded-xl p-1.5 transition-colors duration-[180ms]",
-                  moreActive && "bg-[rgba(37,99,235,0.08)] dark:bg-[rgba(59,130,246,0.14)]",
+                  moreActive && mobileNavItemActiveBgClassName,
                 )}
               >
                 <MoreHorizontal
                   className={cn(
                     "size-[1.125rem]",
-                    moreActive ? "text-[#1d4ed8]" : "text-inherit",
+                    moreActive ? mobileNavItemActiveClassName : "text-inherit",
                   )}
                   strokeWidth={moreActive ? 2.25 : 2.15}
                   aria-hidden

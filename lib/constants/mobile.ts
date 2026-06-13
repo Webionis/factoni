@@ -1,5 +1,27 @@
 import { cn } from "@/lib/utils";
 
+/** Onglet inactif — bottom nav & menu Plus mobile. */
+export const mobileNavItemInactiveClassName =
+  "text-[#1e293b] hover:text-[#0f172a] dark:text-[#cbd5e1] dark:hover:text-[#f8fafc]";
+
+/** Onglet actif — bottom nav & menu Plus mobile. */
+export const mobileNavItemActiveClassName = "text-[#1d4ed8]";
+
+export const mobileNavItemActiveBgClassName =
+  "bg-[rgba(37,99,235,0.08)] dark:bg-[rgba(59,130,246,0.14)]";
+
+/** Lien du menu Plus mobile. */
+export const mobileMoreMenuItemClassName = cn(
+  "flex min-h-12 w-full items-center gap-3 rounded-xl px-4 text-sm font-semibold transition-[color,background-color] duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)] touch-manipulation active:scale-[0.99]",
+  mobileNavItemInactiveClassName,
+  "hover:bg-[#f8fafc] active:bg-[#f1f5f9] dark:hover:bg-white/[0.06] dark:active:bg-white/[0.08]",
+);
+
+export const mobileMoreMenuItemActiveClassName = cn(
+  mobileNavItemActiveClassName,
+  mobileNavItemActiveBgClassName,
+);
+
 /** Hauteur de la bottom nav mobile (52px). */
 export const MOBILE_BOTTOM_NAV_HEIGHT = "3.25rem";
 
