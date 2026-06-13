@@ -15,6 +15,7 @@ export type AppContentWidth = "wide" | "list" | "narrow";
 
 export function getAppContentWidth(pathname: string): AppContentWidth {
   if (pathname === "/dashboard") return "wide";
+  if (pathname === "/agenda") return "wide";
   if (
     pathname === "/invoices" ||
     pathname === "/clients" ||

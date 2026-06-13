@@ -14,6 +14,7 @@ export const AUTH_ROUTES = ["/login", "/signup", "/forgot-password"] as const;
 /** Préfixes des routes applicatives protégées */
 export const PROTECTED_ROUTE_PREFIXES = [
   "/dashboard",
+  "/agenda",
   "/clients",
   "/invoices",
   "/settings",

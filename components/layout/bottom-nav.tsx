@@ -28,7 +28,10 @@ export function BottomNav() {
   const { unreadCount } = useUnreadNotifications();
   const [moreOpen, setMoreOpen] = useState(false);
 
-  const moreActive = moreOpen || pathname.startsWith("/settings/");
+  const moreActive =
+    moreOpen ||
+    pathname.startsWith("/settings/") ||
+    pathname.startsWith("/agenda");
 
   return (
     <>

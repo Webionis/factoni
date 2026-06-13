@@ -10,6 +10,7 @@ interface MobileBottomSheetProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  footer?: React.ReactNode;
 }
 
 export function MobileBottomSheet({
@@ -17,6 +18,7 @@ export function MobileBottomSheet({
   onClose,
   title,
   children,
+  footer,
 }: MobileBottomSheetProps) {
   const titleId = useId();
 
@@ -52,11 +54,11 @@ export function MobileBottomSheet({
         aria-modal="true"
         aria-labelledby={titleId}
         className={cn(
-          "fixed inset-x-0 bottom-0 z-[61] max-h-[min(85dvh,32rem)] overflow-y-auto rounded-t-2xl border-t border-[rgba(15,23,42,0.06)] bg-popover shadow-[0_-8px_32px_rgba(15,23,42,0.12)] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] animate-in slide-in-from-bottom md:hidden",
+          "fixed inset-x-0 bottom-0 z-[61] flex max-h-[min(85dvh,36rem)] flex-col overflow-hidden rounded-t-2xl border-t border-[rgba(15,23,42,0.06)] bg-popover shadow-[0_-8px_32px_rgba(15,23,42,0.12)] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] animate-in slide-in-from-bottom md:hidden",
           "pb-[env(safe-area-inset-bottom)]",
         )}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border/50 bg-popover/95 px-4 py-3 backdrop-blur-sm">
+        <div className="flex shrink-0 items-center justify-between border-b border-border/50 bg-popover/95 px-4 py-3 backdrop-blur-sm">
           <h2 id={titleId} className="text-base font-semibold tracking-tight">
             {title}
           </h2>
@@ -69,7 +71,14 @@ export function MobileBottomSheet({
             <X className="size-5" aria-hidden />
           </button>
         </div>
-        <div className="px-2 py-2">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-2">
+          {children}
+        </div>
+        {footer ? (
+          <div className="shrink-0 border-t border-border/50 bg-popover px-4 py-3">
+            {footer}
+          </div>
+        ) : null}
       </div>
     </>
   );

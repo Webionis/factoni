@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { ClientStatsCard } from "@/components/dashboard/client-stats-card";
 import { pageMetadata } from "@/lib/metadata";
+import { DashboardUpcomingJobs } from "@/components/dashboard/dashboard-upcoming-jobs";
 import { DashboardShortcuts } from "@/components/dashboard/dashboard-shortcuts";
 import { DashboardQuoteStats } from "@/components/dashboard/dashboard-quote-stats";
 import { DashboardStatGrid } from "@/components/dashboard/dashboard-stat-grid";
@@ -16,6 +17,15 @@ import { buildHeroInsights, getGreetingName } from "@/lib/dashboard/hero-insight
 import { buildOnboardingSteps } from "@/lib/dashboard/onboarding-steps";
 import { dashboardSectionStackClassName } from "@/lib/constants/dashboard-mobile";
 import { getDashboardData } from "@/lib/data/dashboard";
+import {
+  countScheduledJobsInRange,
+  listUpcomingScheduledJobs,
+} from "@/lib/data/scheduled-jobs";
+import {
+  endOfWeek,
+  startOfWeek,
+  toIsoDate,
+} from "@/lib/dates/calendar-range";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
@@ -31,11 +41,18 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const [data, company, onboardingDone] = await Promise.all([
-    getDashboardData(supabase, user.id),
-    getCompanyForUser(supabase, user.id),
-    isOnboardingCompleted(supabase, user.id),
-  ]);
+  const reference = new Date();
+  const weekStart = toIsoDate(startOfWeek(reference, true));
+  const weekEnd = toIsoDate(endOfWeek(reference, true));
+
+  const [data, company, onboardingDone, upcomingJobs, jobsThisWeek] =
+    await Promise.all([
+      getDashboardData(supabase, user.id),
+      getCompanyForUser(supabase, user.id),
+      isOnboardingCompleted(supabase, user.id),
+      listUpcomingScheduledJobs(supabase, user.id, toIsoDate(reference)),
+      countScheduledJobsInRange(supabase, user.id, weekStart, weekEnd),
+    ]);
 
   const onboardingSteps = buildOnboardingSteps({
     companyConfigured: onboardingDone && !!company?.trade_name?.trim(),
@@ -47,7 +64,6 @@ export default async function DashboardPage() {
     user.email?.split("@")[0] ||
     "Mon entreprise";
 
-  const reference = new Date();
   const monthLabel = new Intl.DateTimeFormat("fr-FR", {
     month: "long",
     year: "numeric",
@@ -60,6 +76,7 @@ export default async function DashboardPage() {
     revenueChart: data.revenueChart,
     notifications: data.notifications,
     reference,
+    jobsThisWeek,
   });
 
   return (
@@ -89,6 +106,8 @@ export default async function DashboardPage() {
       <RevenueChart chart={data.revenueChart} />
 
       <DashboardShortcuts />
+
+      <DashboardUpcomingJobs jobs={upcomingJobs} />
 
       <DashboardNotifications
         notifications={data.notifications}

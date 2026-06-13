@@ -167,6 +167,66 @@ export type Database = {
           },
         ]
       }
+      scheduled_jobs: {
+        Row: {
+          archived_at: string | null
+          client_id: string | null
+          client_location_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          scheduled_date: string
+          scheduled_time: string | null
+          status: Database["public"]["Enums"]["scheduled_job_status"]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          client_id?: string | null
+          client_location_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          scheduled_date: string
+          scheduled_time?: string | null
+          status?: Database["public"]["Enums"]["scheduled_job_status"]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          archived_at?: string | null
+          client_id?: string | null
+          client_location_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          scheduled_date?: string
+          scheduled_time?: string | null
+          status?: Database["public"]["Enums"]["scheduled_job_status"]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_jobs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_jobs_client_location_id_fkey"
+            columns: ["client_location_id"]
+            isOneToOne: false
+            referencedRelation: "client_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           address_line1: string
@@ -831,6 +891,7 @@ export type Database = {
         | "invoiced"
       quote_deposit_status: "none" | "requested" | "paid"
       quote_deposit_type: "percent" | "fixed"
+      scheduled_job_status: "planned" | "in_progress" | "done" | "cancelled"
       subscription_plan: "beta" | "free" | "starter" | "pro"
       subscription_status: "active" | "cancelled" | "past_due" | "trialing"
       vat_regime: "standard" | "franchise"

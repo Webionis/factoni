@@ -23,13 +23,22 @@ export function buildHeroInsights({
   revenueChart,
   notifications,
   reference = new Date(),
+  jobsThisWeek = 0,
 }: {
   stats: DashboardStats;
   revenueChart: RevenueChartPayload;
   notifications: DashboardNotification[];
   reference?: Date;
+  jobsThisWeek?: number;
 }): HeroInsight[] {
   const insights: HeroInsight[] = [];
+
+  if (jobsThisWeek > 0) {
+    insights.push({
+      label: `${jobsThisWeek} chantier${jobsThisWeek > 1 ? "s" : ""} cette semaine`,
+      tone: "neutral",
+    });
+  }
 
   const months = revenueChart.last6Months;
   if (months.length >= 2) {

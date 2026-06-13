@@ -34,6 +34,7 @@ export const pageTitles = {
   billing: "Abonnement",
   payments: "Paiements",
   exports: "Exports",
+  agenda: "Agenda",
   onboarding: "Configuration",
   legalNotice: "Mentions légales",
   privacy: "Confidentialité",

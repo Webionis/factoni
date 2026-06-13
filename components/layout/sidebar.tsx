@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  CalendarDays,
   ClipboardList,
   CreditCard,
   Download,
@@ -27,6 +28,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
+  { href: "/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/quotes", label: "Devis", icon: ClipboardList },
   { href: "/invoices", label: "Factures", icon: FileText },
   { href: "/clients", label: "Clients", icon: Users },

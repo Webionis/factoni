@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  CalendarDays,
   CreditCard,
   Download,
   LogOut,
@@ -18,6 +19,7 @@ import { sidebarNavItemActiveClassName, sidebarNavItemClassName } from "@/lib/co
 import { cn } from "@/lib/utils";
 
 const moreNavItems = [
+  { href: "/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/settings/company", label: "Mon entreprise", icon: Settings },
   { href: "/settings/payments", label: "Paiements", icon: Wallet },
   { href: "/settings/billing", label: "Abonnement", icon: CreditCard },

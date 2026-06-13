@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const FAB_ROUTES = ["/dashboard", "/quotes", "/invoices"];
+const FAB_ROUTES = ["/dashboard", "/quotes", "/invoices", "/agenda"];
 
 export function MobileQuickFab() {
   const pathname = usePathname();
@@ -24,8 +24,17 @@ export function MobileQuickFab() {
   }
 
   const onQuotes = pathname.startsWith("/quotes");
-  const href = onQuotes ? "/quotes/new" : "/invoices/new";
-  const label = onQuotes ? "Nouveau devis" : "Nouvelle facture";
+  const onAgenda = pathname.startsWith("/agenda");
+  const href = onAgenda
+    ? "/agenda?create=1"
+    : onQuotes
+      ? "/quotes/new"
+      : "/invoices/new";
+  const label = onAgenda
+    ? "Planifier un chantier"
+    : onQuotes
+      ? "Nouveau devis"
+      : "Nouvelle facture";
 
   return (
     <Link
