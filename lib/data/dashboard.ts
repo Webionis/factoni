@@ -18,6 +18,7 @@ import {
   isEffectivelyOverdue,
   isInCurrentMonth,
 } from "@/lib/invoices/overdue";
+import { invoiceRevenueTtc } from "@/lib/invoices/calculate";
 import { toInvoiceStatus } from "@/lib/invoices/status";
 import type { Database } from "@/types/database";
 
@@ -101,11 +102,13 @@ export function computeDashboardStats(
       countsTowardRevenue(status, inv.due_date, reference) &&
       isInCurrentMonth(inv.issue_date, reference)
     ) {
-      monthRevenueTtc += Number(inv.total_ttc);
+      monthRevenueTtc += invoiceRevenueTtc(inv);
     }
   }
 
-  const monthRevenueRounded = Math.round(monthRevenueTtc * 100) / 100;
+  const monthRevenueRounded = Number.isFinite(monthRevenueTtc)
+    ? Math.round(monthRevenueTtc * 100) / 100
+    : 0;
 
   const invoiceRows = invoices.filter((inv) =>
     isInvoiceDocument(inv.document_type),
@@ -140,7 +143,7 @@ export function computeMonthlyRevenue(
     for (const inv of invoices) {
       if (!inv.issue_date.startsWith(key)) continue;
       if (!countsTowardRevenue(toInvoiceStatus(inv.status), inv.due_date, d)) continue;
-      revenue += Number(inv.total_ttc);
+      revenue += invoiceRevenueTtc(inv);
     }
 
     points.push({
@@ -168,7 +171,7 @@ export function computeCalendarYearRevenue(
     for (const inv of invoices) {
       if (!inv.issue_date.startsWith(key)) continue;
       if (!countsTowardRevenue(toInvoiceStatus(inv.status), inv.due_date, d)) continue;
-      revenue += Number(inv.total_ttc);
+      revenue += invoiceRevenueTtc(inv);
     }
 
     points.push({

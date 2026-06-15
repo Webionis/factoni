@@ -2,15 +2,22 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { getClientById } from "@/lib/data/clients";
 import { getCompanyForUser } from "@/lib/auth/profile";
+import { autoTransmitInvoiceOnSend } from "@/lib/e-invoicing/auto-transmit-on-send";
 import { buildClientSnapshot, buildCompanySnapshot } from "@/lib/invoices/snapshots";
 import { canSendInvoiceByEmail, toInvoiceStatus } from "@/lib/invoices/status";
 import type { Database } from "@/types/database";
+
+export type TransitionInvoiceSentResult = {
+  error?: string;
+  einvoicingWarning?: string;
+  einvoicingSuccess?: string;
+};
 
 export async function transitionInvoiceReadyToSent(
   supabase: SupabaseClient<Database>,
   userId: string,
   invoiceId: string,
-): Promise<{ error?: string }> {
+): Promise<TransitionInvoiceSentResult> {
   const { data: invoice, error: readError } = await supabase
     .from("invoices")
     .select("id, status, document_type, client_id, archived_at")
@@ -64,6 +71,24 @@ export async function transitionInvoiceReadyToSent(
 
   if (updateError) {
     return { error: "Impossible de marquer la facture comme envoyée." };
+  }
+
+  const transmitResult = await autoTransmitInvoiceOnSend({
+    supabase,
+    userId,
+    invoiceId,
+  });
+
+  if (transmitResult.status === "success") {
+    return {
+      einvoicingSuccess: "Facture transmise à la Plateforme Agréée.",
+    };
+  }
+
+  if (transmitResult.status === "failed") {
+    return {
+      einvoicingWarning: `Facture envoyée, mais transmission PA échouée : ${transmitResult.error}`,
+    };
   }
 
   return {};

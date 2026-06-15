@@ -34,6 +34,8 @@ export const pageTitles = {
   billing: "Abonnement",
   payments: "Paiements",
   exports: "Exports",
+  catalog: "Catalogue prestations",
+  einvoicing: "Facturation électronique",
   agenda: "Agenda",
   onboarding: "Configuration",
   legalNotice: "Mentions légales",

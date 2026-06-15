@@ -47,7 +47,9 @@ function bodyTextAlignStyle(align: ColAlign, bold = false): Style {
 function renderLineValue(line: PdfInvoiceLine, col: TableColumn): string {
   switch (col.key) {
     case "desc":
-      return line.description;
+      return line.itemNature === "service"
+        ? line.description
+        : `${line.description}\n${line.itemNatureLabel}`;
     case "qty":
       return formatPdfQuantity(line.quantity);
     case "pu":

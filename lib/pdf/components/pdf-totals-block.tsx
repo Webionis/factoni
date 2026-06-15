@@ -19,6 +19,7 @@ export function PdfTotalsBlock({ data }: PdfTotalsBlockProps) {
     ? data.linesSubtotalHt - data.totalHt
     : 0;
 
+  const hasDisbursements = data.disbursementTtc > 0;
   const vatLabel = buildPdfVatTotalLabel(data.vatRegime, data.vatBreakdown);
   const totalsMinPresence = estimateTotalsBoxMinPresence(data);
 
@@ -38,7 +39,9 @@ export function PdfTotalsBlock({ data }: PdfTotalsBlockProps) {
             {hasDiscount ? (
               <>
                 <View style={pdfStyles.totalRow}>
-                  <Text style={pdfStyles.totalLabelMuted}>Sous-total HT</Text>
+                  <Text style={pdfStyles.totalLabelMuted}>
+                    Sous-total prestations HT
+                  </Text>
                   <Text style={pdfStyles.totalValue}>
                     {formatPdfMoney(data.linesSubtotalHt)}
                   </Text>
@@ -57,7 +60,7 @@ export function PdfTotalsBlock({ data }: PdfTotalsBlockProps) {
             ) : null}
 
             <View style={pdfStyles.totalRow}>
-              <Text style={pdfStyles.totalLabel}>Total HT</Text>
+              <Text style={pdfStyles.totalLabel}>Total prestations HT</Text>
               <Text style={pdfStyles.totalValue}>
                 {formatPdfMoney(data.totalHt)}
               </Text>
@@ -70,10 +73,22 @@ export function PdfTotalsBlock({ data }: PdfTotalsBlockProps) {
                 {formatPdfMoney(data.totalVat)}
               </Text>
             </View>
+            {hasDisbursements ? (
+              <View style={pdfStyles.totalRow}>
+                <Text style={pdfStyles.totalLabelMuted}>
+                  Frais de débours refacturés
+                </Text>
+                <Text style={pdfStyles.totalValue}>
+                  {formatPdfMoney(data.disbursementTtc)}
+                </Text>
+              </View>
+            ) : null}
           </View>
 
           <View style={[pdfStyles.totalsTtcBar, pdfStyles.totalsTtcBarRoundedBottom]}>
-            <Text style={pdfStyles.totalTtcLabel}>Total TTC</Text>
+            <Text style={pdfStyles.totalTtcLabel}>
+              {hasDisbursements ? "Total TTC à payer" : "Total TTC"}
+            </Text>
             <Text style={pdfStyles.totalTtcValue}>
               {formatPdfMoney(data.totalTtc)}
             </Text>

@@ -25,6 +25,7 @@
     "@base-ui/react": "^1.5.0",
     "@hookform/resolvers": "^5.4.0",
     "@react-pdf/renderer": "^4.5.1",
+    "@stackforge-eu/factur-x": "^1.1.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.107.0",
     "class-variance-authority": "^0.7.1",

@@ -28,7 +28,9 @@ import {
 import { getQuoteById } from "@/lib/data/quotes";
 import { isInvoiceArchived } from "@/lib/invoices/archive";
 import { getInvoiceClientEmail } from "@/lib/invoices/client-contact";
-import { formatCurrency, roundMoney, type InvoiceTotals } from "@/lib/invoices/calculate";
+import { buildDocumentTotalsDisplay } from "@/lib/invoices/document-totals";
+import { formatCurrency } from "@/lib/invoices/calculate";
+import { parseCompanySnapshot } from "@/lib/pdf/parse-snapshots";
 import {
   getEffectiveQuoteStatus,
   quoteHasVisibleActions,
@@ -104,20 +106,9 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
   const editable = isQuoteEditable(quoteStatus);
   const snapshotFrozen = isQuoteContentFrozen(quoteStatus);
   const lines = quote.invoice_lines ?? [];
-
-  const subtotal_ht = roundMoney(
-    lines.reduce((s, l) => s + Number(l.line_total_ht), 0),
-  );
-  const subtotal_vat = roundMoney(
-    lines.reduce((s, l) => s + Number(l.line_vat), 0),
-  );
-  const totals: InvoiceTotals = {
-    subtotal_ht,
-    subtotal_vat,
-    total_ht: Number(quote.total_ht),
-    total_vat: Number(quote.total_vat),
-    total_ttc: Number(quote.total_ttc),
-  };
+  const vatRegime =
+    parseCompanySnapshot(quote.company_snapshot)?.vatRegime ?? "standard";
+  const totals = buildDocumentTotalsDisplay(quote, vatRegime);
 
   const hasStatusActions = quoteHasVisibleActions(
     quoteStatus,

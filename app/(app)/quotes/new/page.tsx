@@ -5,7 +5,9 @@ import { redirect } from "next/navigation";
 import { InvoiceForm } from "@/components/forms/invoice-form";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DEFAULT_INVOICE_PAYMENT_TERM } from "@/lib/constants/payment-terms";
+import { DEFAULT_INVOICE_LINE_ITEM_NATURE } from "@/lib/invoices/item-nature";
 import { getCompanyForUser } from "@/lib/auth/profile";
+import { listCatalogItemsForUser } from "@/lib/data/catalog-items";
 import { listClientsForUser } from "@/lib/data/clients";
 import { defaultQuoteValidityDate } from "@/lib/dates/quote-dates";
 import { todayIsoDate } from "@/lib/dates/invoice-dates";
@@ -31,6 +33,7 @@ export default async function NewQuotePage() {
   }
 
   const clients = await listClientsForUser(supabase, user.id);
+  const catalogItems = await listCatalogItemsForUser(supabase, user.id);
   const today = todayIsoDate();
 
   if (clients.length === 0) {
@@ -66,6 +69,7 @@ export default async function NewQuotePage() {
         quantity: 1,
         unit_price_ht: 0,
         vat_rate: company.vat_regime === "franchise" ? 0 : 20,
+        item_nature: DEFAULT_INVOICE_LINE_ITEM_NATURE,
       },
     ],
   };
@@ -90,6 +94,7 @@ export default async function NewQuotePage() {
         documentType="quote"
         initialValues={initialValues}
         clients={clients}
+        catalogItems={catalogItems}
         vatRegime={company.vat_regime}
       />
     </div>

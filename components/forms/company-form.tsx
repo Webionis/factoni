@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { completeOnboarding, updateCompany } from "@/lib/actions/company";
@@ -57,6 +57,7 @@ export function CompanyForm({ mode, initialValues }: CompanyFormProps) {
     handleSubmit,
     watch,
     setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<CompanyFormValues>({
     resolver: zodResolver(companyFormSchema),
@@ -64,13 +65,44 @@ export function CompanyForm({ mode, initialValues }: CompanyFormProps) {
   });
 
   const vatRegime = watch("vat_regime");
+  const previousLegalMentionsRef = useRef(
+    initialValues?.legal_mentions &&
+      initialValues.legal_mentions !== FRANCHISE_MENTION
+      ? initialValues.legal_mentions
+      : "",
+  );
+  const previousDefaultVatRateRef = useRef(
+    initialValues?.default_vat_rate && initialValues.default_vat_rate !== 0
+      ? initialValues.default_vat_rate
+      : 20,
+  );
 
   useEffect(() => {
     if (vatRegime === "franchise") {
+      const currentLegal = getValues("legal_mentions") ?? "";
+      const currentRate = getValues("default_vat_rate");
+
+      if (currentLegal !== FRANCHISE_MENTION) {
+        previousLegalMentionsRef.current = currentLegal;
+      }
+      if (currentRate !== 0) {
+        previousDefaultVatRateRef.current = currentRate;
+      }
+
       setValue("default_vat_rate", 0);
       setValue("legal_mentions", FRANCHISE_MENTION);
+      return;
     }
-  }, [vatRegime, setValue]);
+
+    const currentLegal = getValues("legal_mentions") ?? "";
+    if (currentLegal === FRANCHISE_MENTION) {
+      setValue("legal_mentions", previousLegalMentionsRef.current);
+    }
+
+    if (getValues("default_vat_rate") === 0) {
+      setValue("default_vat_rate", previousDefaultVatRateRef.current);
+    }
+  }, [vatRegime, setValue, getValues]);
 
   async function onSubmit(values: CompanyFormValues) {
     if (isSubmitting) return;

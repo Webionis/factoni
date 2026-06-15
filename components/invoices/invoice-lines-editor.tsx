@@ -6,18 +6,23 @@ import {
   type FieldArrayWithId,
   type UseFieldArrayAppend,
   type UseFieldArrayRemove,
+  useFormContext,
   useWatch,
 } from "react-hook-form";
 
+import { CatalogItemPicker } from "@/components/invoices/catalog-item-picker";
+import { InvoiceLineItemNatureField } from "@/components/invoices/invoice-line-item-nature-field";
 import { InvoiceTotalsSummary } from "@/components/invoices/invoice-totals-summary";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { NumericFormInput } from "@/components/ui/numeric-form-input";
 import { Input } from "@/components/ui/input";
+import type { CatalogItemRow } from "@/lib/data/catalog-items";
 import { FRENCH_VAT_RATES } from "@/lib/constants/vat";
 import type { VatRegime } from "@/lib/constants/vat";
+import { DEFAULT_INVOICE_LINE_ITEM_NATURE, isDisbursementLine } from "@/lib/invoices/item-nature";
 import { calculateLinesAndTotals } from "@/lib/invoices/calculate";
-import { parseInvoiceDiscounts, type InvoiceFormValues } from "@/lib/validations/invoice";
+import { parseInvoiceDiscounts, type InvoiceFormValues, type InvoiceLineFormValues } from "@/lib/validations/invoice";
 import { selectClassName, surfaceCardClassName } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +31,7 @@ const emptyLine = {
   quantity: 1,
   unit_price_ht: 0,
   vat_rate: 20,
+  item_nature: DEFAULT_INVOICE_LINE_ITEM_NATURE,
 };
 
 interface InvoiceLinesEditorProps {
@@ -38,6 +44,15 @@ interface InvoiceLinesEditorProps {
   >["register"];
   errors: import("react-hook-form").FieldErrors<InvoiceFormValues>;
   vatRegime: VatRegime;
+  catalogItems: CatalogItemRow[];
+}
+
+function findFirstEmptyLineIndex(
+  lines: InvoiceFormValues["lines"] | undefined,
+): number | null {
+  if (!lines?.length) return 0;
+  const index = lines.findIndex((line) => !line?.description?.trim());
+  return index >= 0 ? index : null;
 }
 
 export function InvoiceLinesEditor({
@@ -48,15 +63,18 @@ export function InvoiceLinesEditor({
   register,
   errors,
   vatRegime,
+  catalogItems,
 }: InvoiceLinesEditorProps) {
+  const { setValue } = useFormContext<InvoiceFormValues>();
   const watchedLines = useWatch({ control, name: "lines" });
   const watchedDiscountPercent = useWatch({ control, name: "discount_percent" });
   const watchedDiscountAmount = useWatch({ control, name: "discount_amount" });
 
-  const linesForCalc = (watchedLines ?? []).map((l) => ({
-    quantity: Number(l?.quantity) || 0,
-    unit_price_ht: Number(l?.unit_price_ht) || 0,
-    vat_rate: Number(l?.vat_rate) || 0,
+  const linesForCalc = (watchedLines ?? []).map((line) => ({
+    quantity: Number(line?.quantity) || 0,
+    unit_price_ht: Number(line?.unit_price_ht) || 0,
+    vat_rate: Number(line?.vat_rate) || 0,
+    item_nature: line?.item_nature ?? DEFAULT_INVOICE_LINE_ITEM_NATURE,
   }));
 
   const fakeForm: InvoiceFormValues = {
@@ -68,6 +86,7 @@ export function InvoiceLinesEditor({
       quantity: l.quantity,
       unit_price_ht: l.unit_price_ht,
       vat_rate: l.vat_rate,
+      item_nature: l.item_nature ?? DEFAULT_INVOICE_LINE_ITEM_NATURE,
     })),
     discount_percent:
       watchedDiscountPercent != null && !Number.isNaN(Number(watchedDiscountPercent))
@@ -95,6 +114,24 @@ export function InvoiceLinesEditor({
     });
   }
 
+  function addCatalogLine(line: InvoiceLineFormValues) {
+    const normalized: InvoiceLineFormValues = {
+      ...line,
+      vat_rate: vatRegime === "franchise" ? 0 : line.vat_rate,
+    };
+
+    const emptyLineIndex = findFirstEmptyLineIndex(watchedLines);
+    if (emptyLineIndex !== null) {
+      setValue(`lines.${emptyLineIndex}`, normalized, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      return;
+    }
+
+    append(normalized);
+  }
+
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">Prestations</h2>
@@ -106,6 +143,10 @@ export function InvoiceLinesEditor({
       <ul className="space-y-4">
         {fields.map((field, index) => {
           const lineErr = Array.isArray(lineErrors) ? lineErrors[index] : undefined;
+          const itemNature =
+            watchedLines?.[index]?.item_nature ?? DEFAULT_INVOICE_LINE_ITEM_NATURE;
+          const isDisbursement = isDisbursementLine(itemNature);
+          const vatFieldDisabled = vatRegime === "franchise" || isDisbursement;
           return (
             <li
               key={field.id}
@@ -138,6 +179,11 @@ export function InvoiceLinesEditor({
                   {...register(`lines.${index}.description`)}
                 />
               </FormField>
+              <InvoiceLineItemNatureField
+                index={index}
+                vatRegime={vatRegime}
+                error={lineErr?.item_nature?.message}
+              />
               <div className="grid grid-cols-3 gap-2">
                 <FormField
                   label="Qté"
@@ -171,11 +217,20 @@ export function InvoiceLinesEditor({
                   label="TVA %"
                   htmlFor={`lines.${index}.vat_rate`}
                   error={lineErr?.vat_rate?.message}
+                  hint={
+                    isDisbursement
+                      ? "TVA non applicable sur les frais de débours"
+                      : undefined
+                  }
                 >
                   <select
                     id={`lines.${index}.vat_rate`}
-                    className={cn(selectClassName, "px-1")}
-                    disabled={vatRegime === "franchise"}
+                    className={cn(
+                      selectClassName,
+                      "px-1",
+                      vatFieldDisabled && "cursor-not-allowed opacity-60",
+                    )}
+                    disabled={vatFieldDisabled}
                     {...register(`lines.${index}.vat_rate`, {
                       valueAsNumber: true,
                     })}
@@ -199,16 +254,19 @@ export function InvoiceLinesEditor({
         aria-label="Fin des prestations"
       >
         <div className="h-px flex-1 bg-border/70" aria-hidden />
-        <Button
-          type="button"
-          variant="outline"
-          size="default"
-          className="h-11 shrink-0 gap-2 px-4 sm:min-w-[220px]"
-          onClick={addLine}
-        >
-          <Plus className="size-4" aria-hidden />
-          Ajouter une prestation
-        </Button>
+        <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+          <CatalogItemPicker items={catalogItems} onSelect={addCatalogLine} />
+          <Button
+            type="button"
+            variant="outline"
+            size="default"
+            className="h-11 shrink-0 gap-2 px-4 sm:min-w-[220px]"
+            onClick={addLine}
+          >
+            <Plus className="size-4" aria-hidden />
+            Ajouter une prestation
+          </Button>
+        </div>
         <div className="h-px flex-1 bg-border/70" aria-hidden />
       </div>
 

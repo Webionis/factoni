@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { InvoiceForm } from "@/components/forms/invoice-form";
 import { getCompanyForUser } from "@/lib/auth/profile";
+import { listCatalogItemsForUser } from "@/lib/data/catalog-items";
 import { listClientsForUser } from "@/lib/data/clients";
 import { getQuoteById } from "@/lib/data/quotes";
 import { pageMetadata } from "@/lib/metadata";
@@ -42,6 +43,7 @@ export default async function EditQuotePage({ params }: EditQuotePageProps) {
   }
 
   const clients = await listClientsForUser(supabase, user.id);
+  const catalogItems = await listCatalogItemsForUser(supabase, user.id);
 
   return (
     <div className="w-full space-y-6">
@@ -64,6 +66,7 @@ export default async function EditQuotePage({ params }: EditQuotePageProps) {
         invoiceId={quote.id}
         initialValues={invoiceToFormValues(quote)}
         clients={clients}
+        catalogItems={catalogItems}
         vatRegime={company.vat_regime}
       />
     </div>

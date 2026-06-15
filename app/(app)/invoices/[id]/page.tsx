@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 
+import { InvoiceEinvoicingCard } from "@/components/einvoicing/invoice-einvoicing-card";
 import { CopyPublicDocumentLinkButton } from "@/components/documents/copy-public-document-link-button";
 import { InterventionLocationCard } from "@/components/documents/intervention-location-card";
 import { ArchiveInvoiceDialog } from "@/components/invoices/archive-invoice-dialog";
@@ -15,6 +16,7 @@ import { InvoiceArchivedBadge } from "@/components/invoices/invoice-archived-bad
 import { RestoreInvoiceButton } from "@/components/invoices/restore-invoice-button";
 import { DuplicateInvoiceButton } from "@/components/invoices/duplicate-invoice-button";
 import { DownloadInvoicePdfButton } from "@/components/invoices/download-invoice-pdf-button";
+import { DownloadFacturXButton } from "@/components/documents/download-factur-x-button";
 import { DownloadInvoiceReceiptButton } from "@/components/invoices/download-invoice-receipt-button";
 import { InvoicePaymentReceived } from "@/components/invoices/invoice-payment-received";
 import { InvoiceReminderButton } from "@/components/invoices/invoice-reminder-button";
@@ -26,22 +28,29 @@ import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge";
 import { InvoiceTotalsSummary } from "@/components/invoices/invoice-totals-summary";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getClientById } from "@/lib/data/clients";
+import {
+  getCompanyEinvoicingSettings,
+  getLatestInvoiceTransmission,
+} from "@/lib/data/einvoicing";
+import { isPlatformEinvoicingActive } from "@/lib/e-invoicing/config";
+import { isEinvoicingTransmissionConfigured } from "@/lib/e-invoicing/resolve-provider";
 import {
   clientNameFromInvoice,
   clientNameFromSnapshot,
   getInvoiceOnlyById,
 } from "@/lib/data/invoices";
+import { assessInvoiceEinvoicingReadiness } from "@/lib/e-invoicing/readiness";
+import { prepareInvoicePdfData } from "@/lib/pdf/prepare-data";
 import {
   getInvoiceClientDisplayName,
   getInvoiceClientEmail,
 } from "@/lib/invoices/client-contact";
 import { canSendInvoiceReminder } from "@/lib/invoices/reminder-eligibility";
 import { canDownloadPaymentReceipt } from "@/lib/invoices/receipt-eligibility";
-import {
-  formatCurrency,
-  roundMoney,
-  type InvoiceTotals,
-} from "@/lib/invoices/calculate";
+import { buildDocumentTotalsDisplay } from "@/lib/invoices/document-totals";
+import { formatCurrency } from "@/lib/invoices/calculate";
+import { parseCompanySnapshot } from "@/lib/pdf/parse-snapshots";
 import {
   getEffectiveInvoiceStatus,
   isImplicitlyOverdue,
@@ -117,20 +126,9 @@ export default async function InvoiceDetailPage({
     clientNameFromSnapshot(invoice.client_snapshot) ??
     clientNameFromInvoice(invoice);
   const lines = invoice.invoice_lines ?? [];
-
-  const subtotal_ht = roundMoney(
-    lines.reduce((s, l) => s + Number(l.line_total_ht), 0),
-  );
-  const subtotal_vat = roundMoney(
-    lines.reduce((s, l) => s + Number(l.line_vat), 0),
-  );
-  const totals: InvoiceTotals = {
-    subtotal_ht,
-    subtotal_vat,
-    total_ht: Number(invoice.total_ht),
-    total_vat: Number(invoice.total_vat),
-    total_ttc: Number(invoice.total_ttc),
-  };
+  const vatRegime =
+    parseCompanySnapshot(invoice.company_snapshot)?.vatRegime ?? "standard";
+  const totals = buildDocumentTotalsDisplay(invoice, vatRegime);
 
   const invoiceStatus = normalizeInvoiceStatus(invoice.status);
   const editable = isInvoiceEditable(invoiceStatus);
@@ -167,6 +165,10 @@ export default async function InvoiceDetailPage({
   const showSendEmail =
     !archived && canSendInvoiceByEmail(invoiceStatus) && lines.length > 0;
   const showDownloadPdf = !archived && lines.length > 0;
+  const isPreSendInvoice =
+    invoiceStatus === "draft" || invoiceStatus === "ready";
+  const showClassicPdfDownload = showDownloadPdf && isPreSendInvoice;
+  const showFacturXDownload = showDownloadPdf && !isPreSendInvoice;
   const showDuplicateFromTemplate = invoiceStatus !== "ready";
   const draftPdfLabel =
     invoiceStatus === "draft" ? "Télécharger le brouillon PDF" : "Télécharger PDF";
@@ -177,13 +179,45 @@ export default async function InvoiceDetailPage({
   const showActionsCard =
     showRestore || (!archived && (hasStatusActions || showArchive));
   const showRemindersSection = !archived && showReminder;
+  const showEinvoicingCard =
+    !archived &&
+    lines.length > 0 &&
+    invoiceStatus !== "draft" &&
+    invoiceStatus !== "ready" &&
+    invoiceStatus !== "cancelled";
 
-  const [reminders, company] = showRemindersSection
-    ? await Promise.all([
-        listInvoiceReminders(supabase, invoice.id),
-        getCompanyForUser(supabase, user.id),
-      ])
-    : [[], null];
+  const [reminders, company, einvoicingContext] = await Promise.all([
+    showRemindersSection
+      ? listInvoiceReminders(supabase, invoice.id)
+      : Promise.resolve([]),
+    showRemindersSection || showEinvoicingCard
+      ? getCompanyForUser(supabase, user.id)
+      : Promise.resolve(null),
+    showEinvoicingCard
+      ? (async () => {
+          const [client, settings, latestTransmission] = await Promise.all([
+            getClientById(supabase, invoice.client_id),
+            getCompanyEinvoicingSettings(supabase, invoice.company_id),
+            getLatestInvoiceTransmission(supabase, invoice.id),
+          ]);
+          if (!client) {
+            return null;
+          }
+          const pdfData = await prepareInvoicePdfData(
+            invoice,
+            supabase,
+            user.id,
+          );
+          const report = assessInvoiceEinvoicingReadiness({
+            invoice,
+            client,
+            pdfData,
+            providerConfigured: isEinvoicingTransmissionConfigured(settings),
+          });
+          return { report, latestTransmission };
+        })()
+      : Promise.resolve(null),
+  ]);
 
   const sentAutoTypes = showRemindersSection
     ? await getSentAutoReminderTypes(supabase, invoice.id)
@@ -337,10 +371,17 @@ export default async function InvoiceDetailPage({
             }
           />
         ) : null}
-        {showDownloadPdf ? (
+        {showClassicPdfDownload ? (
           <DownloadInvoicePdfButton
             invoiceId={invoice.id}
             label={draftPdfLabel}
+          />
+        ) : null}
+        {showFacturXDownload ? (
+          <DownloadFacturXButton
+            apiPath={`/api/invoices/${invoice.id}/factur-x`}
+            label="Télécharger Factur-X"
+            variant="default"
           />
         ) : null}
         {showDownloadReceipt ? (
@@ -392,6 +433,15 @@ export default async function InvoiceDetailPage({
           </Link>
         ) : null}
       </div>
+
+      {einvoicingContext ? (
+        <InvoiceEinvoicingCard
+          invoiceId={invoice.id}
+          report={einvoicingContext.report}
+          latestTransmission={einvoicingContext.latestTransmission}
+          platformPaEnabled={isPlatformEinvoicingActive()}
+        />
+      ) : null}
 
       {showRemindersSection && company ? (
         <InvoiceRemindersSection

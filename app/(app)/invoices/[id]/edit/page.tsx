@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { InvoiceForm } from "@/components/forms/invoice-form";
 import { pageMetadata } from "@/lib/metadata";
 import { getCompanyForUser } from "@/lib/auth/profile";
+import { listCatalogItemsForUser } from "@/lib/data/catalog-items";
 import { listClientsForUser } from "@/lib/data/clients";
 import { getInvoiceOnlyById } from "@/lib/data/invoices";
 import { invoiceToFormValues } from "@/lib/validations/invoice";
@@ -42,6 +43,7 @@ export default async function EditInvoicePage({ params }: EditInvoicePageProps) 
   }
 
   const clients = await listClientsForUser(supabase, user.id);
+  const catalogItems = await listCatalogItemsForUser(supabase, user.id);
 
   return (
     <div className="w-full space-y-6">
@@ -63,6 +65,7 @@ export default async function EditInvoicePage({ params }: EditInvoicePageProps) 
         invoiceId={invoice.id}
         initialValues={invoiceToFormValues(invoice)}
         clients={clients}
+        catalogItems={catalogItems}
         vatRegime={company.vat_regime}
       />
     </div>

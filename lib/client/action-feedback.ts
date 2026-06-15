@@ -41,6 +41,12 @@ export function applyActionResult(
   if (result.success && options?.successMessage) {
     toast.success(options.successMessage);
   }
+  if (result.successDetail) {
+    toast.success(result.successDetail);
+  }
+  if (result.warning) {
+    toast.warning(result.warning);
+  }
   options?.onSuccess?.();
   return true;
 }

@@ -21,6 +21,7 @@ export function quoteToInvoiceFormValues(quote: QuoteDetail): InvoiceFormValues 
       quantity: Number(line.quantity),
       unit_price_ht: Number(line.unit_price_ht),
       vat_rate: Number(line.vat_rate),
+      item_nature: line.item_nature ?? "service",
     })),
   };
 }

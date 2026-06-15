@@ -50,6 +50,8 @@ export const NETWORK_ERROR_MESSAGE =
 export type ActionResult = {
   error?: string;
   success?: boolean;
+  warning?: string;
+  successDetail?: string;
 };
 
 export function actionErrorFromSupabase(

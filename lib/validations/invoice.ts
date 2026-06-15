@@ -2,6 +2,11 @@ import { z } from "zod";
 
 import type { InvoiceDetail } from "@/lib/data/invoices";
 import { FRENCH_VAT_RATES } from "@/lib/constants/vat";
+import {
+  DEFAULT_INVOICE_LINE_ITEM_NATURE,
+  INVOICE_LINE_ITEM_NATURES,
+  isDisbursementLine,
+} from "@/lib/invoices/item-nature";
 
 export const invoiceLineSchema = z.object({
   description: z.string().min(1, "Description requise"),
@@ -13,6 +18,7 @@ export const invoiceLineSchema = z.object({
       (v) => FRENCH_VAT_RATES.includes(v as (typeof FRENCH_VAT_RATES)[number]),
       "Taux TVA invalide",
     ),
+  item_nature: z.enum(INVOICE_LINE_ITEM_NATURES),
 });
 
 export type InvoiceLineFormValues = z.infer<typeof invoiceLineSchema>;
@@ -50,6 +56,15 @@ export const invoiceFormSchema = z
         path: ["discount_amount"],
       });
     }
+    data.lines.forEach((line, index) => {
+      if (isDisbursementLine(line.item_nature) && line.vat_rate !== 0) {
+        ctx.addIssue({
+          code: "custom",
+          message: "La TVA doit être à 0 % pour un frais de débours",
+          path: ["lines", index, "vat_rate"],
+        });
+      }
+    });
   });
 
 export type InvoiceFormValues = z.infer<typeof invoiceFormSchema>;
@@ -68,7 +83,10 @@ export function invoiceToFormValues(invoice: InvoiceDetail): InvoiceFormValues {
       description: line.description,
       quantity: Number(line.quantity),
       unit_price_ht: Number(line.unit_price_ht),
-      vat_rate: Number(line.vat_rate),
+      vat_rate: isDisbursementLine(line.item_nature)
+        ? 0
+        : Number(line.vat_rate),
+      item_nature: line.item_nature ?? DEFAULT_INVOICE_LINE_ITEM_NATURE,
     })),
   };
 }

@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BookMarked,
   CreditCard,
   Download,
   LogOut,
+  Send,
   Settings,
   Wallet,
 } from "lucide-react";
@@ -22,6 +24,8 @@ import { cn } from "@/lib/utils";
 
 const moreNavItems = [
   { href: "/settings/company", label: "Mon entreprise", icon: Settings },
+  { href: "/settings/catalog", label: "Catalogue", icon: BookMarked },
+  { href: "/settings/einvoicing", label: "Facturation électronique", icon: Send },
   { href: "/settings/payments", label: "Paiements", icon: Wallet },
   { href: "/settings/billing", label: "Abonnement", icon: CreditCard },
   { href: "/settings/exports", label: "Exports", icon: Download },

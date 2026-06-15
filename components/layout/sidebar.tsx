@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  BookMarked,
   CalendarDays,
   ClipboardList,
   CreditCard,
   Download,
   FileText,
   LayoutDashboard,
+  Send,
   Settings,
   Users,
   Wallet,
@@ -37,6 +39,8 @@ const navItems = [
   { href: "/invoices", label: "Factures", icon: FileText },
   { href: "/clients", label: "Clients", icon: Users },
   { href: "/settings/company", label: "Mon entreprise", icon: Settings },
+  { href: "/settings/catalog", label: "Catalogue", icon: BookMarked },
+  { href: "/settings/einvoicing", label: "Facturation électronique", icon: Send },
   { href: "/settings/payments", label: "Paiements", icon: Wallet },
   { href: "/settings/billing", label: "Abonnement", icon: CreditCard },
   { href: "/settings/exports", label: "Exports", icon: Download },

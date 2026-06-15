@@ -1,4 +1,6 @@
 import type { VatRegime } from "@/lib/constants/vat";
+import type { InvoiceLineItemNature } from "@/lib/invoices/item-nature";
+import { isDisbursementLine } from "@/lib/invoices/item-nature";
 
 /** Arrondi commercial à 2 décimales */
 export function roundMoney(value: number): number {
@@ -16,6 +18,7 @@ export interface InvoiceLineInput {
   quantity: number;
   unit_price_ht: number;
   vat_rate: number;
+  item_nature?: InvoiceLineItemNature;
 }
 
 export interface CalculatedInvoiceLine {
@@ -36,7 +39,9 @@ export function calculateInvoiceLine(
   input: InvoiceLineInput,
   vatRegime: VatRegime = "standard",
 ): CalculatedInvoiceLine {
-  const rate = effectiveVatRate(input.vat_rate, vatRegime);
+  const rate = isDisbursementLine(input.item_nature)
+    ? 0
+    : effectiveVatRate(input.vat_rate, vatRegime);
   const line_total_ht = roundMoney(input.quantity * input.unit_price_ht);
   const line_vat = roundMoney(line_total_ht * (rate / 100));
   const line_total_ttc = roundMoney(line_total_ht + line_vat);
@@ -56,10 +61,21 @@ export interface InvoiceTotalsInput {
 }
 
 export interface InvoiceTotals {
+  /** HT prestations (hors débours), avant remise */
   subtotal_ht: number;
+  /** TVA prestations, avant remise */
   subtotal_vat: number;
+  /** HT prestations après remise */
   total_ht: number;
+  /** TVA prestations après remise */
   total_vat: number;
+  /** TTC prestations après remise */
+  revenue_total_ttc: number;
+  /** Frais de débours refacturés (HT) */
+  disbursement_ht: number;
+  /** Frais de débours refacturés (TTC) */
+  disbursement_ttc: number;
+  /** Total à payer = prestations TTC + débours TTC */
   total_ttc: number;
 }
 
@@ -67,10 +83,10 @@ export function calculateInvoiceTotals(
   input: InvoiceTotalsInput,
 ): InvoiceTotals {
   const subtotal_ht = roundMoney(
-    input.lines.reduce((sum, l) => sum + l.line_total_ht, 0),
+    input.lines.reduce((sum, line) => sum + line.line_total_ht, 0),
   );
   const subtotal_vat = roundMoney(
-    input.lines.reduce((sum, l) => sum + l.line_vat, 0),
+    input.lines.reduce((sum, line) => sum + line.line_vat, 0),
   );
 
   let total_ht = subtotal_ht;
@@ -91,15 +107,28 @@ export function calculateInvoiceTotals(
     }
   }
 
-  const total_ttc = roundMoney(total_ht + total_vat);
+  const revenue_total_ttc = roundMoney(total_ht + total_vat);
 
   return {
     subtotal_ht,
     subtotal_vat,
     total_ht,
     total_vat,
-    total_ttc,
+    revenue_total_ttc,
+    disbursement_ht: 0,
+    disbursement_ttc: 0,
+    total_ttc: revenue_total_ttc,
   };
+}
+
+function sumCalculatedLines(
+  lines: CalculatedInvoiceLine[],
+  field: keyof Pick<
+    CalculatedInvoiceLine,
+    "line_total_ht" | "line_vat" | "line_total_ttc"
+  >,
+): number {
+  return roundMoney(lines.reduce((sum, line) => sum + line[field], 0));
 }
 
 export function calculateLinesAndTotals(
@@ -116,10 +145,61 @@ export function calculateLinesAndTotals(
   const calculatedLines = lines.map((line) =>
     calculateInvoiceLine(line, vatRegime),
   );
-  const totals = calculateInvoiceTotals({
-    lines: calculatedLines,
+
+  const revenueCalculated: CalculatedInvoiceLine[] = [];
+  const disbursementCalculated: CalculatedInvoiceLine[] = [];
+
+  for (let index = 0; index < lines.length; index++) {
+    const calculated = calculatedLines[index];
+    if (isDisbursementLine(lines[index]?.item_nature)) {
+      disbursementCalculated.push(calculated);
+    } else {
+      revenueCalculated.push(calculated);
+    }
+  }
+
+  const revenueTotals = calculateInvoiceTotals({
+    lines: revenueCalculated,
     discount_percent: discount?.discount_percent,
     discount_amount: discount?.discount_amount,
   });
-  return { calculatedLines, totals };
+
+  const disbursement_ht = sumCalculatedLines(disbursementCalculated, "line_total_ht");
+  const disbursement_ttc = sumCalculatedLines(
+    disbursementCalculated,
+    "line_total_ttc",
+  );
+
+  return {
+    calculatedLines,
+    totals: {
+      ...revenueTotals,
+      disbursement_ht,
+      disbursement_ttc,
+      total_ttc: roundMoney(revenueTotals.revenue_total_ttc + disbursement_ttc),
+    },
+  };
+}
+
+/** CA TTC imposable (hors frais de débours). */
+export function invoiceRevenueTtc(document: {
+  total_ht?: number | string | null;
+  total_vat?: number | string | null;
+  total_ttc?: number | string | null;
+  disbursement_total_ttc?: number | string | null;
+}): number {
+  const ht = Number(document.total_ht);
+  const vat = Number(document.total_vat);
+  if (Number.isFinite(ht) && Number.isFinite(vat)) {
+    return roundMoney(ht + vat);
+  }
+
+  const ttc = Number(document.total_ttc);
+  const disbursement = Number(document.disbursement_total_ttc ?? 0);
+  if (Number.isFinite(ttc)) {
+    const revenue = ttc - (Number.isFinite(disbursement) ? disbursement : 0);
+    return roundMoney(revenue);
+  }
+
+  return 0;
 }

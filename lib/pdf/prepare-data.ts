@@ -9,6 +9,7 @@ import {
   parseClientLocationSnapshot,
 } from "@/lib/invoices/location-snapshot";
 import type { InvoiceDetail } from "@/lib/data/invoices";
+import { invoiceLineItemNatureLabel, isDisbursementLine } from "@/lib/invoices/item-nature";
 import {
   parseClientSnapshot,
   parseCompanySnapshot,
@@ -81,6 +82,7 @@ function partyFromLiveCompany(
 function buildVatBreakdown(lines: PdfInvoiceLine[]): PdfVatBreakdownRow[] {
   const map = new Map<number, { baseHt: number; vatAmount: number }>();
   for (const line of lines) {
+    if (isDisbursementLine(line.itemNature)) continue;
     const existing = map.get(line.vatRate) ?? { baseHt: 0, vatAmount: 0 };
     existing.baseHt += line.lineTotalHt;
     existing.vatAmount += line.lineVat;
@@ -149,6 +151,8 @@ export async function prepareInvoicePdfData(
 ): Promise<InvoicePdfData> {
   const lines: PdfInvoiceLine[] = invoice.invoice_lines.map((line) => ({
     description: line.description,
+    itemNature: line.item_nature ?? "service",
+    itemNatureLabel: invoiceLineItemNatureLabel(line.item_nature),
     quantity: Number(line.quantity),
     unitPriceHt: Number(line.unit_price_ht),
     vatRate: Number(line.vat_rate),
@@ -157,12 +161,22 @@ export async function prepareInvoicePdfData(
     lineTotalTtc: Number(line.line_total_ttc),
   }));
 
+  const revenueLines = lines.filter((line) => !isDisbursementLine(line.itemNature));
+
   const linesSubtotalHt = roundStored(
-    lines.reduce((s, l) => s + l.lineTotalHt, 0),
+    revenueLines.reduce((s, l) => s + l.lineTotalHt, 0),
   );
   const linesSubtotalVat = roundStored(
-    lines.reduce((s, l) => s + l.lineVat, 0),
+    revenueLines.reduce((s, l) => s + l.lineVat, 0),
   );
+  const disbursementTtc =
+    invoice.disbursement_total_ttc != null
+      ? Number(invoice.disbursement_total_ttc)
+      : roundStored(
+          lines
+            .filter((line) => isDisbursementLine(line.itemNature))
+            .reduce((s, l) => s + l.lineTotalTtc, 0),
+        );
 
   let dataSource: InvoicePdfData["dataSource"] = "snapshots";
   let emitter: PdfParty;
@@ -287,6 +301,7 @@ export async function prepareInvoicePdfData(
     totalHt: Number(invoice.total_ht),
     totalVat: Number(invoice.total_vat),
     totalTtc: Number(invoice.total_ttc),
+    disbursementTtc,
     linesSubtotalHt,
     linesSubtotalVat,
     discountPercent: invoice.discount_percent,

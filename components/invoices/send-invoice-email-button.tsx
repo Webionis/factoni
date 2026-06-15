@@ -99,6 +99,12 @@ export function SendInvoiceEmailButton({
       }
 
       toast.success("La facture a été marquée comme envoyée.");
+      if (sentResult.successDetail) {
+        toast.success(sentResult.successDetail);
+      }
+      if (sentResult.warning) {
+        toast.warning(sentResult.warning);
+      }
       setOpen(false);
       router.refresh();
     });

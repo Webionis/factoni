@@ -2,6 +2,7 @@ import { addOneMonthToIsoDate, todayIsoDate } from "@/lib/dates/invoice-dates";
 import { DEFAULT_INVOICE_PAYMENT_TERM } from "@/lib/constants/payment-terms";
 import type { QuoteDetail } from "@/lib/data/quotes";
 import { calculateLinesAndTotals, roundMoney } from "@/lib/invoices/calculate";
+import { DEFAULT_INVOICE_LINE_ITEM_NATURE } from "@/lib/invoices/item-nature";
 import { quoteDisplayNumber } from "@/lib/quotes/status";
 import { sanitizeText } from "@/lib/sanitize";
 import { logServerError } from "@/lib/logger";
@@ -43,6 +44,7 @@ function scaleQuoteLinesForBalance(quote: QuoteDetail, remainingTtc: number) {
       quantity: qty,
       unit_price_ht: unitHt,
       vat_rate: vatRate,
+      item_nature: line.item_nature ?? DEFAULT_INVOICE_LINE_ITEM_NATURE,
     };
   });
 }
@@ -106,6 +108,7 @@ export async function createDepositPaidInvoice(
     quantity: 1,
     unit_price_ht: depositHt,
     vat_rate: vatRate,
+    item_nature: DEFAULT_INVOICE_LINE_ITEM_NATURE,
     line_total_ht: depositHt,
     line_vat: depositVat,
     line_total_ttc: depositAmount,
@@ -141,6 +144,7 @@ export async function createBalanceInvoiceFromQuote(
       quantity: l.quantity,
       unit_price_ht: l.unit_price_ht,
       vat_rate: l.vat_rate,
+      item_nature: l.item_nature,
     })),
     vatRegime,
     discounts,
@@ -176,6 +180,8 @@ export async function createBalanceInvoiceFromQuote(
       discount_percent: quote.discount_percent,
       discount_amount: quote.discount_amount,
       deposit_applied_amount: depositAmount,
+      disbursement_total_ht: totals.disbursement_ht,
+      disbursement_total_ttc: totals.disbursement_ttc,
       total_ht: totals.total_ht,
       total_vat: totals.total_vat,
       total_ttc: totals.total_ttc,
@@ -197,6 +203,7 @@ export async function createBalanceInvoiceFromQuote(
       quantity: line.quantity,
       unit_price_ht: line.unit_price_ht,
       vat_rate: vatRegime === "franchise" ? 0 : line.vat_rate,
+      item_nature: line.item_nature ?? DEFAULT_INVOICE_LINE_ITEM_NATURE,
       line_total_ht: calc.line_total_ht,
       line_vat: calc.line_vat,
       line_total_ttc: calc.line_total_ttc,

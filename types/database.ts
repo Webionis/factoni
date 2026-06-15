@@ -108,6 +108,77 @@ export type Database = {
         }
         Relationships: []
       }
+      catalog_items: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          id: string
+          item_nature: Database["public"]["Enums"]["invoice_line_item_nature"]
+          label: string
+          sort_order: number
+          unit_price_ht: number
+          updated_at: string
+          user_id: string
+          vat_rate: number
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          id?: string
+          item_nature?: Database["public"]["Enums"]["invoice_line_item_nature"]
+          label: string
+          sort_order?: number
+          unit_price_ht?: number
+          updated_at?: string
+          user_id: string
+          vat_rate?: number
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          id?: string
+          item_nature?: Database["public"]["Enums"]["invoice_line_item_nature"]
+          label?: string
+          sort_order?: number
+          unit_price_ht?: number
+          updated_at?: string
+          user_id?: string
+          vat_rate?: number
+        }
+        Relationships: []
+      }
+      company_einvoicing_settings: {
+        Row: {
+          company_id: string
+          created_at: string
+          enabled: boolean
+          provider_slug: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          enabled?: boolean
+          provider_slug?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          enabled?: boolean
+          provider_slug?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_einvoicing_settings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_locations: {
         Row: {
           address_line1: string | null
@@ -392,12 +463,57 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_einvoicing_transmissions: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          external_id: string | null
+          id: string
+          invoice_id: string
+          provider_slug: string | null
+          status: Database["public"]["Enums"]["einvoicing_transmission_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          external_id?: string | null
+          id?: string
+          invoice_id: string
+          provider_slug?: string | null
+          status?: Database["public"]["Enums"]["einvoicing_transmission_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          external_id?: string | null
+          id?: string
+          invoice_id?: string
+          provider_slug?: string | null
+          status?: Database["public"]["Enums"]["einvoicing_transmission_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_einvoicing_transmissions_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoice_lines: {
         Row: {
           created_at: string
           description: string
           id: string
           invoice_id: string
+          item_nature: Database["public"]["Enums"]["invoice_line_item_nature"]
           line_total_ht: number
           line_total_ttc: number
           line_vat: number
@@ -412,6 +528,7 @@ export type Database = {
           description: string
           id?: string
           invoice_id: string
+          item_nature?: Database["public"]["Enums"]["invoice_line_item_nature"]
           line_total_ht?: number
           line_total_ttc?: number
           line_vat?: number
@@ -426,6 +543,7 @@ export type Database = {
           description?: string
           id?: string
           invoice_id?: string
+          item_nature?: Database["public"]["Enums"]["invoice_line_item_nature"]
           line_total_ht?: number
           line_total_ttc?: number
           line_vat?: number
@@ -582,6 +700,8 @@ export type Database = {
           deposit_applied_amount: number | null
           deposit_checkout_session_id: string | null
           deposit_payment_intent_id: string | null
+          disbursement_total_ht: number
+          disbursement_total_ttc: number
           discount_amount: number | null
           discount_percent: number | null
           document_type: Database["public"]["Enums"]["document_type"]
@@ -636,6 +756,8 @@ export type Database = {
           deposit_applied_amount?: number | null
           deposit_checkout_session_id?: string | null
           deposit_payment_intent_id?: string | null
+          disbursement_total_ht?: number
+          disbursement_total_ttc?: number
           discount_amount?: number | null
           discount_percent?: number | null
           document_type?: Database["public"]["Enums"]["document_type"]
@@ -690,6 +812,8 @@ export type Database = {
           deposit_applied_amount?: number | null
           deposit_checkout_session_id?: string | null
           deposit_payment_intent_id?: string | null
+          disbursement_total_ht?: number
+          disbursement_total_ttc?: number
           discount_amount?: number | null
           discount_percent?: number | null
           document_type?: Database["public"]["Enums"]["document_type"]
@@ -875,6 +999,12 @@ export type Database = {
     Enums: {
       client_type: "individual" | "company"
       document_type: "invoice" | "quote"
+      einvoicing_transmission_status:
+        | "pending"
+        | "submitted"
+        | "accepted"
+        | "rejected"
+        | "failed"
       invoice_status:
         | "draft"
         | "ready"
@@ -889,6 +1019,12 @@ export type Database = {
         | "deposit_requested"
         | "deposit_paid"
         | "invoiced"
+      invoice_line_item_nature:
+        | "service"
+        | "merchandise"
+        | "finished_product"
+        | "artist_author"
+        | "disbursement"
       quote_deposit_status: "none" | "requested" | "paid"
       quote_deposit_type: "percent" | "fixed"
       scheduled_job_status: "planned" | "in_progress" | "done" | "cancelled"
@@ -1027,6 +1163,13 @@ export const Constants = {
     Enums: {
       client_type: ["individual", "company"],
       document_type: ["invoice", "quote"],
+      einvoicing_transmission_status: [
+        "pending",
+        "submitted",
+        "accepted",
+        "rejected",
+        "failed",
+      ],
       invoice_status: [
         "draft",
         "ready",
@@ -1041,6 +1184,13 @@ export const Constants = {
         "deposit_requested",
         "deposit_paid",
         "invoiced",
+      ],
+      invoice_line_item_nature: [
+        "service",
+        "merchandise",
+        "finished_product",
+        "artist_author",
+        "disbursement",
       ],
       quote_deposit_status: ["none", "requested", "paid"],
       quote_deposit_type: ["percent", "fixed"],

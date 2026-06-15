@@ -1,4 +1,5 @@
 import type { DocumentType } from "@/lib/documents/types";
+import type { InvoiceLineItemNature } from "@/lib/invoices/item-nature";
 import type { InvoiceStatus } from "@/lib/invoices/status";
 import type { QuoteStatus } from "@/lib/quotes/status";
 import type { VatRegime } from "@/lib/constants/vat";
@@ -16,6 +17,8 @@ export interface PdfParty {
 
 export interface PdfInvoiceLine {
   description: string;
+  itemNature: InvoiceLineItemNature;
+  itemNatureLabel: string;
   quantity: number;
   unitPriceHt: number;
   vatRate: number;
@@ -48,7 +51,9 @@ export interface InvoicePdfData {
   totalHt: number;
   totalVat: number;
   totalTtc: number;
-  /** Somme des line_total_ht stockées (affichage remise) */
+  /** Frais de débours refacturés (TTC) */
+  disbursementTtc: number;
+  /** Somme des line_total_ht prestations (affichage remise) */
   linesSubtotalHt: number;
   linesSubtotalVat: number;
   discountPercent: number | null;

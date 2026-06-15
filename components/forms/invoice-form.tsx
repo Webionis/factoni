@@ -24,6 +24,7 @@ import { defaultQuoteValidityDate } from "@/lib/dates/quote-dates";
 import { applyActionResult, runServerAction } from "@/lib/client/action-feedback";
 import { addOneMonthToIsoDate } from "@/lib/dates/invoice-dates";
 import type { VatRegime } from "@/lib/constants/vat";
+import type { CatalogItemRow } from "@/lib/data/catalog-items";
 import type { ClientRow } from "@/lib/validations/client";
 import {
   invoiceFormSchema,
@@ -50,6 +51,7 @@ interface InvoiceFormProps {
   invoiceId?: string;
   initialValues: InvoiceFormValues;
   clients: ClientRow[];
+  catalogItems: CatalogItemRow[];
   vatRegime: VatRegime;
   defaultPaymentTerms?: string | null;
 }
@@ -60,6 +62,7 @@ export function InvoiceForm({
   invoiceId,
   initialValues,
   clients,
+  catalogItems,
   vatRegime,
 }: InvoiceFormProps) {
   const isQuote = documentType === "quote";
@@ -273,6 +276,7 @@ export function InvoiceForm({
         register={register}
         errors={errors}
         vatRegime={vatRegime}
+        catalogItems={catalogItems}
       />
 
       <section>

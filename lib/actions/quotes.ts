@@ -13,6 +13,7 @@ import { getCompanyForUser } from "@/lib/auth/profile";
 import { getClientById } from "@/lib/data/clients";
 import { getQuoteById } from "@/lib/data/quotes";
 import { calculateLinesAndTotals } from "@/lib/invoices/calculate";
+import { buildLineInserts } from "@/lib/invoices/build-line-inserts";
 import {
   assertClientLocationForDocument,
   buildValidationLocationFields,
@@ -43,8 +44,6 @@ import {
 } from "@/lib/validations/invoice";
 import type { Database } from "@/types/database";
 
-type LineInsert = Database["public"]["Tables"]["invoice_lines"]["Insert"];
-
 async function requireCompany(
   supabase: Awaited<ReturnType<typeof import("@/lib/supabase/server").createClient>>,
   userId: string,
@@ -56,46 +55,17 @@ async function requireCompany(
   return company;
 }
 
-function buildLineInserts(
-  invoiceId: string,
-  formLines: InvoiceFormValues["lines"],
-  vatRegime: Database["public"]["Enums"]["vat_regime"],
-): LineInsert[] {
-  const { calculatedLines } = calculateLinesAndTotals(
-    formLines.map((l) => ({
-      quantity: Number(l.quantity),
-      unit_price_ht: Number(l.unit_price_ht),
-      vat_rate: Number(l.vat_rate),
-    })),
-    vatRegime,
-  );
-
-  return formLines.map((line, index) => {
-    const calc = calculatedLines[index];
-    return {
-      invoice_id: invoiceId,
-      sort_order: index,
-      description: sanitizeText(line.description),
-      quantity: Number(line.quantity),
-      unit_price_ht: Number(line.unit_price_ht),
-      vat_rate: vatRegime === "franchise" ? 0 : Number(line.vat_rate),
-      line_total_ht: calc.line_total_ht,
-      line_vat: calc.line_vat,
-      line_total_ttc: calc.line_total_ttc,
-    };
-  });
-}
-
 function computeTotalsPayload(
   form: InvoiceFormValues,
   vatRegime: Database["public"]["Enums"]["vat_regime"],
 ) {
   const discounts = parseInvoiceDiscounts(form);
   const { totals } = calculateLinesAndTotals(
-    form.lines.map((l) => ({
-      quantity: Number(l.quantity),
-      unit_price_ht: Number(l.unit_price_ht),
-      vat_rate: Number(l.vat_rate),
+    form.lines.map((line) => ({
+      quantity: Number(line.quantity),
+      unit_price_ht: Number(line.unit_price_ht),
+      vat_rate: Number(line.vat_rate),
+      item_nature: line.item_nature,
     })),
     vatRegime,
     discounts,
@@ -105,6 +75,8 @@ function computeTotalsPayload(
     total_ht: totals.total_ht,
     total_vat: totals.total_vat,
     total_ttc: totals.total_ttc,
+    disbursement_total_ht: totals.disbursement_ht,
+    disbursement_total_ttc: totals.disbursement_ttc,
   };
 }
 

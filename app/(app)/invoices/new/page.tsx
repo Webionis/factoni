@@ -6,9 +6,11 @@ import { InvoiceForm } from "@/components/forms/invoice-form";
 import { pageMetadata } from "@/lib/metadata";
 import { EmptyState } from "@/components/ui/empty-state";
 import { getCompanyForUser } from "@/lib/auth/profile";
+import { listCatalogItemsForUser } from "@/lib/data/catalog-items";
 import { listClientsForUser } from "@/lib/data/clients";
 import { getInvoiceById } from "@/lib/data/invoices";
 import { DEFAULT_INVOICE_PAYMENT_TERM } from "@/lib/constants/payment-terms";
+import { DEFAULT_INVOICE_LINE_ITEM_NATURE } from "@/lib/invoices/item-nature";
 import { addOneMonthToIsoDate, todayIsoDate } from "@/lib/dates/invoice-dates";
 import { invoiceToDuplicateFormValues } from "@/lib/invoices/duplicate";
 import type { InvoiceFormValues } from "@/lib/validations/invoice";
@@ -39,6 +41,7 @@ export default async function NewInvoicePage({
   }
 
   const clients = await listClientsForUser(supabase, user.id);
+  const catalogItems = await listCatalogItemsForUser(supabase, user.id);
   const today = todayIsoDate();
 
   if (clients.length === 0) {
@@ -74,6 +77,7 @@ export default async function NewInvoicePage({
         quantity: 1,
         unit_price_ht: 0,
         vat_rate: company.vat_regime === "franchise" ? 0 : 20,
+        item_nature: DEFAULT_INVOICE_LINE_ITEM_NATURE,
       },
     ],
   };
@@ -110,6 +114,7 @@ export default async function NewInvoicePage({
         mode="create"
         initialValues={initialValues}
         clients={clients}
+        catalogItems={catalogItems}
         vatRegime={company.vat_regime}
       />
     </div>

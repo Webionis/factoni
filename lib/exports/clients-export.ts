@@ -8,6 +8,7 @@ import {
   formatFrenchDate,
 } from "@/lib/exports/formatting";
 import type { ClientRow } from "@/lib/validations/client";
+import { invoiceRevenueTtc } from "@/lib/invoices/calculate";
 import type { Database } from "@/types/database";
 
 export interface ClientExportRow {
@@ -66,7 +67,7 @@ export function aggregateClientExportRows(
       lastActivity: "",
     };
     current.count += 1;
-    current.revenue += Number(invoice.total_ttc) || 0;
+    current.revenue += invoiceRevenueTtc(invoice);
     const activityDate = invoice.paid_at ?? invoice.issue_date;
     if (!current.lastActivity || activityDate > current.lastActivity) {
       current.lastActivity = activityDate;
