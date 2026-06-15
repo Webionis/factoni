@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { ArrowLeft, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { InvoiceForm } from "@/components/forms/invoice-form";
+import { AppPageShell } from "@/components/layout/app-page-shell";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DEFAULT_INVOICE_PAYMENT_TERM } from "@/lib/constants/payment-terms";
 import { DEFAULT_INVOICE_LINE_ITEM_NATURE } from "@/lib/invoices/item-nature";
@@ -75,20 +75,12 @@ export default async function NewQuotePage() {
   };
 
   return (
-    <div className="w-full space-y-6">
-      <Link
-        href="/quotes"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" aria-hidden />
-        Retour aux devis
-      </Link>
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Nouveau devis</h1>
-        <p className="mt-1 text-muted-foreground">
-          Enregistré en brouillon — numéro DV-YYYY-NNNNNN à l&apos;envoi.
-        </p>
-      </div>
+    <AppPageShell
+      backHref="/quotes"
+      backLabel="Retour aux devis"
+      title="Nouveau devis"
+      description="Enregistré en brouillon — numéro DV-YYYY-NNNNNN à l'envoi."
+    >
       <InvoiceForm
         mode="create"
         documentType="quote"
@@ -97,6 +89,6 @@ export default async function NewQuotePage() {
         catalogItems={catalogItems}
         vatRegime={company.vat_regime}
       />
-    </div>
+    </AppPageShell>
   );
 }

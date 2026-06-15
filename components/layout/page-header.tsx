@@ -1,9 +1,14 @@
-import { siteConfig } from "@/lib/site";
+import {
+  pageDescriptionClassName,
+  pageEyebrowClassName,
+  pageTitleClassName,
+} from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
   title: string;
   description?: string;
+  eyebrow?: string;
   action?: React.ReactNode;
   className?: string;
 }
@@ -11,6 +16,7 @@ interface PageHeaderProps {
 export function PageHeader({
   title,
   description,
+  eyebrow,
   action,
   className,
 }: PageHeaderProps) {
@@ -22,16 +28,12 @@ export function PageHeader({
       )}
     >
       <div className="min-w-0 space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#2563eb]/90 dark:text-[#60a5fa]/90">
-          {siteConfig.name}
-        </p>
-        <h1 className="text-xl font-bold tracking-tight text-[#0f172a] dark:text-[#f8fafc] sm:text-3xl">
-          {title}
-        </h1>
+        {eyebrow ? (
+          <p className={pageEyebrowClassName}>{eyebrow}</p>
+        ) : null}
+        <h1 className={cn(pageTitleClassName, "text-2xl sm:text-3xl")}>{title}</h1>
         {description ? (
-          <p className="max-w-2xl text-[13px] leading-relaxed text-[#64748b] dark:text-[#94a3b8] sm:text-[15px]">
-            {description}
-          </p>
+          <p className={pageDescriptionClassName}>{description}</p>
         ) : null}
       </div>
       {action ? (

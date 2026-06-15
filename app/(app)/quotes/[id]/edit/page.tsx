@@ -1,8 +1,7 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 
 import { InvoiceForm } from "@/components/forms/invoice-form";
+import { AppPageShell } from "@/components/layout/app-page-shell";
 import { getCompanyForUser } from "@/lib/auth/profile";
 import { listCatalogItemsForUser } from "@/lib/data/catalog-items";
 import { listClientsForUser } from "@/lib/data/clients";
@@ -46,20 +45,12 @@ export default async function EditQuotePage({ params }: EditQuotePageProps) {
   const catalogItems = await listCatalogItemsForUser(supabase, user.id);
 
   return (
-    <div className="w-full space-y-6">
-      <Link
-        href={`/quotes/${quote.id}`}
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" aria-hidden />
-        Retour au devis
-      </Link>
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Modifier le devis</h1>
-        <p className="mt-1 text-muted-foreground">
-          Le numéro DV sera attribué à l&apos;envoi.
-        </p>
-      </div>
+    <AppPageShell
+      backHref={`/quotes/${quote.id}`}
+      backLabel="Retour au devis"
+      title="Modifier le devis"
+      description="Le numéro DV sera attribué à l'envoi."
+    >
       <InvoiceForm
         mode="edit"
         documentType="quote"
@@ -69,6 +60,6 @@ export default async function EditQuotePage({ params }: EditQuotePageProps) {
         catalogItems={catalogItems}
         vatRegime={company.vat_regime}
       />
-    </div>
+    </AppPageShell>
   );
 }

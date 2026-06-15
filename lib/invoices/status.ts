@@ -23,6 +23,16 @@ export const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
   cancelled: "Annulée",
 };
 
+/** Libellés courts pour les badges dans les tableaux sur mobile. */
+export const INVOICE_STATUS_SHORT_LABELS: Record<InvoiceStatus, string> = {
+  draft: "Brouillon",
+  ready: "Prête",
+  sent: "Envoyée",
+  paid: "Payée",
+  overdue: "Retard",
+  cancelled: "Annulée",
+};
+
 const ALLOWED_TRANSITIONS: Record<InvoiceStatus, InvoiceStatus[]> = {
   draft: ["ready"],
   ready: ["sent", "draft", "cancelled"],

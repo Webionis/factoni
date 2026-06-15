@@ -6,7 +6,12 @@ import { formatCurrency } from "@/lib/invoices/calculate";
 import type { RevenueChartPayload } from "@/lib/data/dashboard";
 import {
   fadeInUpClassName,
+  filterPillActiveClassName,
+  filterPillClassName,
+  filterPillInactiveClassName,
+  sectionHeadingClassName,
   sectionSubheadingClassName,
+  selectClassName,
   surfaceCardClassName,
 } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
@@ -18,6 +23,7 @@ interface RevenueChartProps {
 }
 
 const GRID_LINES = 4;
+const BAR_AREA_HEIGHT = "5.5rem";
 
 function ChartBars({
   data,
@@ -44,7 +50,7 @@ function ChartBars({
           <div
             key={point.key}
             className={cn(
-              "flex min-w-0 flex-col items-center gap-2",
+              "flex min-w-0 flex-col items-center gap-1.5",
               dense ? "w-9 shrink-0 sm:w-auto sm:flex-1" : "flex-1",
             )}
           >
@@ -60,7 +66,7 @@ function ChartBars({
             </span>
             <div
               className="flex w-full items-end justify-center px-0.5"
-              style={{ height: "8rem" }}
+              style={{ height: BAR_AREA_HEIGHT }}
             >
               <div
                 className={cn(
@@ -107,15 +113,19 @@ export function RevenueChart({ chart }: RevenueChartProps) {
 
   return (
     <section
-      className={cn(surfaceCardClassName, fadeInUpClassName, "min-w-0 p-7 sm:p-8")}
+      className={cn(
+        surfaceCardClassName,
+        fadeInUpClassName,
+        "w-full p-5 sm:p-6",
+      )}
       style={{ animationDelay: "120ms" }}
       aria-labelledby="revenue-chart-heading"
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h2
             id="revenue-chart-heading"
-            className="text-base font-semibold tracking-tight text-[#0f172a] dark:text-[#f8fafc]"
+            className={sectionHeadingClassName}
           >
             {title}
           </h2>
@@ -126,7 +136,7 @@ export function RevenueChart({ chart }: RevenueChartProps) {
 
         <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
           <div
-            className="inline-flex rounded-lg border border-[rgba(15,23,42,0.08)] bg-[#f8fafc] p-0.5 dark:border-[rgba(148,163,184,0.14)] dark:bg-[rgba(15,23,42,0.6)]"
+            className="inline-flex rounded-xl border border-[rgba(15,23,42,0.08)] bg-[#f8fafc] p-0.5 dark:border-[rgba(148,163,184,0.14)] dark:bg-[rgba(15,23,42,0.6)]"
             role="group"
             aria-label="Période du graphique"
           >
@@ -134,10 +144,11 @@ export function RevenueChart({ chart }: RevenueChartProps) {
               type="button"
               onClick={() => setMode("rolling")}
               className={cn(
-                "rounded-md px-3 py-1.5 text-xs font-semibold transition-all duration-[180ms] ease-out",
+                filterPillClassName,
+                "rounded-lg px-3 py-1.5 text-xs",
                 mode === "rolling"
-                  ? "bg-white text-[#0f172a] shadow-sm dark:bg-[#1e293b] dark:text-[#f8fafc]"
-                  : "text-[#64748b] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:text-[#f8fafc]",
+                  ? filterPillActiveClassName
+                  : filterPillInactiveClassName,
               )}
             >
               6 mois
@@ -146,10 +157,11 @@ export function RevenueChart({ chart }: RevenueChartProps) {
               type="button"
               onClick={() => setMode("year")}
               className={cn(
-                "rounded-md px-3 py-1.5 text-xs font-semibold transition-all duration-[180ms] ease-out",
+                filterPillClassName,
+                "rounded-lg px-3 py-1.5 text-xs",
                 mode === "year"
-                  ? "bg-white text-[#0f172a] shadow-sm dark:bg-[#1e293b] dark:text-[#f8fafc]"
-                  : "text-[#64748b] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:text-[#f8fafc]",
+                  ? filterPillActiveClassName
+                  : filterPillInactiveClassName,
               )}
             >
               Année
@@ -166,7 +178,7 @@ export function RevenueChart({ chart }: RevenueChartProps) {
               id="revenue-chart-year"
               value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="h-8 rounded-lg border border-[rgba(15,23,42,0.08)] bg-white px-2.5 text-xs font-medium text-[#334155] shadow-sm outline-none transition-all duration-[180ms] focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-[#2563eb]/20 dark:border-[rgba(148,163,184,0.18)] dark:bg-[rgba(15,23,42,0.75)] dark:text-[#cbd5e1]"
+              className={cn(selectClassName, "h-9 w-auto px-2.5 text-xs")}
             >
               {chart.availableYears.map((year) => (
                 <option key={year} value={year}>
@@ -179,13 +191,13 @@ export function RevenueChart({ chart }: RevenueChartProps) {
       </div>
 
       <div
-        className={cn("relative mt-8", mode === "year" && "overflow-x-auto pb-1")}
+        className={cn("relative mt-5", mode === "year" && "overflow-x-auto pb-1")}
         role="img"
         aria-label={ariaLabel}
       >
         <div
-          className="pointer-events-none absolute inset-x-0 top-0 flex flex-col justify-between"
-          style={{ height: "8rem" }}
+          className="pointer-events-none absolute inset-x-0 flex flex-col justify-between"
+          style={{ top: "1.375rem", height: BAR_AREA_HEIGHT }}
           aria-hidden
         >
           {Array.from({ length: GRID_LINES }).map((_, i) => (

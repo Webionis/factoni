@@ -52,4 +52,4 @@ export const dashboardActivityNewBadgeClassName = cn(
 );
 
 /** Espacement sections dashboard mobile. */
-export const dashboardSectionStackClassName = "space-y-7 md:space-y-12";
+export const dashboardSectionStackClassName = "space-y-7 md:space-y-10";

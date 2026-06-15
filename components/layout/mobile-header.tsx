@@ -53,7 +53,7 @@ export function MobileHeader({ className }: MobileHeaderProps) {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-40 bg-white pt-[env(safe-area-inset-top)] md:hidden dark:bg-[#0f172a]",
+        "fixed inset-x-0 top-0 z-40 bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur-md md:hidden dark:bg-[rgba(15,23,42,0.92)]",
         className,
       )}
     >

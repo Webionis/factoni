@@ -13,8 +13,8 @@ import { isInvoiceArchived } from "@/lib/invoices/archive";
 import { formatCurrency } from "@/lib/invoices/calculate";
 import { getEffectiveQuoteStatus } from "@/lib/quotes/expiry";
 import { quoteDisplayNumber } from "@/lib/quotes/status";
-import { surfaceCardInteractiveClassName } from "@/lib/constants/ui";
-import { cn } from "@/lib/utils";
+import { mobileListCardChevronClassName } from "@/lib/constants/mobile";
+import { mobileListCardClassName } from "@/lib/constants/ui";
 
 interface QuoteCardProps {
   quote: QuoteWithClient;
@@ -43,14 +43,9 @@ export function QuoteCard({ quote }: QuoteCardProps) {
   const archived = isInvoiceArchived(quote.archived_at);
 
   return (
-    <Link href={`/quotes/${quote.id}`} className="block group touch-manipulation">
-      <article
-        className={cn(
-          surfaceCardInteractiveClassName,
-          "p-3.5 transition-transform duration-150 active:scale-[0.99] sm:p-5",
-        )}
-      >
-        <div className="flex items-start gap-2">
+    <Link href={`/quotes/${quote.id}`} className="block group">
+      <article className={mobileListCardClassName}>
+        <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <p className="font-mono text-[13px] font-semibold tracking-tight sm:text-sm">
@@ -73,10 +68,7 @@ export function QuoteCard({ quote }: QuoteCardProps) {
               </p>
             </div>
           </div>
-          <ChevronRight
-            className="mt-1 hidden size-4 shrink-0 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 group-hover:text-primary sm:block"
-            aria-hidden
-          />
+          <ChevronRight className={mobileListCardChevronClassName} aria-hidden />
         </div>
       </article>
     </Link>

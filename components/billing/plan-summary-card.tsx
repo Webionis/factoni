@@ -19,7 +19,7 @@ interface PlanSummaryCardProps {
 export function PlanSummaryCard({ access, className }: PlanSummaryCardProps) {
   return (
     <section
-      className={cn(surfaceCardClassName, "p-5 sm:p-6", className)}
+      className={cn(surfaceCardClassName, "p-4 sm:p-5", className)}
       aria-labelledby="plan-summary-heading"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">

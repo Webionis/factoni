@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Calendar,
-  Pencil,
-} from "lucide-react";
+import { Pencil, ArrowLeft } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 
 import { InvoiceEinvoicingCard } from "@/components/einvoicing/invoice-einvoicing-card";
@@ -12,20 +8,19 @@ import { CopyPublicDocumentLinkButton } from "@/components/documents/copy-public
 import { InterventionLocationCard } from "@/components/documents/intervention-location-card";
 import { ArchiveInvoiceDialog } from "@/components/invoices/archive-invoice-dialog";
 import { DeleteDraftInvoiceDialog } from "@/components/invoices/delete-draft-invoice-dialog";
-import { InvoiceArchivedBadge } from "@/components/invoices/invoice-archived-badge";
+import { InvoiceDetailDates, InvoiceDetailSidebar } from "@/components/invoices/invoice-detail-sidebar";
+import { InvoiceLinesTable } from "@/components/invoices/invoice-lines-table";
+import { PageHeader } from "@/components/layout/page-header";
 import { RestoreInvoiceButton } from "@/components/invoices/restore-invoice-button";
 import { DuplicateInvoiceButton } from "@/components/invoices/duplicate-invoice-button";
 import { DownloadInvoicePdfButton } from "@/components/invoices/download-invoice-pdf-button";
 import { DownloadFacturXButton } from "@/components/documents/download-factur-x-button";
 import { DownloadInvoiceReceiptButton } from "@/components/invoices/download-invoice-receipt-button";
-import { InvoicePaymentReceived } from "@/components/invoices/invoice-payment-received";
 import { InvoiceReminderButton } from "@/components/invoices/invoice-reminder-button";
 import { InvoiceRemindersSection } from "@/components/invoices/invoice-reminders-section";
 import { SendInvoiceEmailButton } from "@/components/invoices/send-invoice-email-button";
 import { ValidateInvoiceDraftButton } from "@/components/invoices/validate-invoice-draft-button";
 import { InvoiceStatusActions } from "@/components/invoices/invoice-status-actions";
-import { InvoiceStatusBadge } from "@/components/invoices/invoice-status-badge";
-import { InvoiceTotalsSummary } from "@/components/invoices/invoice-totals-summary";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getClientById } from "@/lib/data/clients";
@@ -43,13 +38,11 @@ import {
 import { assessInvoiceEinvoicingReadiness } from "@/lib/e-invoicing/readiness";
 import { prepareInvoicePdfData } from "@/lib/pdf/prepare-data";
 import {
-  getInvoiceClientDisplayName,
   getInvoiceClientEmail,
 } from "@/lib/invoices/client-contact";
 import { canSendInvoiceReminder } from "@/lib/invoices/reminder-eligibility";
 import { canDownloadPaymentReceipt } from "@/lib/invoices/receipt-eligibility";
 import { buildDocumentTotalsDisplay } from "@/lib/invoices/document-totals";
-import { formatCurrency } from "@/lib/invoices/calculate";
 import { parseCompanySnapshot } from "@/lib/pdf/parse-snapshots";
 import {
   getEffectiveInvoiceStatus,
@@ -94,14 +87,6 @@ export async function generateMetadata({
   return createPageMetadata(
     invoiceDisplayNumber(invoice.invoice_number, invoice.id),
   );
-}
-
-function formatDate(dateStr: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(dateStr));
 }
 
 export default async function InvoiceDetailPage({
@@ -154,9 +139,6 @@ export default async function InvoiceDetailPage({
     invoice.clients,
     invoice.client_snapshot,
   );
-  const clientName =
-    clientNameFromSnapshot(invoice.client_snapshot) ??
-    getInvoiceClientDisplayName(invoice, invoice.client_snapshot);
 
   const hasStatusActions = invoiceHasVisibleActions(invoiceStatus);
   const showDeleteDraft = !archived && editable;
@@ -232,15 +214,112 @@ export default async function InvoiceDetailPage({
         )
       : null;
 
+  const detailActions = (
+    <>
+      {showSendEmail ? (
+        <SendInvoiceEmailButton
+          invoiceId={invoice.id}
+          variant="default"
+          disabled={!clientEmail}
+          disabledReason={
+            !clientEmail
+              ? "Ajoutez une adresse email au client pour préparer l'envoi."
+              : undefined
+          }
+        />
+      ) : null}
+      {showClassicPdfDownload ? (
+        <DownloadInvoicePdfButton
+          invoiceId={invoice.id}
+          label={draftPdfLabel}
+        />
+      ) : null}
+      {showFacturXDownload ? (
+        <DownloadFacturXButton
+          apiPath={`/api/invoices/${invoice.id}/factur-x`}
+          label="Télécharger Factur-X"
+          variant="default"
+        />
+      ) : null}
+      {showDownloadReceipt ? (
+        <DownloadInvoiceReceiptButton invoiceId={invoice.id} />
+      ) : null}
+      {showValidateDraft ? (
+        <ValidateInvoiceDraftButton invoiceId={invoice.id} />
+      ) : null}
+      {editable && invoiceStatus === "draft" ? (
+        <Link
+          href={`/invoices/${invoice.id}/edit`}
+          className={cn(
+            buttonVariants({ variant: "outline" }),
+            "h-11 w-full justify-center gap-2",
+          )}
+        >
+          <Pencil className="size-4" aria-hidden />
+          Modifier
+        </Link>
+      ) : null}
+      {showReminder ? (
+        <InvoiceReminderButton
+          invoiceId={invoice.id}
+          recipientEmail={clientEmail}
+          disabled={!clientEmail}
+          disabledReason={
+            !clientEmail
+              ? "Ajoutez l'email du client pour envoyer une relance."
+              : undefined
+          }
+        />
+      ) : null}
+      {showCopyPublicLink ? (
+        <CopyPublicDocumentLinkButton
+          documentId={invoice.id}
+          documentKind="invoice"
+        />
+      ) : null}
+      <DuplicateInvoiceButton invoiceId={invoice.id} />
+      {showDuplicateFromTemplate ? (
+        <Link
+          href={`/invoices/new?from=${invoice.id}`}
+          className={cn(
+            buttonVariants({ variant: "ghost" }),
+            "h-11 w-full justify-center",
+          )}
+        >
+          Créer à partir de celle-ci
+        </Link>
+      ) : null}
+    </>
+  );
+
   return (
-    <div className="w-full space-y-7 md:space-y-8">
+    <div className="w-full space-y-6 md:space-y-8">
       <Link
         href="/invoices"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" aria-hidden />
         Retour aux factures
       </Link>
+
+      <PageHeader
+        eyebrow={invoiceDisplayNumber(invoice.invoice_number, invoice.id)}
+        title={clientLabel}
+        action={
+          editable && invoiceStatus !== "draft" ? (
+            <Link
+              href={`/invoices/${invoice.id}/edit`}
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "gap-1",
+              )}
+            >
+              <Pencil className="size-4" aria-hidden />
+              Modifier
+            </Link>
+          ) : undefined
+        }
+      />
 
       {invoice.source_quote_id ? (
         <Card>
@@ -256,304 +335,188 @@ export default async function InvoiceDetailPage({
         </Card>
       ) : null}
 
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="font-mono text-sm text-muted-foreground">
-            {invoiceDisplayNumber(invoice.invoice_number, invoice.id)}
-          </p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight break-words">
-            {clientLabel}
-          </h1>
-          <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-            <div className="flex flex-wrap items-center gap-2">
-              <InvoiceStatusBadge status={displayStatus} />
-              {archived ? <InvoiceArchivedBadge /> : null}
-              {showOverdueHint ? (
-                <span className="text-xs text-amber-800 dark:text-amber-300">
-                  Échéance dépassée
-                </span>
+      <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-8">
+        <div className="min-w-0 space-y-6">
+          <InterventionLocationCard snapshot={invoice.client_location_snapshot} />
+
+          <InvoiceDetailDates
+            issueDate={invoice.issue_date}
+            dueDate={invoice.due_date}
+            className="md:hidden"
+          />
+
+          <Card>
+            <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
+              <CardTitle className="text-base font-semibold tracking-tight">
+                Lignes
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-5 pb-6 pt-0 sm:px-6">
+              <InvoiceLinesTable lines={lines} />
+            </CardContent>
+          </Card>
+
+          <div className="md:hidden">
+            <InvoiceDetailSidebar
+              displayStatus={displayStatus}
+              archived={archived}
+              showOverdueHint={showOverdueHint}
+              snapshotFrozen={snapshotFrozen}
+              isPaid={isPaid}
+              invoiceStatus={invoiceStatus}
+              showPaymentReceived={showPaymentReceived}
+              paidAt={invoice.paid_at}
+              totals={totals}
+              discountPercent={invoice.discount_percent}
+              discountAmount={invoice.discount_amount}
+              actions={detailActions}
+            />
+          </div>
+
+          {einvoicingContext ? (
+            <InvoiceEinvoicingCard
+              invoiceId={invoice.id}
+              report={einvoicingContext.report}
+              latestTransmission={einvoicingContext.latestTransmission}
+              platformPaEnabled={isPlatformEinvoicingActive()}
+            />
+          ) : null}
+
+          {showRemindersSection && company ? (
+            <InvoiceRemindersSection
+              invoiceId={invoice.id}
+              reminders={reminders}
+              autoRemindersDisabled={invoice.auto_reminders_disabled}
+              autoRemindersEnabled={company.auto_reminders_enabled}
+              nextAutoReminder={nextAutoReminder}
+            />
+          ) : null}
+
+          {invoice.payment_terms || invoice.notes || showActionsCard ? (
+            <section
+              className="space-y-5 md:space-y-6"
+              aria-label="Conditions et actions"
+            >
+              {invoice.payment_terms ? (
+                <Card>
+                  <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
+                    <CardTitle className="text-base font-semibold tracking-tight">
+                      Conditions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-5 pb-6 pt-0 sm:px-6">
+                    <p className="text-sm leading-[1.7] whitespace-pre-wrap text-muted-foreground">
+                      {invoice.payment_terms}
+                    </p>
+                  </CardContent>
+                </Card>
               ) : null}
-              {snapshotFrozen && !isPaid ? (
-                <span className="text-xs text-muted-foreground">
-                  {invoiceStatus === "ready"
-                    ? "Contenu figé — prête à envoyer"
-                    : "Données figées à la validation"}
-                </span>
+
+              {invoice.notes ? (
+                <Card>
+                  <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
+                    <CardTitle className="text-base font-semibold tracking-tight">
+                      Notes
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-5 pb-6 pt-0 sm:px-6">
+                    <p className="text-sm leading-[1.7] whitespace-pre-wrap text-muted-foreground">
+                      {invoice.notes}
+                    </p>
+                  </CardContent>
+                </Card>
               ) : null}
-            </div>
-            {showPaymentReceived ? (
-              <InvoicePaymentReceived
-                paidAt={invoice.paid_at}
-                className="w-full sm:w-auto"
+
+              {showActionsCard ? (
+                <Card>
+                  <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
+                    <CardTitle className="text-base font-semibold tracking-tight">
+                      Actions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-5 px-5 pb-6 pt-0 sm:px-6">
+                    {hasStatusActions ? (
+                      <InvoiceStatusActions
+                        embedded
+                        invoiceId={invoice.id}
+                        currentStatus={invoiceStatus}
+                      />
+                    ) : null}
+                    {showRestore ? (
+                      <div
+                        className={cn(
+                          hasStatusActions && "border-t border-border/50 pt-5",
+                        )}
+                      >
+                        <RestoreInvoiceButton invoiceId={invoice.id} />
+                      </div>
+                    ) : null}
+                    {showArchive ? (
+                      <div
+                        className={cn(
+                          (hasStatusActions || showRestore) &&
+                            "border-t border-border/50 pt-5",
+                        )}
+                      >
+                        <ArchiveInvoiceDialog
+                          invoiceId={invoice.id}
+                          invoiceNumber={invoice.invoice_number}
+                        />
+                      </div>
+                    ) : null}
+                  </CardContent>
+                </Card>
+              ) : null}
+            </section>
+          ) : null}
+
+          {showDeleteDraft ? (
+            <section
+              className="flex flex-col gap-3 border-t border-border/50 pt-6 md:pt-7"
+              aria-label="Suppression du brouillon"
+            >
+              <p className="text-sm text-muted-foreground">
+                Cette facture est encore un brouillon. Vous pouvez la supprimer
+                définitivement si vous ne souhaitez plus la conserver.
+              </p>
+              <DeleteDraftInvoiceDialog
+                invoiceId={invoice.id}
+                invoiceNumber={invoice.invoice_number}
+                variant="outline"
               />
-            ) : null}
-          </div>
+            </section>
+          ) : null}
+
+          {archived ? (
+            <p className="text-sm text-muted-foreground">
+              Cette facture est masquée du tableau de bord et du chiffre
+              d&apos;affaires.
+            </p>
+          ) : null}
         </div>
-        {editable && invoiceStatus !== "draft" ? (
-          <Link
-            href={`/invoices/${invoice.id}/edit`}
-            className={cn(
-              buttonVariants({ variant: "outline", size: "sm" }),
-              "shrink-0 gap-1",
-            )}
-          >
-            <Pencil className="size-4" aria-hidden />
-            <span className="sr-only sm:not-sr-only">Modifier</span>
-          </Link>
-        ) : null}
-      </div>
 
-      <InterventionLocationCard snapshot={invoice.client_location_snapshot} />
-
-      <Card>
-        <CardHeader className="px-5 pb-2 pt-5 sm:px-6">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            Dates
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3 px-5 pb-5 sm:grid-cols-2 sm:px-6 sm:pb-6">
-          <div className="flex gap-2 text-sm">
-            <Calendar className="size-4 shrink-0 text-muted-foreground" />
-            <div>
-              <p className="text-xs text-muted-foreground">Émission</p>
-              <p>{formatDate(invoice.issue_date)}</p>
-            </div>
-          </div>
-          <div className="flex gap-2 text-sm">
-            <Calendar className="size-4 shrink-0 text-muted-foreground" />
-            <div>
-              <p className="text-xs text-muted-foreground">Échéance</p>
-              <p>{formatDate(invoice.due_date)}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
-          <CardTitle className="text-base font-semibold tracking-tight">
-            Lignes
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-5 px-5 pb-6 pt-0 sm:px-6">
-          <ul className="divide-y divide-border/50">
-            {lines.map((line) => (
-              <li key={line.id} className="py-4 first:pt-0 last:pb-0">
-                <p className="font-medium">{line.description}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {Number(line.quantity)} × {formatCurrency(Number(line.unit_price_ht))} HT
-                  {" · "}TVA {Number(line.vat_rate)} %
-                </p>
-                <p className="mt-1 text-sm font-medium tabular-nums">
-                  {formatCurrency(Number(line.line_total_ttc))} TTC
-                </p>
-              </li>
-            ))}
-          </ul>
-          <InvoiceTotalsSummary
+        <div className="hidden md:block">
+          <InvoiceDetailDates
+            issueDate={invoice.issue_date}
+            dueDate={invoice.due_date}
+            className="mb-4"
+          />
+          <InvoiceDetailSidebar
+            displayStatus={displayStatus}
+            archived={archived}
+            showOverdueHint={showOverdueHint}
+            snapshotFrozen={snapshotFrozen}
+            isPaid={isPaid}
+            invoiceStatus={invoiceStatus}
+            showPaymentReceived={showPaymentReceived}
+            paidAt={invoice.paid_at}
             totals={totals}
             discountPercent={invoice.discount_percent}
             discountAmount={invoice.discount_amount}
+            actions={detailActions}
           />
-        </CardContent>
-      </Card>
-
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-        {showSendEmail ? (
-          <SendInvoiceEmailButton
-            invoiceId={invoice.id}
-            variant="default"
-            disabled={!clientEmail}
-            disabledReason={
-              !clientEmail
-                ? "Ajoutez une adresse email au client pour préparer l'envoi."
-                : undefined
-            }
-          />
-        ) : null}
-        {showClassicPdfDownload ? (
-          <DownloadInvoicePdfButton
-            invoiceId={invoice.id}
-            label={draftPdfLabel}
-          />
-        ) : null}
-        {showFacturXDownload ? (
-          <DownloadFacturXButton
-            apiPath={`/api/invoices/${invoice.id}/factur-x`}
-            label="Télécharger Factur-X"
-            variant="default"
-          />
-        ) : null}
-        {showDownloadReceipt ? (
-          <DownloadInvoiceReceiptButton invoiceId={invoice.id} />
-        ) : null}
-        {showValidateDraft ? (
-          <ValidateInvoiceDraftButton invoiceId={invoice.id} />
-        ) : null}
-        {editable && invoiceStatus === "draft" ? (
-          <Link
-            href={`/invoices/${invoice.id}/edit`}
-            className={cn(
-              buttonVariants({ variant: "outline" }),
-              "h-11 w-full justify-center gap-2 sm:w-auto",
-            )}
-          >
-            <Pencil className="size-4" aria-hidden />
-            Modifier
-          </Link>
-        ) : null}
-        {showReminder ? (
-          <InvoiceReminderButton
-            invoiceId={invoice.id}
-            recipientEmail={clientEmail}
-            disabled={!clientEmail}
-            disabledReason={
-              !clientEmail
-                ? "Ajoutez l'email du client pour envoyer une relance."
-                : undefined
-            }
-          />
-        ) : null}
-        {showCopyPublicLink ? (
-          <CopyPublicDocumentLinkButton
-            documentId={invoice.id}
-            documentKind="invoice"
-          />
-        ) : null}
-        <DuplicateInvoiceButton invoiceId={invoice.id} />
-        {showDuplicateFromTemplate ? (
-          <Link
-            href={`/invoices/new?from=${invoice.id}`}
-            className={cn(
-              buttonVariants({ variant: "ghost" }),
-              "h-11 justify-center",
-            )}
-          >
-            Créer à partir de celle-ci
-          </Link>
-        ) : null}
+        </div>
       </div>
-
-      {einvoicingContext ? (
-        <InvoiceEinvoicingCard
-          invoiceId={invoice.id}
-          report={einvoicingContext.report}
-          latestTransmission={einvoicingContext.latestTransmission}
-          platformPaEnabled={isPlatformEinvoicingActive()}
-        />
-      ) : null}
-
-      {showRemindersSection && company ? (
-        <InvoiceRemindersSection
-          invoiceId={invoice.id}
-          reminders={reminders}
-          autoRemindersDisabled={invoice.auto_reminders_disabled}
-          autoRemindersEnabled={company.auto_reminders_enabled}
-          nextAutoReminder={nextAutoReminder}
-        />
-      ) : null}
-
-      {invoice.payment_terms || invoice.notes || showActionsCard ? (
-        <section
-          className="space-y-5 md:space-y-6"
-          aria-label="Conditions et actions"
-        >
-          {invoice.payment_terms ? (
-            <Card>
-              <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
-                <CardTitle className="text-base font-semibold tracking-tight">
-                  Conditions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-5 pb-6 pt-0 sm:px-6">
-                <p className="text-sm leading-[1.7] whitespace-pre-wrap text-muted-foreground">
-                  {invoice.payment_terms}
-                </p>
-              </CardContent>
-            </Card>
-          ) : null}
-
-          {invoice.notes ? (
-            <Card>
-              <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
-                <CardTitle className="text-base font-semibold tracking-tight">
-                  Notes
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-5 pb-6 pt-0 sm:px-6">
-                <p className="text-sm leading-[1.7] whitespace-pre-wrap text-muted-foreground">
-                  {invoice.notes}
-                </p>
-              </CardContent>
-            </Card>
-          ) : null}
-
-          {showActionsCard ? (
-            <Card>
-              <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
-                <CardTitle className="text-base font-semibold tracking-tight">
-                  Actions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-5 px-5 pb-6 pt-0 sm:px-6">
-                {hasStatusActions ? (
-                  <InvoiceStatusActions
-                    embedded
-                    invoiceId={invoice.id}
-                    currentStatus={invoiceStatus}
-                  />
-                ) : null}
-                {showRestore ? (
-                  <div
-                    className={cn(
-                      hasStatusActions && "border-t border-border/50 pt-5",
-                    )}
-                  >
-                    <RestoreInvoiceButton invoiceId={invoice.id} />
-                  </div>
-                ) : null}
-                {showArchive ? (
-                  <div
-                    className={cn(
-                      (hasStatusActions || showRestore) &&
-                        "border-t border-border/50 pt-5",
-                    )}
-                  >
-                    <ArchiveInvoiceDialog
-                      invoiceId={invoice.id}
-                      invoiceNumber={invoice.invoice_number}
-                    />
-                  </div>
-                ) : null}
-              </CardContent>
-            </Card>
-          ) : null}
-        </section>
-      ) : null}
-
-      {showDeleteDraft ? (
-        <section
-          className="flex flex-col gap-3 border-t border-border/50 pt-6 md:pt-7"
-          aria-label="Suppression du brouillon"
-        >
-          <p className="text-sm text-muted-foreground">
-            Cette facture est encore un brouillon. Vous pouvez la supprimer
-            définitivement si vous ne souhaitez plus la conserver.
-          </p>
-          <DeleteDraftInvoiceDialog
-            invoiceId={invoice.id}
-            invoiceNumber={invoice.invoice_number}
-            variant="outline"
-          />
-        </section>
-      ) : null}
-
-      {archived ? (
-        <p className="text-sm text-muted-foreground">
-          Cette facture est masquée du tableau de bord et du chiffre
-          d&apos;affaires.
-        </p>
-      ) : null}
     </div>
   );
 }

@@ -24,6 +24,10 @@ export function getAppContentWidth(pathname: string): AppContentWidth {
     return "list";
   }
 
+  if (pathname === "/settings/company" || pathname === "/settings/catalog") {
+    return "list";
+  }
+
   if (
     pathname === "/invoices/new" ||
     pathname === "/quotes/new" ||

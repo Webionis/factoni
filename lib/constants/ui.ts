@@ -45,7 +45,7 @@ export const fadeInUpClassName =
 
 /** Filtres pill (listes). */
 export const filterPillClassName = cn(
-  "shrink-0 rounded-xl border px-3.5 py-2 text-sm font-semibold",
+  "shrink-0 rounded-xl border px-3.5 py-2 text-sm font-semibold touch-manipulation",
   transitionPremiumClassName,
 );
 
@@ -81,6 +81,12 @@ export const surfaceCardInteractiveClassName = cn(
   surfaceCardHoverClassName,
 );
 
+/** Carte liste mobile — tactile premium, alignée tableaux desktop. */
+export const mobileListCardClassName = cn(
+  surfaceCardInteractiveClassName,
+  "min-h-[4.75rem] p-4 touch-manipulation transition-transform duration-150 active:scale-[0.995] sm:p-5",
+);
+
 /** KPI & blocs dashboard. */
 export const surfaceCardStatClassName = cn(
   surfaceCardClassName,
@@ -98,6 +104,21 @@ export const formSectionTitleClassName =
 
 export const formSectionDescriptionClassName =
   "text-sm text-[#64748b] dark:text-[#94a3b8]";
+
+/** Panneau formulaire unique (paramètres) — sections séparées par des traits. */
+export const formPanelClassName = cn(
+  surfaceCardClassName,
+  "divide-y divide-[rgba(15,23,42,0.06)] dark:divide-[rgba(148,163,184,0.1)]",
+);
+
+export const formPanelSectionClassName = "space-y-4 p-5 sm:p-6";
+
+export const formPanelSectionTitleClassName =
+  "text-[11px] font-bold uppercase tracking-[0.12em] text-[#94a3b8] dark:text-[#64748b]";
+
+export const formPanelFooterClassName = cn(
+  "flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-end sm:p-6",
+);
 
 export const sectionHeadingClassName =
   "text-base font-semibold tracking-tight text-[#0f172a] dark:text-[#f8fafc]";
@@ -262,3 +283,44 @@ export const sidebarNavItemClassName = cn(
 
 export const sidebarNavItemActiveClassName =
   "bg-[rgba(37,99,235,0.08)] text-[#2563eb] shadow-[inset_0_0_0_1px_rgba(37,99,235,0.1)] dark:bg-[rgba(59,130,246,0.14)] dark:text-[#93c5fd] dark:shadow-[inset_0_0_0_1px_rgba(96,165,250,0.18)]";
+
+/** Label de groupe dans la sidebar. */
+export const sidebarNavGroupLabelClassName =
+  "px-3 pb-1 pt-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#94a3b8] first:pt-1 dark:text-[#64748b]";
+
+/** Tableau métier (factures, devis, clients) — surface carte, coins clipés. */
+export const dataTableClassName = cn(surfaceCardClassName, "w-full overflow-hidden");
+
+/** Conteneur unique : carte + scroll horizontal si le tableau dépasse. */
+export const dataTableScrollWrapperClassName = cn(
+  dataTableClassName,
+  "min-w-0 w-full overflow-x-auto overscroll-x-contain",
+  "[-webkit-overflow-scrolling:touch]",
+  "md:overflow-x-visible",
+);
+
+/** Balise <table> — colonnes proportionnelles sur mobile, largeur min sur desktop. */
+export const dataTableElementClassName =
+  "w-full max-md:table-fixed border-collapse text-sm md:min-w-[36rem]";
+
+/** Badge statut compact dans les lignes de tableau sur mobile. */
+export const dataTableStatusBadgeClassName =
+  "max-md:h-5 max-md:gap-1 max-md:px-1.5 max-md:text-[10px] md:h-6 md:px-2.5 md:text-xs";
+
+export const dataTableHeadClassName =
+  "border-b border-[rgba(15,23,42,0.06)] bg-[#f8fafc]/80 text-left text-[11px] font-semibold uppercase tracking-wide text-[#64748b] dark:border-[rgba(148,163,184,0.12)] dark:bg-[rgba(15,23,42,0.4)] dark:text-[#94a3b8]";
+
+export const dataTableRowClassName = cn(
+  interactiveRowClassName,
+  "border-b border-[rgba(15,23,42,0.04)] last:border-0 dark:border-[rgba(148,163,184,0.08)]",
+);
+
+/** Accent titre page — identité Factoni. */
+export const pageEyebrowClassName =
+  "text-xs font-semibold uppercase tracking-widest text-[#2563eb]/90 dark:text-[#60a5fa]/90";
+
+export const pageTitleClassName =
+  "text-xl font-bold tracking-tight text-[#0f172a] dark:text-[#f8fafc] sm:text-3xl";
+
+export const pageDescriptionClassName =
+  "max-w-2xl text-[13px] leading-relaxed text-[#64748b] dark:text-[#94a3b8] sm:text-[15px]";

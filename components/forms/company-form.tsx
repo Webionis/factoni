@@ -15,8 +15,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { mobileStickyFooterClassName } from "@/lib/constants/mobile";
 import {
+  formPanelClassName,
+  formPanelFooterClassName,
+  formPanelSectionClassName,
+  formPanelSectionTitleClassName,
   formSectionClassName,
+  formSectionDescriptionClassName,
   formSectionTitleClassName,
   inputClassName,
   selectClassName,
@@ -45,6 +51,43 @@ export const defaultCompanyFormValues: CompanyFormValues = {
 interface CompanyFormProps {
   mode: "onboarding" | "settings";
   initialValues?: CompanyFormValues;
+}
+
+function CompanyFormSection({
+  mode,
+  title,
+  description,
+  children,
+  className,
+}: {
+  mode: CompanyFormProps["mode"];
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  if (mode === "settings") {
+    return (
+      <section className={cn(formPanelSectionClassName, className)}>
+        <h3 className={formPanelSectionTitleClassName}>{title}</h3>
+        <div className="space-y-4">{children}</div>
+      </section>
+    );
+  }
+
+  return (
+    <section className={formSectionClassName}>
+      <div>
+        <h2 className={formSectionTitleClassName}>{title}</h2>
+        {description ? (
+          <p className={cn("mt-1", formSectionDescriptionClassName)}>
+            {description}
+          </p>
+        ) : null}
+      </div>
+      {children}
+    </section>
+  );
 }
 
 export function CompanyForm({ mode, initialValues }: CompanyFormProps) {
@@ -126,8 +169,13 @@ export function CompanyForm({ mode, initialValues }: CompanyFormProps) {
     }
   }
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
+  const submitLabel =
+    mode === "onboarding"
+      ? "Terminer et accéder au tableau de bord"
+      : "Enregistrer les modifications";
+
+  const alerts = (
+    <>
       {serverError ? (
         <p
           className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
@@ -144,37 +192,50 @@ export function CompanyForm({ mode, initialValues }: CompanyFormProps) {
           {successMessage}
         </p>
       ) : null}
+    </>
+  );
 
-      <section className={formSectionClassName}>
-        <h2 className={formSectionTitleClassName}>Identité</h2>
-        <FormField
-          label="Nom commercial / enseigne"
-          htmlFor="trade_name"
-          error={errors.trade_name?.message}
-        >
-          <Input
-            id="trade_name"
-            className={inputClassName}
-            aria-invalid={!!errors.trade_name}
-            {...register("trade_name")}
-          />
-        </FormField>
-        <FormField
-          label="Raison sociale / nom légal"
-          htmlFor="legal_name"
-          error={errors.legal_name?.message}
-        >
-          <Input
-            id="legal_name"
-            className={inputClassName}
-            aria-invalid={!!errors.legal_name}
-            {...register("legal_name")}
-          />
-        </FormField>
-      </section>
+  const fields = (
+    <>
+      <CompanyFormSection
+        mode={mode}
+        title="Identité"
+        description="Nom affiché sur vos documents et dans l'application."
+        className={mode === "settings" ? "sm:pb-5" : undefined}
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField
+            label="Nom commercial / enseigne"
+            htmlFor="trade_name"
+            error={errors.trade_name?.message}
+          >
+            <Input
+              id="trade_name"
+              className={inputClassName}
+              aria-invalid={!!errors.trade_name}
+              {...register("trade_name")}
+            />
+          </FormField>
+          <FormField
+            label="Raison sociale / nom légal"
+            htmlFor="legal_name"
+            error={errors.legal_name?.message}
+          >
+            <Input
+              id="legal_name"
+              className={inputClassName}
+              aria-invalid={!!errors.legal_name}
+              {...register("legal_name")}
+            />
+          </FormField>
+        </div>
+      </CompanyFormSection>
 
-      <section className={formSectionClassName}>
-        <h2 className={formSectionTitleClassName}>Adresse</h2>
+      <CompanyFormSection
+        mode={mode}
+        title="Adresse"
+        description="Adresse du siège ou de l'établissement, visible sur vos PDF."
+      >
         <FormField
           label="Adresse"
           htmlFor="address_line1"
@@ -188,9 +249,13 @@ export function CompanyForm({ mode, initialValues }: CompanyFormProps) {
           />
         </FormField>
         <FormField label="Complément" htmlFor="address_line2">
-          <Input id="address_line2" className={inputClassName} {...register("address_line2")} />
+          <Input
+            id="address_line2"
+            className={inputClassName}
+            {...register("address_line2")}
+          />
         </FormField>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-3">
           <FormField
             label="Code postal"
             htmlFor="postal_code"
@@ -207,6 +272,7 @@ export function CompanyForm({ mode, initialValues }: CompanyFormProps) {
             label="Ville"
             htmlFor="city"
             error={errors.city?.message}
+            className="sm:col-span-2"
           >
             <Input
               id="city"
@@ -216,38 +282,54 @@ export function CompanyForm({ mode, initialValues }: CompanyFormProps) {
             />
           </FormField>
         </div>
-        <FormField label="Pays" htmlFor="country" error={errors.country?.message}>
-          <Input id="country" className={inputClassName} {...register("country")} />
-        </FormField>
-      </section>
-
-      <section className={formSectionClassName}>
-        <h2 className={formSectionTitleClassName}>Contact</h2>
         <FormField
-          label="Email professionnel"
-          htmlFor="email"
-          error={errors.email?.message}
+          label="Pays"
+          htmlFor="country"
+          error={errors.country?.message}
         >
           <Input
-            id="email"
-            type="email"
+            id="country"
             className={inputClassName}
-            aria-invalid={!!errors.email}
-            {...register("email")}
+            {...register("country")}
           />
         </FormField>
-        <FormField label="Téléphone" htmlFor="phone">
-          <Input
-            id="phone"
-            type="tel"
-            className={inputClassName}
-            {...register("phone")}
-          />
-        </FormField>
-      </section>
+      </CompanyFormSection>
 
-      <section className={formSectionClassName}>
-        <h2 className={formSectionTitleClassName}>Informations légales</h2>
+      <CompanyFormSection
+        mode={mode}
+        title="Contact"
+        description="Coordonnées professionnelles figurant sur vos factures."
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField
+            label="Email professionnel"
+            htmlFor="email"
+            error={errors.email?.message}
+          >
+            <Input
+              id="email"
+              type="email"
+              className={inputClassName}
+              aria-invalid={!!errors.email}
+              {...register("email")}
+            />
+          </FormField>
+          <FormField label="Téléphone" htmlFor="phone">
+            <Input
+              id="phone"
+              type="tel"
+              className={inputClassName}
+              {...register("phone")}
+            />
+          </FormField>
+        </div>
+      </CompanyFormSection>
+
+      <CompanyFormSection
+        mode={mode}
+        title="Identifiants légaux"
+        description="SIREN et SIRET pour la conformité de vos documents."
+      >
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             label="SIREN"
@@ -278,41 +360,53 @@ export function CompanyForm({ mode, initialValues }: CompanyFormProps) {
             />
           </FormField>
         </div>
-        <FormField
-          label="Régime TVA"
-          htmlFor="vat_regime"
-          error={errors.vat_regime?.message}
-        >
-          <select
-            id="vat_regime"
-            className={cn(selectClassName, "aria-invalid:border-destructive")}
-            aria-invalid={!!errors.vat_regime}
-            {...register("vat_regime")}
+      </CompanyFormSection>
+
+      <CompanyFormSection
+        mode={mode}
+        title="TVA et facturation"
+        description="Régime fiscal, taux par défaut et mentions obligatoires sur vos factures."
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField
+            label="Régime TVA"
+            htmlFor="vat_regime"
+            error={errors.vat_regime?.message}
           >
-            <option value="standard">Assujetti TVA (taux normal)</option>
-            <option value="franchise">Franchise en base de TVA</option>
-          </select>
-        </FormField>
-        <FormField
-          label="Taux TVA par défaut"
-          htmlFor="default_vat_rate"
-          error={errors.default_vat_rate?.message}
-        >
-          <select
-            id="default_vat_rate"
-            className={selectClassName}
-            disabled={vatRegime === "franchise"}
-            {...register("default_vat_rate", {
-              setValueAs: (v) => (v === "" ? 0 : Number(v)),
-            })}
+            <select
+              id="vat_regime"
+              className={cn(
+                selectClassName,
+                "aria-invalid:border-destructive",
+              )}
+              aria-invalid={!!errors.vat_regime}
+              {...register("vat_regime")}
+            >
+              <option value="standard">Assujetti TVA (taux normal)</option>
+              <option value="franchise">Franchise en base de TVA</option>
+            </select>
+          </FormField>
+          <FormField
+            label="Taux TVA par défaut"
+            htmlFor="default_vat_rate"
+            error={errors.default_vat_rate?.message}
           >
-            {FRENCH_VAT_RATES.map((rate) => (
-              <option key={rate} value={rate}>
-                {rate} %
-              </option>
-            ))}
-          </select>
-        </FormField>
+            <select
+              id="default_vat_rate"
+              className={selectClassName}
+              disabled={vatRegime === "franchise"}
+              {...register("default_vat_rate", {
+                setValueAs: (v) => (v === "" ? 0 : Number(v)),
+              })}
+            >
+              {FRENCH_VAT_RATES.map((rate) => (
+                <option key={rate} value={rate}>
+                  {rate} %
+                </option>
+              ))}
+            </select>
+          </FormField>
+        </div>
         {vatRegime === "standard" ? (
           <FormField
             label="N° TVA intracommunautaire"
@@ -336,10 +430,10 @@ export function CompanyForm({ mode, initialValues }: CompanyFormProps) {
         >
           <textarea
             id="legal_mentions"
-            rows={3}
+            rows={2}
             className={cn(
               selectClassName,
-              "block h-auto min-h-[88px] resize-y py-3 leading-normal",
+              "block h-auto min-h-[72px] resize-y py-3 leading-normal",
             )}
             {...register("legal_mentions")}
           />
@@ -351,19 +445,42 @@ export function CompanyForm({ mode, initialValues }: CompanyFormProps) {
             {...register("payment_terms")}
           />
         </FormField>
-      </section>
+      </CompanyFormSection>
+    </>
+  );
 
-      <Button
-        type="submit"
-        className="h-12 w-full text-base sm:w-auto sm:min-w-[200px]"
-        disabled={isSubmitting}
-      >
-        {isSubmitting
-          ? "Enregistrement…"
-          : mode === "onboarding"
-            ? "Terminer et accéder au tableau de bord"
-            : "Enregistrer les modifications"}
-      </Button>
+  const submitButton = (
+    <Button
+      type="submit"
+      className="h-11 w-full text-base sm:w-auto sm:min-w-[220px]"
+      disabled={isSubmitting}
+    >
+      {isSubmitting ? "Enregistrement…" : submitLabel}
+    </Button>
+  );
+
+  if (mode === "settings") {
+    return (
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {alerts}
+        <div className={formPanelClassName}>
+          {fields}
+          <div className={cn(formPanelFooterClassName, "hidden md:flex")}>
+            {submitButton}
+          </div>
+        </div>
+        <div className={cn(mobileStickyFooterClassName, "md:hidden")}>
+          {submitButton}
+        </div>
+      </form>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {alerts}
+      {fields}
+      <div className={mobileStickyFooterClassName}>{submitButton}</div>
     </form>
   );
 }

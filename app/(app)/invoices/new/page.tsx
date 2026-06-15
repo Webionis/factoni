@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { ArrowLeft, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { InvoiceForm } from "@/components/forms/invoice-form";
+import { AppPageShell } from "@/components/layout/app-page-shell";
 import { pageMetadata } from "@/lib/metadata";
 import { EmptyState } from "@/components/ui/empty-state";
 import { getCompanyForUser } from "@/lib/auth/profile";
@@ -98,18 +98,12 @@ export default async function NewInvoicePage({
   }
 
   return (
-    <div className="w-full space-y-6">
-      <Link
-        href="/invoices"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" aria-hidden />
-        Retour aux factures
-      </Link>
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Nouvelle facture</h1>
-        <p className="mt-1 text-muted-foreground">{subtitle}</p>
-      </div>
+    <AppPageShell
+      backHref="/invoices"
+      backLabel="Retour aux factures"
+      title="Nouvelle facture"
+      description={subtitle}
+    >
       <InvoiceForm
         mode="create"
         initialValues={initialValues}
@@ -117,6 +111,6 @@ export default async function NewInvoicePage({
         catalogItems={catalogItems}
         vatRegime={company.vat_regime}
       />
-    </div>
+    </AppPageShell>
   );
 }

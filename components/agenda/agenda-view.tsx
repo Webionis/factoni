@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   CalendarDays,
@@ -10,18 +10,16 @@ import {
   Plus,
 } from "lucide-react";
 
-import { ScheduledJobCard } from "@/components/agenda/scheduled-job-card";
 import { ScheduledJobFormSheet } from "@/components/agenda/scheduled-job-form-sheet";
-import { updateScheduledJobStatusAction } from "@/lib/actions/scheduled-jobs";
+import { ScheduledJobsTable } from "@/components/agenda/scheduled-jobs-table";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { ScheduledJobWithRelations } from "@/lib/data/scheduled-jobs";
 import {
   addMonths,
   addWeeks,
   buildMonthGrid,
-  daysInWeek,
   endOfMonth,
   endOfWeek,
-  formatDayLabel,
   formatMonthLabel,
   formatShortDayLabel,
   formatWeekRangeLabel,
@@ -37,6 +35,10 @@ import { Button } from "@/components/ui/button";
 import {
   filterPillActiveClassName,
   filterPillClassName,
+  filterPillInactiveClassName,
+  premiumBorderClassName,
+  sectionHeadingClassName,
+  sectionSubheadingClassName,
   surfaceCardClassName,
 } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
@@ -60,6 +62,18 @@ function jobsByDate(jobs: ScheduledJobWithRelations[]): Map<string, ScheduledJob
   return map;
 }
 
+function sortJobs(jobs: ScheduledJobWithRelations[]): ScheduledJobWithRelations[] {
+  return [...jobs].sort((a, b) => {
+    if (a.scheduled_date !== b.scheduled_date) {
+      return a.scheduled_date.localeCompare(b.scheduled_date);
+    }
+    const ta = a.scheduled_time ?? "";
+    const tb = b.scheduled_time ?? "";
+    if (ta !== tb) return ta.localeCompare(tb);
+    return a.title.localeCompare(b.title, "fr");
+  });
+}
+
 export function AgendaView({
   clients,
   initialJobs,
@@ -78,7 +92,6 @@ export function AgendaView({
   const [editingJob, setEditingJob] = useState<ScheduledJobWithRelations | null>(
     null,
   );
-  const [, startStatusTransition] = useTransition();
   const skipInitialFetch = useRef(true);
 
   const range = useMemo(() => {
@@ -130,6 +143,7 @@ export function AgendaView({
   }, [range.from, range.to, fetchJobs, initialRange.from, initialRange.to]);
 
   const jobsMap = useMemo(() => jobsByDate(jobs), [jobs]);
+  const sortedJobs = useMemo(() => sortJobs(jobs), [jobs]);
 
   const periodLabel =
     viewMode === "week"
@@ -171,15 +185,7 @@ export function AgendaView({
       const next = exists
         ? current.map((item) => (item.id === job.id ? job : item))
         : [...current, job];
-      return next.sort((a, b) => {
-        if (a.scheduled_date !== b.scheduled_date) {
-          return a.scheduled_date.localeCompare(b.scheduled_date);
-        }
-        const ta = a.scheduled_time ?? "";
-        const tb = b.scheduled_time ?? "";
-        if (ta !== tb) return ta.localeCompare(tb);
-        return a.title.localeCompare(b.title, "fr");
-      });
+      return sortJobs(next);
     });
   }
 
@@ -187,155 +193,61 @@ export function AgendaView({
     setJobs((current) => current.filter((job) => job.id !== jobId));
   }
 
-  function markDone(job: ScheduledJobWithRelations) {
-    startStatusTransition(async () => {
-      const result = await updateScheduledJobStatusAction(job.id, "done");
-      if (result.job) upsertJob(result.job);
-    });
-  }
-
-  const weekDays = daysInWeek(anchor);
   const monthGrid = buildMonthGrid(anchor);
   const selectedJobs = jobsMap.get(selectedDay) ?? [];
 
+  if (jobs.length === 0 && !loading) {
+    return (
+      <div className="space-y-5">
+        <AgendaToolbar
+          periodLabel={periodLabel}
+          loading={loading}
+          viewMode={viewMode}
+          onPrev={navigatePrev}
+          onNext={navigateNext}
+          onToday={goToToday}
+          onViewModeChange={setViewMode}
+        />
+        <EmptyState
+          icon={CalendarDays}
+          title={agendaCopy.noneThisPeriod}
+          description={agendaCopy.noneOrganizeHint}
+          actionLabel={agendaCopy.plan}
+          actionHref="/agenda?create=1"
+        />
+        <ScheduledJobFormSheet
+          open={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          clients={clients}
+          editingJob={editingJob}
+          defaultDate={selectedDay}
+          onSaved={upsertJob}
+          onArchived={removeJob}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-1">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="size-10 shrink-0"
-            onClick={navigatePrev}
-            aria-label="Période précédente"
-          >
-            <ChevronLeft className="size-4" aria-hidden />
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-10 min-w-0 flex-1 px-3 sm:min-w-[12rem] sm:flex-none"
-            onClick={goToToday}
-          >
-            Aujourd&apos;hui
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="size-10 shrink-0"
-            onClick={navigateNext}
-            aria-label="Période suivante"
-          >
-            <ChevronRight className="size-4" aria-hidden />
-          </Button>
-        </div>
-
-        <p className="text-center text-sm font-semibold sm:text-base">
-          {periodLabel}
-          {loading ? (
-            <Loader2 className="ml-2 inline size-4 animate-spin text-muted-foreground" />
-          ) : null}
-        </p>
-
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className={cn(
-              filterPillClassName,
-              viewMode === "week" && filterPillActiveClassName,
-              "flex-1 sm:flex-none",
-            )}
-            onClick={() => setViewMode("week")}
-          >
-            Semaine
-          </button>
-          <button
-            type="button"
-            className={cn(
-              filterPillClassName,
-              viewMode === "month" && filterPillActiveClassName,
-              "flex-1 sm:flex-none",
-            )}
-            onClick={() => setViewMode("month")}
-          >
-            Mois
-          </button>
-        </div>
-      </div>
+      <AgendaToolbar
+        periodLabel={periodLabel}
+        loading={loading}
+        viewMode={viewMode}
+        onPrev={navigatePrev}
+        onNext={navigateNext}
+        onToday={goToToday}
+        onViewModeChange={setViewMode}
+      />
 
       {viewMode === "week" ? (
-        <div className="space-y-4">
-          {weekDays.map((day) => {
-            const iso = toIsoDate(day);
-            const dayJobs = jobsMap.get(iso) ?? [];
-            const todayFlag = isToday(day, today);
-
-            return (
-              <section
-                key={iso}
-                className={cn(
-                  "rounded-xl border p-4",
-                  todayFlag
-                    ? "border-primary/30 bg-primary/5"
-                    : "border-border/60 bg-card",
-                )}
-              >
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <h3
-                    className={cn(
-                      "text-sm font-semibold capitalize sm:text-base",
-                      todayFlag && "text-primary",
-                    )}
-                  >
-                    {formatDayLabel(day)}
-                  </h3>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 gap-1 px-2"
-                    onClick={() => openCreate(iso)}
-                  >
-                    <Plus className="size-3.5" aria-hidden />
-                    Ajouter
-                  </Button>
-                </div>
-
-                {dayJobs.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    Aucun rendez-vous planifié
-                  </p>
-                ) : (
-                  <ul className="space-y-2">
-                    {dayJobs.map((job) => (
-                      <li key={job.id}>
-                        <ScheduledJobCard
-                          job={job}
-                          compact
-                          onClick={() => openEdit(job)}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
-            );
-          })}
-        </div>
+        <ScheduledJobsTable jobs={sortedJobs} onJobClick={openEdit} />
       ) : (
-        <div className="space-y-4">
-          <div
-            className={cn(
-              "overflow-hidden rounded-xl border bg-card",
-              surfaceCardClassName,
-            )}
-          >
-            <div className="grid grid-cols-7 border-b border-border/50 bg-muted/30 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground sm:text-xs">
+        <div className="space-y-5">
+          <div className={cn(surfaceCardClassName, "overflow-hidden")}>
+            <div className="grid grid-cols-7 border-b border-[rgba(15,23,42,0.06)] bg-[#f8fafc]/80 text-center text-[10px] font-semibold uppercase tracking-wide text-[#64748b] dark:border-[rgba(148,163,184,0.12)] dark:bg-[rgba(15,23,42,0.4)] dark:text-[#94a3b8] sm:text-xs">
               {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((label) => (
-                <div key={label} className="py-2">
+                <div key={label} className="py-2.5">
                   {label}
                 </div>
               ))}
@@ -354,16 +266,21 @@ export function AgendaView({
                     type="button"
                     onClick={() => setSelectedDay(iso)}
                     className={cn(
-                      "min-h-[4.5rem] border-b border-r border-border/40 p-1.5 text-left transition-colors sm:min-h-[5.5rem] sm:p-2",
-                      !inMonth && "bg-muted/20 text-muted-foreground/60",
-                      selected && "bg-primary/10 ring-1 ring-inset ring-primary/30",
-                      todayFlag && !selected && "bg-primary/5",
+                      "min-h-[4.5rem] border-b border-r p-1.5 text-left transition-colors sm:min-h-[5.5rem] sm:p-2",
+                      premiumBorderClassName,
+                      !inMonth && "bg-[#f8fafc]/50 text-[#94a3b8] dark:bg-[rgba(15,23,42,0.35)]",
+                      selected &&
+                        "bg-[rgba(37,99,235,0.08)] ring-1 ring-inset ring-[rgba(37,99,235,0.2)] dark:bg-[rgba(59,130,246,0.12)]",
+                      todayFlag &&
+                        !selected &&
+                        "bg-[rgba(37,99,235,0.04)] dark:bg-[rgba(59,130,246,0.06)]",
                     )}
                   >
                     <span
                       className={cn(
                         "inline-flex size-6 items-center justify-center rounded-full text-xs font-semibold sm:text-sm",
-                        todayFlag && "bg-primary text-primary-foreground",
+                        todayFlag &&
+                          "bg-[#2563eb] text-white dark:bg-[#3b82f6]",
                       )}
                     >
                       {day.getDate()}
@@ -373,7 +290,7 @@ export function AgendaView({
                         {dayJobs.slice(0, 2).map((job) => (
                           <p
                             key={job.id}
-                            className="truncate rounded bg-primary/10 px-1 py-0.5 text-[9px] font-medium text-primary sm:text-[10px]"
+                            className="truncate rounded-md bg-[rgba(37,99,235,0.1)] px-1 py-0.5 text-[9px] font-medium text-[#2563eb] sm:text-[10px] dark:bg-[rgba(59,130,246,0.15)] dark:text-[#93c5fd]"
                           >
                             {job.title}
                           </p>
@@ -392,14 +309,21 @@ export function AgendaView({
           </div>
 
           <section className="space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold capitalize sm:text-base">
-                {formatShortDayLabel(parseIsoDate(selectedDay))}
-              </h3>
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <h3 className={sectionHeadingClassName}>
+                  {formatShortDayLabel(parseIsoDate(selectedDay))}
+                </h3>
+                <p className={cn("mt-0.5", sectionSubheadingClassName)}>
+                  {selectedJobs.length === 0
+                    ? agendaCopy.noneThisDay
+                    : `${selectedJobs.length} rendez-vous`}
+                </p>
+              </div>
               <Button
                 type="button"
                 size="sm"
-                className="h-9 gap-1"
+                className="h-10 shrink-0 gap-1.5"
                 onClick={() => openCreate(selectedDay)}
               >
                 <Plus className="size-4" aria-hidden />
@@ -408,54 +332,23 @@ export function AgendaView({
             </div>
 
             {selectedJobs.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
+              <div
+                className={cn(
+                  surfaceCardClassName,
+                  "px-5 py-8 text-center text-sm text-muted-foreground",
+                )}
+              >
                 {agendaCopy.noneThisDay}
-              </p>
+              </div>
             ) : (
-              <ul className="space-y-2">
-                {selectedJobs.map((job) => (
-                  <li key={job.id} className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <div className="min-w-0 flex-1">
-                      <ScheduledJobCard
-                        job={job}
-                        onClick={() => openEdit(job)}
-                      />
-                    </div>
-                    {job.status === "planned" || job.status === "in_progress" ? (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-10 shrink-0"
-                        onClick={() => markDone(job)}
-                      >
-                        Terminé
-                      </Button>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
+              <ScheduledJobsTable
+                jobs={sortJobs(selectedJobs)}
+                onJobClick={openEdit}
+              />
             )}
           </section>
         </div>
       )}
-
-      {jobs.length === 0 && !loading ? (
-        <div className="flex flex-col items-center rounded-xl border border-dashed px-6 py-10 text-center">
-          <CalendarDays className="mb-3 size-8 text-muted-foreground" aria-hidden />
-          <p className="font-medium">{agendaCopy.noneThisPeriod}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {agendaCopy.noneOrganizeHint}
-          </p>
-          <Button
-            type="button"
-            className="mt-4 h-11"
-            onClick={() => openCreate(selectedDay)}
-          >
-            {agendaCopy.plan}
-          </Button>
-        </div>
-      ) : null}
 
       <ScheduledJobFormSheet
         open={sheetOpen}
@@ -466,6 +359,100 @@ export function AgendaView({
         onSaved={upsertJob}
         onArchived={removeJob}
       />
+    </div>
+  );
+}
+
+interface AgendaToolbarProps {
+  periodLabel: string;
+  loading: boolean;
+  viewMode: AgendaViewMode;
+  onPrev: () => void;
+  onNext: () => void;
+  onToday: () => void;
+  onViewModeChange: (mode: AgendaViewMode) => void;
+}
+
+function AgendaToolbar({
+  periodLabel,
+  loading,
+  viewMode,
+  onPrev,
+  onNext,
+  onToday,
+  onViewModeChange,
+}: AgendaToolbarProps) {
+  return (
+    <div className={cn(surfaceCardClassName, "p-4 sm:p-5")}>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-1.5">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="size-10 shrink-0"
+            onClick={onPrev}
+            aria-label="Période précédente"
+          >
+            <ChevronLeft className="size-4" aria-hidden />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-10 min-w-0 flex-1 px-3 sm:min-w-[7.5rem] sm:flex-none"
+            onClick={onToday}
+          >
+            Aujourd&apos;hui
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="size-10 shrink-0"
+            onClick={onNext}
+            aria-label="Période suivante"
+          >
+            <ChevronRight className="size-4" aria-hidden />
+          </Button>
+        </div>
+
+        <p className="text-center text-sm font-semibold tracking-tight text-[#0f172a] dark:text-[#f8fafc] sm:text-base">
+          {periodLabel}
+          {loading ? (
+            <Loader2 className="ml-2 inline size-4 animate-spin text-muted-foreground" />
+          ) : null}
+        </p>
+
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className={cn(
+              filterPillClassName,
+              viewMode === "week"
+                ? filterPillActiveClassName
+                : filterPillInactiveClassName,
+              "flex-1 sm:flex-none",
+            )}
+            onClick={() => onViewModeChange("week")}
+          >
+            Semaine
+          </button>
+          <button
+            type="button"
+            className={cn(
+              filterPillClassName,
+              viewMode === "month"
+                ? filterPillActiveClassName
+                : filterPillInactiveClassName,
+              "flex-1 sm:flex-none",
+            )}
+            onClick={() => onViewModeChange("month")}
+          >
+            Mois
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

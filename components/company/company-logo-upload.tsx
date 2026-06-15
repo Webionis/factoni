@@ -12,7 +12,11 @@ import { FeaturePlanHint } from "@/components/billing/feature-plan-hint";
 import { useSubscriptionAccess } from "@/components/billing/subscription-provider";
 import { applyActionResult, runServerAction } from "@/lib/client/action-feedback";
 import { Button } from "@/components/ui/button";
-import { surfaceCardClassName } from "@/lib/constants/ui";
+import {
+  formSectionDescriptionClassName,
+  formSectionTitleClassName,
+  surfaceCardClassName,
+} from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
 interface CompanyLogoUploadProps {
@@ -77,13 +81,18 @@ export function CompanyLogoUpload({
   }
 
   return (
-    <section className={cn(surfaceCardClassName, "p-6 sm:p-7")}>
-      <h2 className="text-base font-semibold tracking-tight text-foreground">
-        Identité visuelle
-      </h2>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Votre logo sur chaque facture PDF — PNG, JPG ou WebP (max. 2 Mo).
-      </p>
+    <section
+      className={cn(
+        surfaceCardClassName,
+        "min-w-0 overflow-hidden p-4 sm:p-5",
+      )}
+    >
+      <div>
+        <h2 className={formSectionTitleClassName}>Identité visuelle</h2>
+        <p className={cn("mt-0.5 text-[13px]", formSectionDescriptionClassName)}>
+          Logo sur vos factures PDF — PNG, JPG ou WebP (max. 2 Mo).
+        </p>
+      </div>
       <FeaturePlanHint
         feature="customLogo"
         variant={isBeta ? "beta-offered" : "future-plan"}
@@ -91,20 +100,19 @@ export function CompanyLogoUpload({
       />
 
       {!hasCompany ? (
-        <p className="mt-4 text-sm text-amber-700 dark:text-amber-400">
-          Enregistrez d&apos;abord votre entreprise ci-dessous pour ajouter un
-          logo.
+        <p className="mt-3 text-sm text-amber-700 dark:text-amber-400">
+          Enregistrez d&apos;abord votre entreprise pour ajouter un logo.
         </p>
       ) : (
-        <div className="mt-4 space-y-4">
+        <div className="mt-3 space-y-3">
           <div
             className={cn(
-              "flex min-h-[140px] items-center justify-center rounded-xl border border-dashed border-slate-200/90 bg-white p-6 shadow-sm",
-              previewUrl ? "border-slate-200/90" : "",
+              "flex min-h-[120px] items-center justify-center rounded-xl border border-dashed border-[rgba(15,23,42,0.1)] bg-[#fafbfc]/80 p-4 dark:border-[rgba(148,163,184,0.14)] dark:bg-[rgba(15,23,42,0.35)]",
+              previewUrl && "border-[rgba(37,99,235,0.12)]",
             )}
           >
             {previewUrl ? (
-              <div className="relative h-20 w-full max-w-[200px]">
+              <div className="relative h-16 w-full max-w-[180px]">
                 <Image
                   src={previewUrl}
                   alt="Logo entreprise"
@@ -130,39 +138,41 @@ export function CompanyLogoUpload({
             onChange={handleFileChange}
           />
 
-          <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="flex w-full min-w-0 flex-col gap-2">
             <Button
               type="button"
               variant="outline"
-              className="h-11 flex-1 gap-2"
+              className="h-11 w-full gap-2"
               disabled={uploading || removing}
               onClick={() => inputRef.current?.click()}
             >
               {uploading ? (
-                <Loader2 className="size-4 animate-spin" aria-hidden />
+                <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden />
               ) : (
-                <Upload className="size-4" aria-hidden />
+                <Upload className="size-4 shrink-0" aria-hidden />
               )}
-              {uploading
-                ? "Envoi…"
-                : previewUrl
-                  ? "Remplacer le logo"
-                  : "Ajouter un logo"}
+              <span className="truncate">
+                {uploading
+                  ? "Envoi…"
+                  : previewUrl
+                    ? "Remplacer le logo"
+                    : "Ajouter un logo"}
+              </span>
             </Button>
             {previewUrl ? (
               <Button
                 type="button"
-                variant="ghost"
-                className="h-11 gap-2 text-destructive hover:text-destructive"
+                variant="outline"
+                className="h-11 w-full gap-2 border-destructive/25 text-destructive hover:bg-destructive/5 hover:text-destructive"
                 disabled={uploading || removing}
                 onClick={handleRemove}
               >
                 {removing ? (
-                  <Loader2 className="size-4 animate-spin" aria-hidden />
+                  <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden />
                 ) : (
-                  <Trash2 className="size-4" aria-hidden />
+                  <Trash2 className="size-4 shrink-0" aria-hidden />
                 )}
-                Supprimer
+                Supprimer le logo
               </Button>
             ) : null}
           </div>

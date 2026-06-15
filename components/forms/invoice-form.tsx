@@ -35,7 +35,13 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { NumericFormInput } from "@/components/ui/numeric-form-input";
 import { mobileStickyFooterClassName } from "@/lib/constants/mobile";
-import { inputClassName, selectClassName } from "@/lib/constants/ui";
+import {
+  formSectionClassName,
+  formSectionDescriptionClassName,
+  formSectionTitleClassName,
+  inputClassName,
+  selectClassName,
+} from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
 function clientOptionLabel(client: ClientRow): string {
@@ -149,7 +155,7 @@ export function InvoiceForm({
 
   return (
     <FormProvider {...form}>
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {serverError ? (
         <p
           className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
@@ -168,7 +174,16 @@ export function InvoiceForm({
         </p>
       ) : null}
 
-      <section className="space-y-5">
+      <section className={formSectionClassName}>
+        <div>
+          <h2 className={formSectionTitleClassName}>Client et dates</h2>
+          <p className={cn("mt-1", formSectionDescriptionClassName)}>
+            {isQuote
+              ? "Destinataire du devis et période de validité."
+              : "Destinataire de la facture et échéance de paiement."}
+          </p>
+        </div>
+
         <FormField
           label="Client"
           htmlFor="client_id"
@@ -233,8 +248,13 @@ export function InvoiceForm({
         <input type="hidden" {...register("payment_terms")} />
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Remise globale</h2>
+      <section className={formSectionClassName}>
+        <div>
+          <h2 className={formSectionTitleClassName}>Remise globale</h2>
+          <p className={cn("mt-1", formSectionDescriptionClassName)}>
+            Utilisez soit un pourcentage, soit un montant — pas les deux.
+          </p>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             label="Remise (%)"
@@ -263,12 +283,16 @@ export function InvoiceForm({
             />
           </FormField>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Utilisez soit un pourcentage, soit un montant — pas les deux.
-        </p>
       </section>
 
-      <InvoiceLinesEditor
+      <section className={formSectionClassName}>
+        <div>
+          <h2 className={formSectionTitleClassName}>Prestations</h2>
+          <p className={cn("mt-1", formSectionDescriptionClassName)}>
+            Détaillez les lignes facturées ou choisissez depuis votre catalogue.
+          </p>
+        </div>
+        <InvoiceLinesEditor
         control={control}
         fields={fields}
         append={append}
@@ -278,8 +302,15 @@ export function InvoiceForm({
         vatRegime={vatRegime}
         catalogItems={catalogItems}
       />
+      </section>
 
-      <section>
+      <section className={formSectionClassName}>
+        <div>
+          <h2 className={formSectionTitleClassName}>Notes</h2>
+          <p className={cn("mt-1", formSectionDescriptionClassName)}>
+            Informations complémentaires visibles sur le document (optionnel).
+          </p>
+        </div>
         <FormField
           label={
             <>

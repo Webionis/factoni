@@ -1,7 +1,10 @@
+import Link from "next/link";
+import { Plus } from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { AgendaView } from "@/components/agenda/agenda-view";
 import { PageHeader } from "@/components/layout/page-header";
+import { buttonVariants } from "@/components/ui/button";
 import { listClientsForUser } from "@/lib/data/clients";
 import { listScheduledJobsForRange } from "@/lib/data/scheduled-jobs";
 import {
@@ -12,6 +15,7 @@ import {
 import { agendaCopy } from "@/lib/agenda/copy";
 import { pageMetadata } from "@/lib/metadata";
 import { createClient } from "@/lib/supabase/server";
+import { cn } from "@/lib/utils";
 
 export const metadata = pageMetadata("agenda");
 
@@ -42,10 +46,20 @@ export default async function AgendaPage({ searchParams }: AgendaPageProps) {
   ]);
 
   return (
-    <div className="w-full space-y-6 pb-8">
+    <div className="min-w-0 space-y-6 pb-8">
       <PageHeader
         title="Agenda"
         description={agendaCopy.pageDescription}
+        action={
+          <Link
+            href="/agenda?create=1"
+            className={cn(buttonVariants(), "h-11 gap-1.5")}
+          >
+            <Plus className="size-4" aria-hidden />
+            <span className="hidden sm:inline">{agendaCopy.plan}</span>
+            <span className="sm:hidden">Planifier</span>
+          </Link>
+        }
       />
 
       <AgendaView

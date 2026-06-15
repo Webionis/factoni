@@ -40,6 +40,21 @@ export const QUOTE_STATUS_LABELS: Record<QuoteStatus, string> = {
   cancelled: "Annulé",
 };
 
+/** Libellés courts pour les badges dans les tableaux sur mobile. */
+export const QUOTE_STATUS_SHORT_LABELS: Record<QuoteStatus, string> = {
+  draft: "Brouillon",
+  ready: "Prêt",
+  sent: "Envoyé",
+  viewed: "Consulté",
+  accepted: "Accepté",
+  deposit_requested: "Acompte",
+  deposit_paid: "Payé",
+  invoiced: "Facturé",
+  rejected: "Refusé",
+  expired: "Expiré",
+  cancelled: "Annulé",
+};
+
 const ALLOWED_TRANSITIONS: Record<QuoteStatus, QuoteStatus[]> = {
   draft: ["ready"],
   ready: ["sent", "cancelled"],

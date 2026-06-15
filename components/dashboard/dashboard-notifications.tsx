@@ -12,6 +12,7 @@ import {
 import {
   fadeInUpClassName,
   sectionHeadingClassName,
+  sectionSubheadingClassName,
   surfaceCardClassName,
 } from "@/lib/constants/ui";
 import { DASHBOARD_ACTIVITY_SECTION_ID } from "@/lib/navigation/dashboard-activity";
@@ -57,18 +58,25 @@ export function DashboardNotifications({
   return (
     <section
       id={DASHBOARD_ACTIVITY_SECTION_ID}
-      className="scroll-mt-[calc(3.5rem+env(safe-area-inset-top)+0.75rem)] space-y-3.5 md:scroll-mt-6 md:space-y-3"
+      className="scroll-mt-[calc(3.5rem+env(safe-area-inset-top)+0.75rem)] min-w-0 space-y-4 md:scroll-mt-6"
       aria-labelledby="notifications-heading"
     >
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 id="notifications-heading" className={sectionHeadingClassName}>
-          Activité récente
-        </h2>
-        {unreadCount > 0 ? (
-          <span className="inline-flex items-center rounded-full bg-[rgba(37,99,235,0.1)] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[#2563eb] dark:bg-[rgba(59,130,246,0.16)] dark:text-[#93c5fd]">
-            {unreadCount} non lue{unreadCount > 1 ? "s" : ""}
-          </span>
-        ) : null}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 id="notifications-heading" className={sectionHeadingClassName}>
+              Activité récente
+            </h2>
+            {unreadCount > 0 ? (
+              <span className="inline-flex items-center rounded-full bg-[rgba(37,99,235,0.1)] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[#2563eb] dark:bg-[rgba(59,130,246,0.16)] dark:text-[#93c5fd]">
+                {unreadCount} non lue{unreadCount > 1 ? "s" : ""}
+              </span>
+            ) : null}
+          </div>
+          <p className={cn("mt-0.5", sectionSubheadingClassName)}>
+            Paiements, relances et événements sur vos documents.
+          </p>
+        </div>
       </div>
 
       {notifications.length === 0 ? (

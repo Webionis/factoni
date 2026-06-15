@@ -1,26 +1,27 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Pencil } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 
 import { CopyPublicDocumentLinkButton } from "@/components/documents/copy-public-document-link-button";
 import { InterventionLocationCard } from "@/components/documents/intervention-location-card";
+import { InvoiceLinesTable } from "@/components/invoices/invoice-lines-table";
+import { PageHeader } from "@/components/layout/page-header";
 import { DuplicateQuoteButton } from "@/components/quotes/duplicate-quote-button";
 import { QuoteClientReminderButton } from "@/components/quotes/quote-client-reminder-button";
+import {
+  QuoteDetailDates,
+  QuoteDetailSidebar,
+} from "@/components/quotes/quote-detail-sidebar";
 import { QuoteInvoiceActionButton } from "@/components/quotes/quote-invoice-action-button";
 import { DeleteDraftQuoteDialog } from "@/components/quotes/delete-draft-quote-dialog";
 import { DownloadQuotePdfButton } from "@/components/quotes/download-quote-pdf-button";
-import { QuoteAcceptanceReceived } from "@/components/quotes/quote-acceptance-received";
 import { QuoteDepositSection } from "@/components/quotes/quote-deposit-section";
 import { SendQuoteEmailButton } from "@/components/quotes/send-quote-email-button";
 import { ValidateQuoteDraftButton } from "@/components/quotes/validate-quote-draft-button";
 import { QuoteStatusActions } from "@/components/quotes/quote-status-actions";
-import { QuoteStatusBadge } from "@/components/quotes/quote-status-badge";
-import { InvoiceArchivedBadge } from "@/components/invoices/invoice-archived-badge";
-import { InvoiceTotalsSummary } from "@/components/invoices/invoice-totals-summary";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   clientNameFromInvoice,
   clientNameFromSnapshot,
@@ -29,7 +30,6 @@ import { getQuoteById } from "@/lib/data/quotes";
 import { isInvoiceArchived } from "@/lib/invoices/archive";
 import { getInvoiceClientEmail } from "@/lib/invoices/client-contact";
 import { buildDocumentTotalsDisplay } from "@/lib/invoices/document-totals";
-import { formatCurrency } from "@/lib/invoices/calculate";
 import { parseCompanySnapshot } from "@/lib/pdf/parse-snapshots";
 import {
   getEffectiveQuoteStatus,
@@ -70,14 +70,6 @@ export async function generateMetadata({
   return createPageMetadata(quoteDisplayNumber(quote.invoice_number, quote.id));
 }
 
-function formatDate(dateStr: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(dateStr));
-}
-
 export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) {
   const { id } = await params;
   const supabase = await createClient();
@@ -95,10 +87,7 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
   }
 
   const quoteStatus = normalizeQuoteStatus(quote.status);
-  const displayStatus = getEffectiveQuoteStatus(
-    quoteStatus,
-    quote.due_date,
-  );
+  const displayStatus = getEffectiveQuoteStatus(quoteStatus, quote.due_date);
   const clientLabel =
     clientNameFromSnapshot(quote.client_snapshot) ??
     clientNameFromInvoice(quote);
@@ -160,45 +149,95 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
 
   const clientEmail = getInvoiceClientEmail(quote.clients, quote.client_snapshot);
 
+  const detailActions = (
+    <>
+      {showSendEmail ? (
+        <SendQuoteEmailButton
+          quoteId={quote.id}
+          variant="default"
+          disabled={!clientEmail}
+          disabledReason={
+            !clientEmail
+              ? "Ajoutez l'email du client pour préparer l'envoi."
+              : undefined
+          }
+        />
+      ) : null}
+      {showDownloadPdf ? (
+        <DownloadQuotePdfButton quoteId={quote.id} label={draftPdfLabel} />
+      ) : null}
+      {showCopyPublicLink ? (
+        <CopyPublicDocumentLinkButton
+          documentId={quote.id}
+          documentKind="quote"
+        />
+      ) : null}
+      {showValidateDraft ? (
+        <ValidateQuoteDraftButton quoteId={quote.id} />
+      ) : null}
+      {editable && quoteStatus === "draft" ? (
+        <Link
+          href={`/quotes/${quote.id}/edit`}
+          className={cn(
+            buttonVariants({ variant: "outline" }),
+            "h-11 w-full justify-center gap-2",
+          )}
+        >
+          <Pencil className="size-4" aria-hidden />
+          Modifier
+        </Link>
+      ) : null}
+      {showQuoteReminder ? (
+        <QuoteClientReminderButton
+          quoteId={quote.id}
+          disabled={!clientEmail}
+          disabledReason={
+            !clientEmail
+              ? "Ajoutez une adresse email au client pour préparer la relance."
+              : undefined
+          }
+        />
+      ) : null}
+      {quoteInvoiceActionMode !== "none" ? (
+        <QuoteInvoiceActionButton
+          quoteId={quote.id}
+          mode={quoteInvoiceActionMode}
+          invoiceId={quoteInvoiceId}
+        />
+      ) : null}
+      {!archived && quoteStatus !== "draft" ? (
+        <DuplicateQuoteButton quoteId={quote.id} />
+      ) : null}
+    </>
+  );
+
+  const sidebarProps = {
+    displayStatus,
+    archived,
+    snapshotFrozen,
+    quoteStatus,
+    showQuoteAccepted,
+    acceptedAt: quote.accepted_at,
+    totals,
+    discountPercent: quote.discount_percent,
+    discountAmount: quote.discount_amount,
+    actions: detailActions,
+  };
+
   return (
-    <div className="w-full space-y-7 md:space-y-8">
+    <div className="w-full space-y-6 md:space-y-8">
       <Link
         href="/quotes"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" aria-hidden />
         Retour aux devis
       </Link>
 
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="font-mono text-sm text-muted-foreground">
-            {quoteDisplayNumber(quote.invoice_number, quote.id)}
-          </p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight break-words">
-            {clientLabel}
-          </h1>
-          <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-            <div className="flex flex-wrap items-center gap-2">
-              <QuoteStatusBadge status={displayStatus} />
-              {archived ? <InvoiceArchivedBadge /> : null}
-              {snapshotFrozen ? (
-                <span className="text-xs text-muted-foreground">
-                  {quoteStatus === "ready"
-                    ? "Contenu figé — prêt à envoyer"
-                    : "Données figées à la validation"}
-                </span>
-              ) : null}
-            </div>
-            {showQuoteAccepted ? (
-              <QuoteAcceptanceReceived
-                acceptedAt={quote.accepted_at}
-                className="w-full sm:w-auto"
-              />
-            ) : null}
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow={quoteDisplayNumber(quote.invoice_number, quote.id)}
+        title={clientLabel}
+      />
 
       {quote.converted_to_invoice_id ? (
         <Card>
@@ -228,205 +267,112 @@ export default async function QuoteDetailPage({ params }: QuoteDetailPageProps) 
         </Card>
       ) : null}
 
-      {showDepositSection ? <QuoteDepositSection quote={quote} /> : null}
+      <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-8">
+        <div className="min-w-0 space-y-6">
+          {showDepositSection ? <QuoteDepositSection quote={quote} /> : null}
 
-      <InterventionLocationCard snapshot={quote.client_location_snapshot} />
+          <InterventionLocationCard snapshot={quote.client_location_snapshot} />
 
-      <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
-        <Card>
-          <CardHeader className="px-5 pb-2 pt-5 sm:px-6">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Dates
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2.5 px-5 pb-5 text-sm sm:px-6 sm:pb-6">
-            <div className="flex items-center gap-2">
-              <Calendar className="size-4 text-muted-foreground" aria-hidden />
-              <span>Émission : {formatDate(quote.issue_date)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="size-4 text-muted-foreground" aria-hidden />
-              <span>Validité : {formatDate(quote.due_date)}</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="px-5 pb-2 pt-5 sm:px-6">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Montant TTC
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-5 pb-5 sm:px-6 sm:pb-6">
-            <p className="text-2xl font-semibold tabular-nums">
-              {formatCurrency(Number(quote.total_ttc))}
-            </p>
-          </CardContent>
-        </Card>
+          <QuoteDetailDates
+            issueDate={quote.issue_date}
+            validityDate={quote.due_date}
+            className="md:hidden"
+          />
+
+          <Card>
+            <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
+              <CardTitle className="text-base font-semibold tracking-tight">
+                Lignes
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-5 pb-6 pt-0 sm:px-6">
+              <InvoiceLinesTable lines={lines} />
+            </CardContent>
+          </Card>
+
+          <div className="md:hidden">
+            <QuoteDetailSidebar {...sidebarProps} />
+          </div>
+
+          {showFooter ? (
+            <section
+              className="space-y-5 md:space-y-6"
+              aria-label="Conditions et actions"
+            >
+              {quote.payment_terms ? (
+                <Card>
+                  <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
+                    <CardTitle className="text-base font-semibold tracking-tight">
+                      Conditions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-5 pb-6 pt-0 sm:px-6">
+                    <p className="text-sm leading-[1.7] whitespace-pre-wrap text-muted-foreground">
+                      {quote.payment_terms}
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : null}
+
+              {quote.notes ? (
+                <Card>
+                  <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
+                    <CardTitle className="text-base font-semibold tracking-tight">
+                      Notes
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-5 pb-6 pt-0 sm:px-6">
+                    <p className="text-sm leading-[1.7] whitespace-pre-wrap text-muted-foreground">
+                      {quote.notes}
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : null}
+
+              {showActionsCard ? (
+                <Card>
+                  <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
+                    <CardTitle className="text-base font-semibold tracking-tight">
+                      Actions
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-5 pb-6 pt-0 sm:px-6">
+                    <QuoteStatusActions
+                      embedded
+                      quoteId={quote.id}
+                      currentStatus={quoteStatus}
+                      validityDate={quote.due_date}
+                      convertedToInvoiceId={quote.converted_to_invoice_id}
+                    />
+                  </CardContent>
+                </Card>
+              ) : null}
+            </section>
+          ) : null}
+
+          {showDeleteDraft ? (
+            <section
+              className="flex flex-col gap-3 border-t border-border/50 pt-6 md:pt-7"
+              aria-label="Suppression du brouillon"
+            >
+              <p className="text-sm text-muted-foreground">
+                Ce devis est encore un brouillon. Vous pouvez le supprimer
+                définitivement si vous ne souhaitez plus le conserver.
+              </p>
+              <DeleteDraftQuoteDialog quoteId={quote.id} variant="outline" />
+            </section>
+          ) : null}
+        </div>
+
+        <div className="hidden md:block">
+          <QuoteDetailDates
+            issueDate={quote.issue_date}
+            validityDate={quote.due_date}
+            className="mb-4"
+          />
+          <QuoteDetailSidebar {...sidebarProps} />
+        </div>
       </div>
-
-      <Card>
-        <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
-          <CardTitle className="text-base font-semibold tracking-tight">
-            Lignes
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-5 px-5 pb-6 pt-0 sm:px-6">
-          <ul className="divide-y divide-border/50">
-            {lines.map((line) => (
-              <li
-                key={line.id}
-                className="flex flex-col gap-1.5 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="min-w-0">
-                  <p className="font-medium">{line.description}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {line.quantity} × {formatCurrency(Number(line.unit_price_ht))} HT
-                    {" · "}TVA {line.vat_rate}%
-                  </p>
-                </div>
-                <p className="shrink-0 font-semibold tabular-nums">
-                  {formatCurrency(Number(line.line_total_ttc))}
-                </p>
-              </li>
-            ))}
-          </ul>
-          <Separator />
-          <InvoiceTotalsSummary
-            totals={totals}
-            discountPercent={quote.discount_percent}
-            discountAmount={quote.discount_amount}
-          />
-        </CardContent>
-      </Card>
-
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-        {showSendEmail ? (
-          <SendQuoteEmailButton
-            quoteId={quote.id}
-            variant="default"
-            disabled={!clientEmail}
-            disabledReason={
-              !clientEmail
-                ? "Ajoutez l'email du client pour préparer l'envoi."
-                : undefined
-            }
-          />
-        ) : null}
-        {showDownloadPdf ? (
-          <DownloadQuotePdfButton quoteId={quote.id} label={draftPdfLabel} />
-        ) : null}
-        {showCopyPublicLink ? (
-          <CopyPublicDocumentLinkButton
-            documentId={quote.id}
-            documentKind="quote"
-          />
-        ) : null}
-        {showValidateDraft ? (
-          <ValidateQuoteDraftButton quoteId={quote.id} />
-        ) : null}
-        {editable && quoteStatus === "draft" ? (
-          <Link
-            href={`/quotes/${quote.id}/edit`}
-            className={cn(
-              buttonVariants({ variant: "outline" }),
-              "h-11 w-full justify-center gap-2 sm:w-auto",
-            )}
-          >
-            <Pencil className="size-4" aria-hidden />
-            Modifier
-          </Link>
-        ) : null}
-        {showQuoteReminder ? (
-          <QuoteClientReminderButton
-            quoteId={quote.id}
-            disabled={!clientEmail}
-            disabledReason={
-              !clientEmail
-                ? "Ajoutez une adresse email au client pour préparer la relance."
-                : undefined
-            }
-          />
-        ) : null}
-        {quoteInvoiceActionMode !== "none" ? (
-          <QuoteInvoiceActionButton
-            quoteId={quote.id}
-            mode={quoteInvoiceActionMode}
-            invoiceId={quoteInvoiceId}
-          />
-        ) : null}
-        {!archived && quoteStatus !== "draft" ? (
-          <DuplicateQuoteButton quoteId={quote.id} />
-        ) : null}
-      </div>
-
-      {showFooter ? (
-        <section
-          className="space-y-5 md:space-y-6"
-          aria-label="Conditions et actions"
-        >
-          {quote.payment_terms ? (
-            <Card>
-              <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
-                <CardTitle className="text-base font-semibold tracking-tight">
-                  Conditions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-5 pb-6 pt-0 sm:px-6">
-                <p className="text-sm leading-[1.7] whitespace-pre-wrap text-muted-foreground">
-                  {quote.payment_terms}
-                </p>
-              </CardContent>
-            </Card>
-          ) : null}
-
-          {quote.notes ? (
-            <Card>
-              <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
-                <CardTitle className="text-base font-semibold tracking-tight">
-                  Notes
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-5 pb-6 pt-0 sm:px-6">
-                <p className="text-sm leading-[1.7] whitespace-pre-wrap text-muted-foreground">
-                  {quote.notes}
-                </p>
-              </CardContent>
-            </Card>
-          ) : null}
-
-          {showActionsCard ? (
-            <Card>
-              <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
-                <CardTitle className="text-base font-semibold tracking-tight">
-                  Actions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-5 pb-6 pt-0 sm:px-6">
-                <QuoteStatusActions
-                  embedded
-                  quoteId={quote.id}
-                  currentStatus={quoteStatus}
-                  validityDate={quote.due_date}
-                  convertedToInvoiceId={quote.converted_to_invoice_id}
-                />
-              </CardContent>
-            </Card>
-          ) : null}
-        </section>
-      ) : null}
-
-      {showDeleteDraft ? (
-        <section
-          className="flex flex-col gap-3 border-t border-border/50 pt-6 md:pt-7"
-          aria-label="Suppression du brouillon"
-        >
-          <p className="text-sm text-muted-foreground">
-            Ce devis est encore un brouillon. Vous pouvez le supprimer
-            définitivement si vous ne souhaitez plus le conserver.
-          </p>
-          <DeleteDraftQuoteDialog quoteId={quote.id} variant="outline" />
-        </section>
-      ) : null}
     </div>
   );
 }

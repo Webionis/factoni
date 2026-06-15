@@ -2,7 +2,12 @@ import { FileText, FileWarning, PiggyBank, Pencil } from "lucide-react";
 
 import { formatCurrency } from "@/lib/invoices/calculate";
 import type { DashboardStats } from "@/lib/data/dashboard";
-import { fadeInUpClassName, surfaceCardStatClassName } from "@/lib/constants/ui";
+import {
+  fadeInUpClassName,
+  sectionHeadingClassName,
+  sectionSubheadingClassName,
+  surfaceCardStatClassName,
+} from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
 export type KpiValueType = "money" | "count";
@@ -63,7 +68,17 @@ interface DashboardStatGridProps {
 
 export function DashboardStatGrid({ stats }: DashboardStatGridProps) {
   return (
-    <div className="grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-2 md:gap-4 xl:grid-cols-4">
+    <section className="min-w-0 space-y-4" aria-labelledby="dashboard-kpi-heading">
+      <div>
+        <h2 id="dashboard-kpi-heading" className={sectionHeadingClassName}>
+          Indicateurs clés
+        </h2>
+        <p className={cn("mt-0.5", sectionSubheadingClassName)}>
+          Factures, chiffre d&apos;affaires et suivi du mois en cours.
+        </p>
+      </div>
+
+      <div className="grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4">
       {STAT_ITEMS.map(({ key, label, icon: Icon, iconBg, valueType, format }, index) => {
         const display = format(stats[key]);
         const mobileLabel = key === "monthRevenueTtc" ? "CA TTC" : label;
@@ -74,38 +89,39 @@ export function DashboardStatGrid({ stats }: DashboardStatGridProps) {
             className={cn(
               surfaceCardStatClassName,
               fadeInUpClassName,
-              "@container/kpi min-w-0 overflow-hidden p-3",
-              "shadow-[0_1px_2px_rgba(15,23,42,0.04),0_4px_12px_rgba(15,23,42,0.03)]",
-              "md:p-6 md:shadow-none xl:p-7",
+              "@container/kpi min-w-0 overflow-hidden p-3 md:p-5",
             )}
             style={{ animationDelay: `${index * 60}ms` }}
           >
-            <div className="flex items-start justify-between gap-2 md:block">
+            <div className="flex flex-col gap-2">
               <div
                 className={cn(
-                  "flex size-8 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ring-black/[0.04] dark:ring-white/[0.06]",
-                  "md:mb-0 md:size-10 md:rounded-xl",
+                  "flex size-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ring-black/[0.04] dark:ring-white/[0.06]",
+                  "md:mb-3 md:size-11 md:rounded-xl",
                   iconBg,
                 )}
               >
-                <Icon className="size-4 md:size-[1.125rem]" strokeWidth={2} aria-hidden />
+                <Icon className="size-4 md:size-5" strokeWidth={2} aria-hidden />
               </div>
               <p
-                className={getKpiValueClassName({
-                  value: display,
-                  type: valueType,
-                })}
+                className={cn(
+                  getKpiValueClassName({
+                    value: display,
+                    type: valueType,
+                  }),
+                  "md:text-2xl",
+                )}
               >
                 {display}
               </p>
             </div>
-            <p className="mt-1.5 text-[10px] font-medium uppercase tracking-wide text-[#94a3b8] dark:text-[#64748b] md:mt-5 md:text-xs md:normal-case md:tracking-normal">
-              <span className="md:hidden">{mobileLabel}</span>
-              <span className="hidden md:inline">{label}</span>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#94a3b8] dark:text-[#64748b] md:text-xs md:font-medium md:normal-case md:tracking-normal">
+              <span>{mobileLabel}</span>
             </p>
           </article>
         );
       })}
-    </div>
+      </div>
+    </section>
   );
 }

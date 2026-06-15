@@ -17,21 +17,8 @@ import type { CatalogItemRow } from "@/lib/data/catalog-items";
 import { formatCurrency } from "@/lib/invoices/calculate";
 import { getInvoiceLineItemNatureOption } from "@/lib/invoices/item-nature";
 import type { InvoiceLineFormValues } from "@/lib/validations/invoice";
+import { useIsMdDesktop } from "@/lib/hooks/use-is-md-desktop";
 import { cn } from "@/lib/utils";
-
-function useIsDesktop() {
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    const media = window.matchMedia("(min-width: 768px)");
-    const update = () => setIsDesktop(media.matches);
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
-
-  return isDesktop;
-}
 
 function catalogItemToLine(item: CatalogItemRow): InvoiceLineFormValues {
   return {
@@ -121,7 +108,7 @@ interface CatalogItemPickerProps {
 export function CatalogItemPicker({ items, onSelect }: CatalogItemPickerProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const isDesktop = useIsDesktop();
+  const isDesktop = useIsMdDesktop();
 
   function handleSelect(item: CatalogItemRow) {
     onSelect(catalogItemToLine(item));

@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import {
   INVOICE_STATUS_LABELS,
+  INVOICE_STATUS_SHORT_LABELS,
   type InvoiceStatus,
 } from "@/lib/invoices/status";
 import { cn } from "@/lib/utils";
@@ -44,9 +45,14 @@ const STATUS_STYLES: Record<
 interface InvoiceStatusBadgeProps {
   status: InvoiceStatus;
   className?: string;
+  compact?: boolean;
 }
 
-export function InvoiceStatusBadge({ status, className }: InvoiceStatusBadgeProps) {
+export function InvoiceStatusBadge({
+  status,
+  className,
+  compact = false,
+}: InvoiceStatusBadgeProps) {
   const styles = STATUS_STYLES[status] ?? STATUS_STYLES.draft;
 
   return (
@@ -62,7 +68,16 @@ export function InvoiceStatusBadge({ status, className }: InvoiceStatusBadgeProp
         className={cn("size-1.5 shrink-0 rounded-full", styles.dot)}
         aria-hidden
       />
-      {INVOICE_STATUS_LABELS[status] ?? status}
+      {compact ? (
+        <>
+          <span className="md:hidden">{INVOICE_STATUS_SHORT_LABELS[status] ?? status}</span>
+          <span className="hidden md:inline">
+            {INVOICE_STATUS_LABELS[status] ?? status}
+          </span>
+        </>
+      ) : (
+        (INVOICE_STATUS_LABELS[status] ?? status)
+      )}
     </Badge>
   );
 }

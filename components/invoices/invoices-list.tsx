@@ -3,14 +3,14 @@
 import { useMemo, useState } from "react";
 import { FileText, Search } from "lucide-react";
 
-import { InvoiceCard } from "@/components/invoices/invoice-card";
+import { InvoicesTable } from "@/components/invoices/invoices-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import {
-  filterPillActiveClassName,
-  filterPillClassName,
-  filterPillInactiveClassName,
-} from "@/lib/constants/ui";
+  listFilterGroupClassName,
+  mobileSearchInputClassName,
+} from "@/lib/constants/mobile";
+import { selectClassName } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 import { isInvoiceDocument } from "@/lib/documents/types";
 import type { InvoiceWithClient } from "@/lib/data/invoices";
@@ -32,14 +32,6 @@ const ARCHIVE_FILTERS: { value: ArchiveFilter; label: string }[] = [
   { value: "active", label: "Actives" },
   { value: "archived", label: "Archivées" },
   { value: "all", label: "Toutes" },
-];
-
-const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
-  { value: "all", label: "Tous statuts" },
-  ...INVOICE_STATUSES.map((s) => ({
-    value: s,
-    label: INVOICE_STATUS_LABELS[s],
-  })),
 ];
 
 function matchesSearch(invoice: InvoiceWithClient, query: string): boolean {
@@ -66,6 +58,23 @@ export function InvoicesList({ invoices }: InvoicesListProps) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [archiveFilter, setArchiveFilter] = useState<ArchiveFilter>("active");
+
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: 0 };
+    for (const inv of invoices) {
+      if (!isInvoiceDocument(inv.document_type)) continue;
+      const archived = isInvoiceArchived(inv.archived_at);
+      if (archiveFilter === "active" && archived) continue;
+      if (archiveFilter === "archived" && !archived) continue;
+      counts.all = (counts.all ?? 0) + 1;
+      const displayStatus = getEffectiveInvoiceStatus(
+        toInvoiceStatus(inv.status),
+        inv.due_date,
+      );
+      counts[displayStatus] = (counts[displayStatus] ?? 0) + 1;
+    }
+    return counts;
+  }, [invoices, archiveFilter]);
 
   const filtered = useMemo(() => {
     return invoices.filter((inv) => {
@@ -100,55 +109,53 @@ export function InvoicesList({ invoices }: InvoicesListProps) {
 
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <Search
-          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-          aria-hidden
-        />
-        <Input
-          type="search"
-          placeholder="N°, client, notes…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="h-11 pl-10 shadow-sm"
-          aria-label="Rechercher une facture"
-        />
-      </div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative min-w-0 flex-1">
+          <Search
+            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden
+          />
+          <Input
+            type="search"
+            placeholder="N°, client, notes…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className={mobileSearchInputClassName}
+            aria-label="Rechercher une facture"
+          />
+        </div>
 
-      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-        {ARCHIVE_FILTERS.map(({ value, label }) => (
-          <button
-            key={`archive-${value}`}
-            type="button"
-            onClick={() => setArchiveFilter(value)}
-            className={cn(
-              filterPillClassName,
-              archiveFilter === value
-                ? filterPillActiveClassName
-                : filterPillInactiveClassName,
-            )}
+        <div className={listFilterGroupClassName}>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+            className={cn(selectClassName, "h-11 w-full min-w-[10rem] sm:w-auto")}
+            aria-label="Filtrer par statut"
           >
-            {label}
-          </button>
-        ))}
-      </div>
+            <option value="all">
+              Tous statuts{statusCounts.all ? ` (${statusCounts.all})` : ""}
+            </option>
+            {INVOICE_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {INVOICE_STATUS_LABELS[s]}
+                {statusCounts[s] ? ` (${statusCounts[s]})` : ""}
+              </option>
+            ))}
+          </select>
 
-      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-        {STATUS_FILTERS.map(({ value, label }) => (
-          <button
-            key={`status-${value}`}
-            type="button"
-            onClick={() => setStatusFilter(value)}
-            className={cn(
-              filterPillClassName,
-              statusFilter === value
-                ? filterPillActiveClassName
-                : filterPillInactiveClassName,
-            )}
+          <select
+            value={archiveFilter}
+            onChange={(e) => setArchiveFilter(e.target.value as ArchiveFilter)}
+            className={cn(selectClassName, "h-11 w-full min-w-[8rem] sm:w-auto")}
+            aria-label="Filtrer par archivage"
           >
-            {label}
-          </button>
-        ))}
+            {ARCHIVE_FILTERS.map(({ value, label }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {filtered.length === 0 ? (
@@ -159,13 +166,7 @@ export function InvoicesList({ invoices }: InvoicesListProps) {
           className="py-10"
         />
       ) : (
-        <ul className="space-y-3">
-          {filtered.map((invoice) => (
-            <li key={invoice.id}>
-              <InvoiceCard invoice={invoice} />
-            </li>
-          ))}
-        </ul>
+        <InvoicesTable invoices={filtered} />
       )}
     </div>
   );

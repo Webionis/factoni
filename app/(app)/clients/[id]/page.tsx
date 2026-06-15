@@ -1,23 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Building2,
-  Mail,
-  MapPin,
-  Pencil,
-  Phone,
-} from "lucide-react";
+import { ArrowLeft, Building2, Mail, MapPin, Pencil, Phone } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 
+import { ClientDetailSidebar } from "@/components/clients/client-detail-sidebar";
 import { ClientLocationsSection } from "@/components/clients/client-locations-section";
-import { ClientPortalAccessToggle } from "@/components/clients/client-portal-access-toggle";
-import { CopyClientPortalLinkButton } from "@/components/clients/copy-client-portal-link-button";
 import { DeleteClientDialog } from "@/components/clients/delete-client-dialog";
-import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/layout/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { getClientById } from "@/lib/data/clients";
 import { listClientLocationsForClientPage } from "@/lib/data/client-locations";
 import {
@@ -110,120 +101,116 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
 
   const address = formatClientAddress(client);
   const subtitle = clientSubtitle(client);
+  const eyebrow =
+    client.client_type === "company" ? "Client professionnel" : "Client particulier";
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-6 md:space-y-8">
       <Link
         href="/clients"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" aria-hidden />
         Retour aux clients
       </Link>
 
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight break-words">
-              {clientDisplayName(client)}
-            </h1>
-            <Badge variant="secondary">
-              {client.client_type === "company" ? "Professionnel" : "Particulier"}
-            </Badge>
-          </div>
-          {subtitle ? (
-            <p className="mt-1 text-muted-foreground">{subtitle}</p>
+      <PageHeader
+        eyebrow={eyebrow}
+        title={clientDisplayName(client)}
+        description={subtitle ?? undefined}
+        action={
+          <Link
+            href={`/clients/${client.id}/edit`}
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "gap-1",
+            )}
+          >
+            <Pencil className="size-4" aria-hidden />
+            Modifier
+          </Link>
+        }
+      />
+
+      <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px] xl:gap-8">
+        <div className="min-w-0 space-y-6">
+          <ClientLocationsSection clientId={client.id} initialLocations={locations} />
+
+          <Card>
+            <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
+              <CardTitle className="text-base font-semibold tracking-tight">
+                Coordonnées
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 px-5 pb-6 pt-0 sm:px-6">
+              <DetailRow icon={Mail} label="Email" value={client.email} />
+              <DetailRow icon={Phone} label="Téléphone" value={client.phone} />
+              <DetailRow
+                icon={MapPin}
+                label="Adresse"
+                value={address}
+                variant="address"
+              />
+            </CardContent>
+          </Card>
+
+          {client.client_type === "company" &&
+          (client.siren || client.siret) ? (
+            <Card>
+              <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
+                <CardTitle className="flex items-center gap-2 text-base font-semibold tracking-tight">
+                  <Building2 className="size-4" aria-hidden />
+                  Informations légales
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-3 px-5 pb-6 pt-0 sm:grid-cols-2 sm:px-6">
+                {client.siren ? (
+                  <div>
+                    <p className="text-xs text-muted-foreground">SIREN</p>
+                    <p className="font-mono text-sm">{client.siren}</p>
+                  </div>
+                ) : null}
+                {client.siret ? (
+                  <div>
+                    <p className="text-xs text-muted-foreground">SIRET</p>
+                    <p className="font-mono text-sm">{client.siret}</p>
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
           ) : null}
+
+          {client.notes ? (
+            <Card>
+              <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
+                <CardTitle className="text-base font-semibold tracking-tight">
+                  Notes internes
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-5 pb-6 pt-0 sm:px-6">
+                <p className="text-sm leading-[1.7] whitespace-pre-wrap text-muted-foreground">
+                  {client.notes}
+                </p>
+              </CardContent>
+            </Card>
+          ) : null}
+
+          <div className="md:hidden">
+            <ClientDetailSidebar client={client} />
+          </div>
+
+          <section
+            className="flex flex-col gap-3 border-t border-border/50 pt-6 md:pt-7"
+            aria-label="Suppression du client"
+          >
+            <DeleteClientDialog client={client} />
+          </section>
         </div>
-        <Link
-          href={`/clients/${client.id}/edit`}
-          className={cn(buttonVariants({ variant: "outline", size: "sm" }), "shrink-0 gap-1")}
-        >
-          <Pencil className="size-4" aria-hidden />
-          <span className="sr-only sm:not-sr-only">Modifier</span>
-        </Link>
+
+        <div className="hidden md:block">
+          <ClientDetailSidebar client={client} />
+        </div>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Espace client</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 pb-5 pt-0">
-          <p className="text-sm text-muted-foreground">
-            Partagez un lien unique pour que votre client retrouve tous ses
-            devis, factures et reçus.
-          </p>
-          <ClientPortalAccessToggle
-            clientId={client.id}
-            enabled={client.portal_access_enabled ?? true}
-          />
-          <CopyClientPortalLinkButton
-            clientId={client.id}
-            disabled={!client.portal_access_enabled}
-          />
-        </CardContent>
-      </Card>
-
-      <ClientLocationsSection clientId={client.id} initialLocations={locations} />
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Coordonnées</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 pb-5 pt-0">
-          <DetailRow icon={Mail} label="Email" value={client.email} />
-          <DetailRow icon={Phone} label="Téléphone" value={client.phone} />
-          <DetailRow
-            icon={MapPin}
-            label="Adresse"
-            value={address}
-            variant="address"
-          />
-        </CardContent>
-      </Card>
-
-      {client.client_type === "company" &&
-      (client.siren || client.siret) ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Building2 className="size-4" aria-hidden />
-              Informations légales
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-2">
-            {client.siren ? (
-              <div>
-                <p className="text-xs text-muted-foreground">SIREN</p>
-                <p className="font-mono text-sm">{client.siren}</p>
-              </div>
-            ) : null}
-            {client.siret ? (
-              <div>
-                <p className="text-xs text-muted-foreground">SIRET</p>
-                <p className="font-mono text-sm">{client.siret}</p>
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {client.notes ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Notes internes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm whitespace-pre-wrap text-muted-foreground">
-              {client.notes}
-            </p>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      <Separator />
-
-      <DeleteClientDialog client={client} />
     </div>
   );
 }

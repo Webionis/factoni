@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { inputClassName, selectClassName, dateTimeInputClassName, nativeDateTimeFieldClassName } from "@/lib/constants/ui";
+import { useIsMdDesktop } from "@/lib/hooks/use-is-md-desktop";
 import { cn } from "@/lib/utils";
 
 type LocationOption = {
@@ -64,20 +65,6 @@ const emptyForm = (defaultDate: string): ScheduledJobFormValues => ({
   status: "planned",
   notes: "",
 });
-
-function useIsDesktop() {
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    const media = window.matchMedia("(min-width: 768px)");
-    const update = () => setIsDesktop(media.matches);
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
-
-  return isDesktop;
-}
 
 interface ScheduledJobFormFieldsProps {
   form: ScheduledJobFormValues;
@@ -285,7 +272,7 @@ export function ScheduledJobFormSheet({
   onSaved,
   onArchived,
 }: ScheduledJobFormSheetProps) {
-  const isDesktop = useIsDesktop();
+  const isDesktop = useIsMdDesktop();
   const [form, setForm] = useState<ScheduledJobFormValues>(
     emptyForm(defaultDate),
   );

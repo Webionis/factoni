@@ -19,7 +19,13 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { mobileStickyFooterClassName } from "@/lib/constants/mobile";
-import { inputClassName, selectClassName } from "@/lib/constants/ui";
+import {
+  formSectionClassName,
+  formSectionDescriptionClassName,
+  formSectionTitleClassName,
+  inputClassName,
+  selectClassName,
+} from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
 export const defaultClientFormValues: ClientFormValues = {
@@ -92,7 +98,7 @@ export function ClientForm({ mode, clientId, initialValues }: ClientFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {serverError ? (
         <p
           className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
@@ -110,8 +116,13 @@ export function ClientForm({ mode, clientId, initialValues }: ClientFormProps) {
         </p>
       ) : null}
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Type de client</h2>
+      <section className={formSectionClassName}>
+        <div>
+          <h2 className={formSectionTitleClassName}>Type de client</h2>
+          <p className={cn("mt-1", formSectionDescriptionClassName)}>
+            Particulier ou professionnel — les champs requis s&apos;adaptent au type choisi.
+          </p>
+        </div>
         <FormField
           label="Type"
           htmlFor="client_type"
@@ -128,8 +139,13 @@ export function ClientForm({ mode, clientId, initialValues }: ClientFormProps) {
         </FormField>
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Identité</h2>
+      <section className={formSectionClassName}>
+        <div>
+          <h2 className={formSectionTitleClassName}>Identité</h2>
+          <p className={cn("mt-1", formSectionDescriptionClassName)}>
+            Nom affiché sur vos devis et factures.
+          </p>
+        </div>
         <FormField
           label={
             clientType === "company"
@@ -163,8 +179,13 @@ export function ClientForm({ mode, clientId, initialValues }: ClientFormProps) {
         ) : null}
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Contact</h2>
+      <section className={formSectionClassName}>
+        <div>
+          <h2 className={formSectionTitleClassName}>Contact</h2>
+          <p className={cn("mt-1", formSectionDescriptionClassName)}>
+            Email et téléphone pour l&apos;envoi des documents et des relances.
+          </p>
+        </div>
         <FormField
           label="Email"
           htmlFor="email"
@@ -190,8 +211,13 @@ export function ClientForm({ mode, clientId, initialValues }: ClientFormProps) {
         </FormField>
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Adresse</h2>
+      <section className={formSectionClassName}>
+        <div>
+          <h2 className={formSectionTitleClassName}>Adresse</h2>
+          <p className={cn("mt-1", formSectionDescriptionClassName)}>
+            Adresse de facturation ou du siège (optionnel).
+          </p>
+        </div>
         <FormField label="Adresse" htmlFor="address_line1">
           <Input id="address_line1" className={inputClassName} {...register("address_line1")} />
         </FormField>
@@ -212,8 +238,13 @@ export function ClientForm({ mode, clientId, initialValues }: ClientFormProps) {
       </section>
 
       {clientType === "company" ? (
-        <section className="space-y-4">
-          <h2 className="text-lg font-semibold">Informations légales</h2>
+        <section className={formSectionClassName}>
+          <div>
+            <h2 className={formSectionTitleClassName}>Informations légales</h2>
+            <p className={cn("mt-1", formSectionDescriptionClassName)}>
+              SIREN et SIRET pour les clients professionnels.
+            </p>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField
               label="SIREN"
@@ -247,9 +278,14 @@ export function ClientForm({ mode, clientId, initialValues }: ClientFormProps) {
         </section>
       ) : null}
 
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Notes internes</h2>
-        <FormField label="Notes (non visibles sur la facture)" htmlFor="notes">
+      <section className={formSectionClassName}>
+        <div>
+          <h2 className={formSectionTitleClassName}>Notes internes</h2>
+          <p className={cn("mt-1", formSectionDescriptionClassName)}>
+            Rappels pour vous uniquement — non visibles sur les documents.
+          </p>
+        </div>
+        <FormField label="Notes" htmlFor="notes">
           <textarea
             id="notes"
             rows={3}

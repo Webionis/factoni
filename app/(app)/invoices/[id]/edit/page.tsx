@@ -1,8 +1,7 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 
 import { InvoiceForm } from "@/components/forms/invoice-form";
+import { AppPageShell } from "@/components/layout/app-page-shell";
 import { pageMetadata } from "@/lib/metadata";
 import { getCompanyForUser } from "@/lib/auth/profile";
 import { listCatalogItemsForUser } from "@/lib/data/catalog-items";
@@ -46,20 +45,12 @@ export default async function EditInvoicePage({ params }: EditInvoicePageProps) 
   const catalogItems = await listCatalogItemsForUser(supabase, user.id);
 
   return (
-    <div className="w-full space-y-6">
-      <Link
-        href={`/invoices/${invoice.id}`}
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" aria-hidden />
-        Retour à la facture
-      </Link>
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Modifier le brouillon</h1>
-        <p className="mt-1 text-muted-foreground">
-          Le numéro légal sera attribué à l&apos;envoi.
-        </p>
-      </div>
+    <AppPageShell
+      backHref={`/invoices/${invoice.id}`}
+      backLabel="Retour à la facture"
+      title="Modifier le brouillon"
+      description="Le numéro légal sera attribué à l'envoi."
+    >
       <InvoiceForm
         mode="edit"
         invoiceId={invoice.id}
@@ -68,6 +59,6 @@ export default async function EditInvoicePage({ params }: EditInvoicePageProps) 
         catalogItems={catalogItems}
         vatRegime={company.vat_regime}
       />
-    </div>
+    </AppPageShell>
   );
 }

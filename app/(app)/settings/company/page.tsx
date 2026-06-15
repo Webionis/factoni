@@ -42,18 +42,19 @@ export default async function CompanySettingsPage() {
     : null;
 
   return (
-    <div className="w-full space-y-8">
+    <div className="min-w-0 space-y-6">
       <PageHeader
         title="Mon entreprise"
-        description="Informations affichées sur vos factures et documents PDF."
+        description="Informations affichées sur vos factures, devis et documents PDF."
       />
 
-      <PlanSummaryCard access={subscriptionAccess} />
-
-      <CompanyLogoUpload
-        initialPreviewUrl={logoPreviewUrl}
-        hasCompany={!!company}
-      />
+      <div className="grid min-w-0 gap-4 md:grid-cols-2">
+        <PlanSummaryCard access={subscriptionAccess} />
+        <CompanyLogoUpload
+          initialPreviewUrl={logoPreviewUrl}
+          hasCompany={!!company}
+        />
+      </div>
 
       <CompanyForm mode="settings" initialValues={initialValues} />
 

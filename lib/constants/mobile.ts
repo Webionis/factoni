@@ -25,9 +25,9 @@ export const mobileMoreMenuItemActiveClassName = cn(
 /** Hauteur de la bottom nav mobile (52px). */
 export const MOBILE_BOTTOM_NAV_HEIGHT = "3.25rem";
 
-/** Espace sous le header mobile fixe (min-h-14 + encoche). */
+/** Espace sous le header mobile fixe (hauteur header + respiration + encoche). */
 export const mobileMainPaddingTopClassName =
-  "pt-[calc(3.5rem+env(safe-area-inset-top))] md:pt-10";
+  "pt-[calc(3.5rem+1.75rem+env(safe-area-inset-top))] md:pt-10";
 
 /** Cible tactile minimale iOS / Material (44px). */
 export const touchTargetClassName =
@@ -55,3 +55,26 @@ export const mobileFixedActionBarClassName = cn(
 /** Espace réservé sous le contenu quand une barre fixe est affichée. */
 export const mobileFixedActionSpacerClassName =
   "h-[calc(4.5rem+env(safe-area-inset-bottom))] sm:hidden";
+
+/** Rythme vertical des pages app (mobile = desktop). */
+export const mobilePageStackClassName = "space-y-6 md:space-y-8";
+
+/** Champ recherche listes — hauteur tactile 44px. */
+export const mobileSearchInputClassName = "h-11 pl-10 shadow-sm";
+
+/** Groupe de selects filtres — visible sur tous les écrans (comme desktop). */
+export const listFilterGroupClassName =
+  "flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row";
+
+/** Rangée de pills filtres — mobile uniquement, scroll horizontal masqué. */
+export const mobileFilterPillsRowClassName = cn(
+  "-mx-1 flex gap-2 overflow-x-auto px-1 pb-0.5 md:hidden",
+  "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+);
+
+/** Liste cartes mobile (legacy — préférer dataTableScrollWrapper). */
+export const mobileListStackClassName = "space-y-3 md:hidden";
+
+/** Chevron indicatif sur cartes liste mobile. */
+export const mobileListCardChevronClassName =
+  "size-4 shrink-0 text-[#cbd5e1] transition-transform group-hover:translate-x-0.5 group-hover:text-[#2563eb] dark:text-[#475569] dark:group-hover:text-[#93c5fd]";

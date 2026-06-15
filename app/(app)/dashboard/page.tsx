@@ -3,20 +3,18 @@ import { redirect } from "next/navigation";
 import { ClientStatsCard } from "@/components/dashboard/client-stats-card";
 import { DashboardActivityScroll } from "@/components/dashboard/dashboard-activity-scroll";
 import { pageMetadata } from "@/lib/metadata";
-import { DashboardUpcomingJobs } from "@/components/dashboard/dashboard-upcoming-jobs";
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { DashboardRevenueColumn } from "@/components/dashboard/dashboard-revenue-column";
 import { DashboardShortcuts } from "@/components/dashboard/dashboard-shortcuts";
 import { DashboardQuoteStats } from "@/components/dashboard/dashboard-quote-stats";
 import { DashboardStatGrid } from "@/components/dashboard/dashboard-stat-grid";
 import { MonthEmptyBanner } from "@/components/dashboard/month-empty-banner";
 import { DashboardNotifications } from "@/components/dashboard/dashboard-notifications";
 import { RecentInvoices } from "@/components/dashboard/recent-invoices";
-import { RevenueChart } from "@/components/dashboard/revenue-chart";
-import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { OnboardingChecklist } from "@/components/dashboard/onboarding-checklist";
 import { getCompanyForUser, isOnboardingCompleted } from "@/lib/auth/profile";
 import { buildHeroInsights, getGreetingName } from "@/lib/dashboard/hero-insights";
 import { buildOnboardingSteps } from "@/lib/dashboard/onboarding-steps";
-import { dashboardSectionStackClassName } from "@/lib/constants/dashboard-mobile";
 import { getDashboardData } from "@/lib/data/dashboard";
 import {
   countScheduledJobsInRange,
@@ -28,7 +26,6 @@ import {
   toIsoDate,
 } from "@/lib/dates/calendar-range";
 import { createClient } from "@/lib/supabase/server";
-import { cn } from "@/lib/utils";
 
 export const metadata = pageMetadata("dashboard");
 
@@ -60,7 +57,7 @@ export default async function DashboardPage() {
     clientCount: data.stats.clientCount,
     invoiceCount: data.stats.totalInvoices,
   });
-  const dashboardTitle =
+  const companyName =
     company?.trade_name?.trim() ||
     user.email?.split("@")[0] ||
     "Mon entreprise";
@@ -80,15 +77,17 @@ export default async function DashboardPage() {
     jobsThisWeek,
   });
 
+  const showQuoteStats = data.quoteStats.totalQuotes > 0;
+
   return (
-    <div className={cn("min-w-0 pb-8", dashboardSectionStackClassName)}>
+    <div className="min-w-0 space-y-6 md:space-y-8">
       <DashboardActivityScroll />
-      <DashboardHero
-        title={dashboardTitle}
+      <DashboardHeader
         greetingName={getGreetingName({
           tradeName: company?.trade_name,
           email: user.email,
         })}
+        companyName={companyName}
         monthLabel={monthLabel}
         insights={heroInsights}
       />
@@ -97,25 +96,32 @@ export default async function DashboardPage() {
 
       <DashboardStatGrid stats={data.stats} />
 
-      <DashboardQuoteStats stats={data.quoteStats} />
+      <DashboardShortcuts />
+
+      {showQuoteStats ? (
+        <div className="grid min-w-0 gap-6 lg:grid-cols-2 lg:items-start">
+          <DashboardQuoteStats stats={data.quoteStats} />
+          <ClientStatsCard clientCount={data.stats.clientCount} />
+        </div>
+      ) : (
+        <ClientStatsCard clientCount={data.stats.clientCount} />
+      )}
 
       {!data.stats.hasRevenueThisMonth && data.stats.totalInvoices > 0 ? (
         <MonthEmptyBanner />
       ) : null}
 
-      <ClientStatsCard clientCount={data.stats.clientCount} />
-
-      <RevenueChart chart={data.revenueChart} />
-
-      <DashboardShortcuts />
-
-      <DashboardUpcomingJobs jobs={upcomingJobs} />
-
-      <DashboardNotifications
-        notifications={data.notifications}
-        unreadCount={data.unreadNotificationCount}
-        hasMoreActivities={data.hasMoreActivities}
-      />
+      <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] xl:items-start">
+        <DashboardRevenueColumn
+          chart={data.revenueChart}
+          jobs={upcomingJobs}
+        />
+        <DashboardNotifications
+          notifications={data.notifications}
+          unreadCount={data.unreadNotificationCount}
+          hasMoreActivities={data.hasMoreActivities}
+        />
+      </div>
 
       <RecentInvoices invoices={data.recentInvoices} />
     </div>

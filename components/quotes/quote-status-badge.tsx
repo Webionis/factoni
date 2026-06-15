@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import {
   QUOTE_STATUS_LABELS,
+  QUOTE_STATUS_SHORT_LABELS,
   type QuoteStatus,
 } from "@/lib/quotes/status";
 import { cn } from "@/lib/utils";
@@ -69,9 +70,14 @@ const STATUS_STYLES: Record<
 interface QuoteStatusBadgeProps {
   status: QuoteStatus;
   className?: string;
+  compact?: boolean;
 }
 
-export function QuoteStatusBadge({ status, className }: QuoteStatusBadgeProps) {
+export function QuoteStatusBadge({
+  status,
+  className,
+  compact = false,
+}: QuoteStatusBadgeProps) {
   const styles = STATUS_STYLES[status] ?? STATUS_STYLES.draft;
 
   return (
@@ -87,7 +93,16 @@ export function QuoteStatusBadge({ status, className }: QuoteStatusBadgeProps) {
         className={cn("size-1.5 shrink-0 rounded-full", styles.dot)}
         aria-hidden
       />
-      {QUOTE_STATUS_LABELS[status] ?? status}
+      {compact ? (
+        <>
+          <span className="md:hidden">{QUOTE_STATUS_SHORT_LABELS[status] ?? status}</span>
+          <span className="hidden md:inline">
+            {QUOTE_STATUS_LABELS[status] ?? status}
+          </span>
+        </>
+      ) : (
+        (QUOTE_STATUS_LABELS[status] ?? status)
+      )}
     </Badge>
   );
 }

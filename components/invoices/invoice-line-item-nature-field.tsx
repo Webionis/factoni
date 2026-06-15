@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Check, ChevronRight } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 
@@ -18,6 +18,7 @@ import {
   type InvoiceLineItemNature,
 } from "@/lib/invoices/item-nature";
 import type { InvoiceFormValues } from "@/lib/validations/invoice";
+import { useIsMdDesktop } from "@/lib/hooks/use-is-md-desktop";
 import { cn } from "@/lib/utils";
 
 interface InvoiceLineItemNatureFieldProps {
@@ -26,19 +27,6 @@ interface InvoiceLineItemNatureFieldProps {
   error?: string;
 }
 
-function useIsDesktop() {
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    const media = window.matchMedia("(min-width: 768px)");
-    const update = () => setIsDesktop(media.matches);
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
-
-  return isDesktop;
-}
 
 function NatureOptionsList({
   currentNature,
@@ -88,7 +76,7 @@ export function InvoiceLineItemNatureField({
   error,
 }: InvoiceLineItemNatureFieldProps) {
   const { register, setValue, watch } = useFormContext<InvoiceFormValues>();
-  const isDesktop = useIsDesktop();
+  const isDesktop = useIsMdDesktop();
   const [pickerOpen, setPickerOpen] = useState(false);
   const currentNature = watch(`lines.${index}.item_nature`) ?? "service";
   const currentOption = getInvoiceLineItemNatureOption(currentNature);

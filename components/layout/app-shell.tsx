@@ -46,7 +46,7 @@ export function AppShell({
 
           <main
             className={cn(
-              "relative z-0 min-w-0 w-full flex-1 px-4 pb-3 sm:pb-6 md:min-h-0 md:overflow-y-auto md:px-8 md:py-10 lg:px-10",
+              "relative z-0 min-w-0 w-full flex-1 px-4 pb-6 md:min-h-0 md:overflow-y-auto md:px-8 md:py-10 lg:px-10",
               mobileMainPaddingTopClassName,
               mobileMainPaddingBottomClassName,
             )}

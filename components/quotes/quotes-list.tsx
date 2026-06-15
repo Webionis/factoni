@@ -3,14 +3,14 @@
 import { useMemo, useState } from "react";
 import { FileText, Search } from "lucide-react";
 
-import { QuoteCard } from "@/components/quotes/quote-card";
+import { QuotesTable } from "@/components/quotes/quotes-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import {
-  filterPillActiveClassName,
-  filterPillClassName,
-  filterPillInactiveClassName,
-} from "@/lib/constants/ui";
+  listFilterGroupClassName,
+  mobileSearchInputClassName,
+} from "@/lib/constants/mobile";
+import { selectClassName } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 import { isQuoteDocument } from "@/lib/documents/types";
 import type { QuoteWithClient } from "@/lib/data/quotes";
@@ -34,14 +34,6 @@ const ARCHIVE_FILTERS: { value: ArchiveFilter; label: string }[] = [
   { value: "active", label: "Actifs" },
   { value: "archived", label: "Archivés" },
   { value: "all", label: "Tous" },
-];
-
-const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
-  { value: "all", label: "Tous statuts" },
-  ...QUOTE_STATUSES.map((s) => ({
-    value: s,
-    label: QUOTE_STATUS_LABELS[s],
-  })),
 ];
 
 function matchesSearch(quote: QuoteWithClient, query: string): boolean {
@@ -69,6 +61,23 @@ export function QuotesList({ quotes }: QuotesListProps) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [archiveFilter, setArchiveFilter] = useState<ArchiveFilter>("active");
 
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: 0 };
+    for (const quote of quotes) {
+      if (!isQuoteDocument(quote.document_type)) continue;
+      const archived = isInvoiceArchived(quote.archived_at);
+      if (archiveFilter === "active" && archived) continue;
+      if (archiveFilter === "archived" && !archived) continue;
+      counts.all = (counts.all ?? 0) + 1;
+      const displayStatus = getEffectiveQuoteStatus(
+        quote.status as QuoteStatus,
+        quote.due_date,
+      );
+      counts[displayStatus] = (counts[displayStatus] ?? 0) + 1;
+    }
+    return counts;
+  }, [quotes, archiveFilter]);
+
   const filtered = useMemo(() => {
     return quotes.filter((q) => {
       if (!isQuoteDocument(q.document_type)) return false;
@@ -89,77 +98,76 @@ export function QuotesList({ quotes }: QuotesListProps) {
     });
   }, [quotes, query, statusFilter, archiveFilter]);
 
+  if (quotes.length === 0) {
+    return (
+      <EmptyState
+        icon={FileText}
+        title="Aucun devis"
+        description="Créez votre premier devis pour vos clients."
+      />
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <Search
-          className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
-          aria-hidden
-        />
-        <Input
-          type="search"
-          placeholder="Rechercher un devis, client…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="h-11 pl-10"
-          aria-label="Rechercher"
-        />
-      </div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative min-w-0 flex-1">
+          <Search
+            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden
+          />
+          <Input
+            type="search"
+            placeholder="N°, client, notes…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className={mobileSearchInputClassName}
+            aria-label="Rechercher un devis"
+          />
+        </div>
 
-      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-        {ARCHIVE_FILTERS.map(({ value, label }) => (
-          <button
-            key={value}
-            type="button"
-            onClick={() => setArchiveFilter(value)}
-            className={cn(
-              filterPillClassName,
-              archiveFilter === value
-                ? filterPillActiveClassName
-                : filterPillInactiveClassName,
-            )}
+        <div className={listFilterGroupClassName}>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+            className={cn(selectClassName, "h-11 w-full min-w-[10rem] sm:w-auto")}
+            aria-label="Filtrer par statut"
           >
-            {label}
-          </button>
-        ))}
-      </div>
+            <option value="all">
+              Tous statuts{statusCounts.all ? ` (${statusCounts.all})` : ""}
+            </option>
+            {QUOTE_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {QUOTE_STATUS_LABELS[s]}
+                {statusCounts[s] ? ` (${statusCounts[s]})` : ""}
+              </option>
+            ))}
+          </select>
 
-      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-        {STATUS_FILTERS.map(({ value, label }) => (
-          <button
-            key={value}
-            type="button"
-            onClick={() => setStatusFilter(value)}
-            className={cn(
-              filterPillClassName,
-              statusFilter === value
-                ? filterPillActiveClassName
-                : filterPillInactiveClassName,
-            )}
+          <select
+            value={archiveFilter}
+            onChange={(e) => setArchiveFilter(e.target.value as ArchiveFilter)}
+            className={cn(selectClassName, "h-11 w-full min-w-[8rem] sm:w-auto")}
+            aria-label="Filtrer par archivage"
           >
-            {label}
-          </button>
-        ))}
+            {ARCHIVE_FILTERS.map(({ value, label }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {filtered.length === 0 ? (
         <EmptyState
           icon={FileText}
-          title="Aucun devis"
-          description={
-            query || statusFilter !== "all" || archiveFilter !== "active"
-              ? "Aucun résultat pour ces filtres."
-              : "Créez votre premier devis pour vos clients."
-          }
+          title="Aucun résultat"
+          description="Modifiez la recherche ou les filtres."
+          className="py-10"
         />
       ) : (
-        <ul className="flex flex-col gap-3">
-          {filtered.map((quote) => (
-            <li key={quote.id}>
-              <QuoteCard quote={quote} />
-            </li>
-          ))}
-        </ul>
+        <QuotesTable quotes={filtered} />
       )}
     </div>
   );
