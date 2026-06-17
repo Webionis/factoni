@@ -2,9 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "regions": ["cdg1"],
-  "env": {
-    "TZ": "Europe/Paris"
-  },
   "installCommand": "npm install",
   "buildCommand": "npm run build",
   "crons": [
