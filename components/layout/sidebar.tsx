@@ -104,6 +104,7 @@ export function Sidebar() {
       <div className="flex h-[4.75rem] shrink-0 items-center px-5">
         <Link
           href="/dashboard"
+          prefetch
           onClick={handleLogoClick}
           className="inline-flex items-center py-1 outline-none transition-opacity hover:opacity-90 focus-visible:ring-4 focus-visible:ring-[#2563eb]/20"
         >
@@ -126,6 +127,7 @@ export function Sidebar() {
                   <Link
                     key={href}
                     href={href}
+                    prefetch
                     onClick={
                       href === "/dashboard" ? handleDashboardClick : undefined
                     }

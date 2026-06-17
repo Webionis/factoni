@@ -1,3 +1,4 @@
+import { sectionSubheadingClassName } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
 /** Hero dashboard — gradient subtil, mobile uniquement. */
@@ -53,3 +54,9 @@ export const dashboardActivityNewBadgeClassName = cn(
 
 /** Espacement sections dashboard mobile. */
 export const dashboardSectionStackClassName = "space-y-7 md:space-y-10";
+
+/** Sous-titre de section masqué sur mobile (allège le scroll). */
+export const dashboardSectionSubheadingClassName = cn(
+  sectionSubheadingClassName,
+  "hidden md:block",
+);

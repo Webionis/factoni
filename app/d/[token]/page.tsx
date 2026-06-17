@@ -50,6 +50,7 @@ import {
 } from "@/lib/quotes/status";
 import { parseClientSnapshot, parseCompanySnapshot } from "@/lib/pdf/parse-snapshots";
 import { createClient } from "@/lib/supabase/server";
+import { formatFrenchCalendarDate, formatFrenchDateTime } from "@/lib/format/datetime";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -66,11 +67,11 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 function formatDate(dateStr: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
+  return formatFrenchCalendarDate(dateStr, {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(dateStr));
+  });
 }
 
 export default async function PublicDocumentPage({
@@ -318,13 +319,7 @@ export default async function PublicDocumentPage({
             {quoteDepositInfo?.paidAt ? (
               <p className="mt-1 text-sm text-emerald-700 dark:text-emerald-300">
                 Payé le{" "}
-                {new Intl.DateTimeFormat("fr-FR", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                }).format(new Date(quoteDepositInfo.paidAt))}
+                {formatFrenchDateTime(quoteDepositInfo.paidAt)}
                 {" · "}
                 {depositAmountLabel}
               </p>

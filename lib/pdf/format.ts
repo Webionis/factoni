@@ -1,5 +1,10 @@
 /** Formatage pour les documents PDF (indépendant de l'UI web) */
 
+import {
+  formatParisCalendarDate,
+  formatParisDateTime,
+} from "@/lib/dates/timezone";
+
 /**
  * Intl.NumberFormat("fr-FR") groupe les milliers avec U+202F (espace fine insécable).
  * @react-pdf/renderer ne dispose pas de cette glyphe et affiche "/" à la place.
@@ -12,30 +17,16 @@ function sanitizePdfIntlString(value: string): string {
 }
 
 export function formatPdfDate(dateStr: string): string {
-  try {
-    return new Intl.DateTimeFormat("fr-FR", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    }).format(new Date(dateStr));
-  } catch {
-    return dateStr;
-  }
+  return formatParisCalendarDate(dateStr, {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
 }
 
-/** Format français avec heure : 7 juin 2026 à 22:30 */
+/** Format français avec heure : 7 juin 2026 à 22:30 (heure de Paris). */
 export function formatPdfDateTime(dateStr: string): string {
-  try {
-    return new Intl.DateTimeFormat("fr-FR", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(dateStr));
-  } catch {
-    return dateStr;
-  }
+  return formatParisDateTime(dateStr);
 }
 
 export function formatPdfMoney(amount: number): string {

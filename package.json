@@ -19,6 +19,7 @@
     "quotes:check-lists": "node scripts/check-document-lists.mjs",
     "notifications:backfill-invoice-paid": "node scripts/backfill-invoice-paid-notifications.mjs",
     "stripe:listen": "./tools/stripe listen --forward-to localhost:3000/api/stripe/webhook --events checkout.session.completed",
+    "stripe:listen:billing": "./tools/stripe listen --forward-to localhost:3000/api/webhooks/stripe --events checkout.session.completed,customer.subscription.created,customer.subscription.updated,customer.subscription.deleted,invoice.paid,invoice.payment_failed",
     "predeploy:check": "node scripts/predeploy-check.mjs"
   },
   "dependencies": {

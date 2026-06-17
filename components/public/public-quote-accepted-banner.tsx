@@ -2,6 +2,7 @@ import { CheckCircle2 } from "lucide-react";
 
 import { DownloadPublicDocumentButton } from "@/components/public/download-public-document-button";
 import { Card, CardContent } from "@/components/ui/card";
+import { formatFrenchDateTime } from "@/lib/format/datetime";
 import { formatCurrency } from "@/lib/invoices/calculate";
 
 interface PublicQuoteAcceptedBannerProps {
@@ -9,16 +10,6 @@ interface PublicQuoteAcceptedBannerProps {
   acceptedByName: string | null;
   totalTtc: number;
   pdfUrl: string;
-}
-
-function formatDateTime(dateStr: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(dateStr));
 }
 
 export function PublicQuoteAcceptedBanner({
@@ -45,7 +36,7 @@ export function PublicQuoteAcceptedBanner({
                   {acceptedAt ? (
                     <>
                       {" "}
-                      le {formatDateTime(acceptedAt)}
+                      le {formatFrenchDateTime(acceptedAt)}
                     </>
                   ) : null}
                   .

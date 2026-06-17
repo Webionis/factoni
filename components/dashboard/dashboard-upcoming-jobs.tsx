@@ -6,10 +6,10 @@ import { ScheduledJobCard } from "@/components/agenda/scheduled-job-card";
 import { buttonVariants } from "@/components/ui/button";
 import type { ScheduledJobWithRelations } from "@/lib/data/scheduled-jobs";
 import { formatShortDayLabel, parseIsoDate } from "@/lib/dates/calendar-range";
+import { dashboardSectionSubheadingClassName } from "@/lib/constants/dashboard-mobile";
 import {
   fadeInUpClassName,
   sectionHeadingClassName,
-  sectionSubheadingClassName,
   surfaceCardClassName,
 } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
@@ -44,7 +44,7 @@ export function DashboardUpcomingJobs({
           <h2 id="upcoming-jobs-heading" className={sectionHeadingClassName}>
             {agendaCopy.upcomingSection}
           </h2>
-          <p className={cn("mt-0.5", sectionSubheadingClassName)}>
+          <p className={cn("mt-0.5", dashboardSectionSubheadingClassName)}>
             Vos prochains rendez-vous planifiés dans l&apos;agenda.
           </p>
         </div>

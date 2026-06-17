@@ -20,8 +20,9 @@ export interface SubscriptionSyncPayload {
   plan: SubscriptionPlan;
   status: SubscriptionStatus;
   stripeCustomerId: string;
-  stripeSubscriptionId: string;
+  stripeSubscriptionId: string | null;
   currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
 }
 
 /** Mapping statut Stripe → statut interne (à affiner avec l'intégration) */

@@ -7,15 +7,19 @@ import { buttonVariants } from "@/components/ui/button";
 import type { InvoiceWithClient } from "@/lib/data/invoices";
 import {
   sectionHeadingClassName,
-  sectionSubheadingClassName,
 } from "@/lib/constants/ui";
+import { dashboardSectionSubheadingClassName } from "@/lib/constants/dashboard-mobile";
 import { cn } from "@/lib/utils";
 
 interface RecentInvoicesProps {
   invoices: InvoiceWithClient[];
+  maxItems?: number;
 }
 
-export function RecentInvoices({ invoices }: RecentInvoicesProps) {
+export function RecentInvoices({ invoices, maxItems }: RecentInvoicesProps) {
+  const visibleInvoices =
+    maxItems !== undefined ? invoices.slice(0, maxItems) : invoices;
+
   return (
     <section className="min-w-0 space-y-4" aria-labelledby="recent-invoices-heading">
       <div className="flex items-end justify-between gap-3">
@@ -23,7 +27,7 @@ export function RecentInvoices({ invoices }: RecentInvoicesProps) {
           <h2 id="recent-invoices-heading" className={sectionHeadingClassName}>
             Dernières factures
           </h2>
-          <p className={cn("mt-0.5", sectionSubheadingClassName)}>
+          <p className={cn("mt-0.5", dashboardSectionSubheadingClassName)}>
             Vos factures les plus récentes, prêtes à consulter.
           </p>
         </div>
@@ -41,7 +45,7 @@ export function RecentInvoices({ invoices }: RecentInvoicesProps) {
         ) : null}
       </div>
 
-      {invoices.length === 0 ? (
+      {visibleInvoices.length === 0 ? (
         <EmptyState
           icon={FileText}
           title="Aucune facture pour le moment"
@@ -50,7 +54,7 @@ export function RecentInvoices({ invoices }: RecentInvoicesProps) {
           actionHref="/invoices/new"
         />
       ) : (
-        <InvoicesTable invoices={invoices} />
+        <InvoicesTable invoices={visibleInvoices} />
       )}
     </section>
   );

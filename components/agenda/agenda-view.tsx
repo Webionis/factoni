@@ -229,7 +229,7 @@ export function AgendaView({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="min-w-0 space-y-5">
       <AgendaToolbar
         periodLabel={periodLabel}
         loading={loading}
@@ -308,7 +308,7 @@ export function AgendaView({
             </div>
           </div>
 
-          <section className="space-y-3">
+          <section className="min-w-0 space-y-3 overflow-hidden">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <h3 className={sectionHeadingClassName}>

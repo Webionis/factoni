@@ -106,6 +106,22 @@ export function formatShortDayLabel(date: Date): string {
   }).format(date);
 }
 
+/** Date compacte pour les tableaux agenda sur mobile (2 lignes). */
+export function formatAgendaTableDateParts(date: Date): {
+  weekday: string;
+  dayMonth: string;
+} {
+  const weekday = new Intl.DateTimeFormat("fr-FR", {
+    weekday: "short",
+  }).format(date);
+  const dayMonth = new Intl.DateTimeFormat("fr-FR", {
+    day: "numeric",
+    month: "short",
+  }).format(date);
+
+  return { weekday, dayMonth };
+}
+
 /** Grille mois : cases du calendrier incluant jours hors mois. */
 export function buildMonthGrid(reference: Date): Date[] {
   const first = startOfMonth(reference);

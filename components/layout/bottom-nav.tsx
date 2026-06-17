@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
+
+import { LiquidGlassNavFilter } from "@/components/layout/liquid-glass-nav-filter";
 import {
   CalendarDays,
   ClipboardList,
@@ -19,11 +21,6 @@ import {
   clearDashboardActivityIntent,
   stripDashboardActivityHash,
 } from "@/lib/navigation/dashboard-activity";
-import {
-  mobileNavItemActiveBgClassName,
-  mobileNavItemActiveClassName,
-  mobileNavItemInactiveClassName,
-} from "@/lib/constants/mobile";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -34,20 +31,18 @@ const navItems = [
   { href: "/agenda", label: "Agenda", icon: CalendarDays },
 ] as const;
 
-function NavActiveIndicator({ active }: { active: boolean }) {
-  return (
-    <span
-      className="flex h-[3px] w-7 items-center justify-center"
-      aria-hidden
-    >
-      {active ? (
-        <span className="h-full w-full rounded-full bg-[#2563eb] shadow-[0_0_8px_rgba(37,99,235,0.35)]" />
-      ) : null}
-    </span>
-  );
-}
+const navItemBaseClassName =
+  "relative flex min-h-[52px] flex-col items-center justify-center gap-1 rounded-2xl px-0.5 text-[11px] font-semibold transition-[color,background-color,transform] duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.96] touch-manipulation";
+
+const navItemInactiveClassName = "text-black dark:text-white";
+
+const navItemActiveClassName = "text-black dark:text-white";
+
+const navItemActivePillClassName =
+  "bg-[rgba(15,23,42,0.07)] dark:bg-[rgba(255,255,255,0.16)]";
 
 export function BottomNav() {
+  const navRef = useRef<HTMLElement>(null);
   const pathname = usePathname();
   const router = useRouter();
   const { unreadCount } = useUnreadNotifications();
@@ -70,22 +65,16 @@ export function BottomNav() {
 
   return (
     <>
-      <div
-        className="ff-liquid-glass-fade-bottom pointer-events-none fixed inset-x-0 bottom-0 z-40 h-36 md:hidden"
-        aria-hidden
-      />
-
+      <LiquidGlassNavFilter targetRef={navRef} />
       <nav
+        ref={navRef}
         className={cn(
-          "ff-bottom-nav ff-liquid-glass-surface ff-liquid-glass-surface--bar fixed inset-x-3 z-50 md:hidden",
-          "bottom-[max(0.625rem,env(safe-area-inset-bottom))]",
+          "ff-bottom-nav fixed inset-x-4 z-50 md:hidden",
+          "bottom-[max(0.75rem,env(safe-area-inset-bottom))]",
         )}
         aria-label="Navigation principale"
       >
-        <div className="ff-liquid-glass-surface__lens" aria-hidden />
-        <div className="ff-liquid-glass-surface__mirror" aria-hidden />
-        <div className="ff-liquid-glass-surface__rim" aria-hidden />
-        <ul className="relative isolate z-[2] mx-auto grid max-w-lg grid-cols-6 px-0.5 py-1.5">
+        <ul className="relative z-[1] mx-auto grid max-w-lg grid-cols-6 px-1 py-1">
           {navItems.map(({ href, label, icon: Icon }) => {
             const active =
               pathname === href || pathname.startsWith(`${href}/`);
@@ -93,27 +82,23 @@ export function BottomNav() {
               <li key={href}>
                 <Link
                   href={href}
+                  prefetch
                   onClick={href === "/dashboard" ? handleDashboardClick : undefined}
                   className={cn(
-                    "relative flex min-h-[48px] flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 text-[10px] font-semibold transition-[color,background-color,transform] duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.96] touch-manipulation",
-                    active
-                      ? mobileNavItemActiveClassName
-                      : mobileNavItemInactiveClassName,
+                    navItemBaseClassName,
+                    active ? navItemActiveClassName : navItemInactiveClassName,
                   )}
                   aria-current={active ? "page" : undefined}
                 >
                   <span
                     className={cn(
-                      "relative inline-flex rounded-xl p-1.5 transition-colors duration-[180ms]",
-                      active && mobileNavItemActiveBgClassName,
+                      "relative inline-flex rounded-2xl p-2 transition-[background-color,color] duration-[180ms]",
+                      active && navItemActivePillClassName,
                     )}
                   >
                     <Icon
-                      className={cn(
-                        "size-[1.125rem]",
-                        active ? mobileNavItemActiveClassName : "text-inherit",
-                      )}
-                      strokeWidth={active ? 2.25 : 2.15}
+                      className="size-5"
+                      strokeWidth={active ? 2.35 : 2}
                       aria-hidden
                     />
                     {href === "/dashboard" ? (
@@ -124,7 +109,6 @@ export function BottomNav() {
                     ) : null}
                   </span>
                   <span className="max-w-full truncate">{label}</span>
-                  <NavActiveIndicator active={active} />
                 </Link>
               </li>
             );
@@ -134,31 +118,26 @@ export function BottomNav() {
               type="button"
               onClick={() => setMoreOpen(true)}
               className={cn(
-                "relative flex min-h-[48px] w-full flex-col items-center justify-center gap-0.5 rounded-xl px-0.5 text-[10px] font-semibold transition-[color,transform] duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.96] touch-manipulation",
-                moreActive
-                  ? mobileNavItemActiveClassName
-                  : mobileNavItemInactiveClassName,
+                navItemBaseClassName,
+                "w-full",
+                moreActive ? navItemActiveClassName : navItemInactiveClassName,
               )}
               aria-expanded={moreOpen}
               aria-haspopup="dialog"
             >
               <span
                 className={cn(
-                  "rounded-xl p-1.5 transition-colors duration-[180ms]",
-                  moreActive && mobileNavItemActiveBgClassName,
+                  "rounded-2xl p-2 transition-[background-color,color] duration-[180ms]",
+                  moreActive && navItemActivePillClassName,
                 )}
               >
                 <MoreHorizontal
-                  className={cn(
-                    "size-[1.125rem]",
-                    moreActive ? mobileNavItemActiveClassName : "text-inherit",
-                  )}
-                  strokeWidth={moreActive ? 2.25 : 2.15}
+                  className="size-5"
+                  strokeWidth={moreActive ? 2.35 : 2}
                   aria-hidden
                 />
               </span>
               <span className="max-w-full truncate">Plus</span>
-              <NavActiveIndicator active={moreActive} />
             </button>
           </li>
         </ul>

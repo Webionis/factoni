@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { MobileHeader } from "@/components/layout/mobile-header";
+import { NavRoutePrefetcher } from "@/components/layout/nav-route-prefetcher";
 import { Sidebar } from "@/components/layout/sidebar";
 import { UnreadNotificationsProvider } from "@/components/notifications/unread-notifications-provider";
 import {
@@ -30,6 +31,7 @@ export function AppShell({
 
   return (
     <UnreadNotificationsProvider initialCount={unreadNotificationCount}>
+      <NavRoutePrefetcher />
       <div className="flex min-h-dvh overflow-x-hidden bg-[#f1f5f9] dark:bg-transparent md:h-dvh md:min-h-0 md:bg-[#fcfcfd]">
         <Sidebar />
 

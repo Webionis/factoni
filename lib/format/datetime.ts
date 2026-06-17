@@ -1,17 +1,27 @@
-/** Format français : 7 juin 2026 à 22:30 */
+import {
+  formatParisCalendarDate,
+  formatParisDateTime,
+} from "@/lib/dates/timezone";
+
+/** Format français : 7 juin 2026 à 22:30 (heure de Paris). */
 export function formatFrenchDateTime(
   iso: string | null | undefined,
 ): string {
-  if (!iso) return "";
-  try {
-    return new Intl.DateTimeFormat("fr-FR", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(iso));
-  } catch {
-    return "";
-  }
+  return formatParisDateTime(iso);
 }
+
+export function formatFrenchCalendarDate(
+  isoDate: string | null | undefined,
+  options?: Intl.DateTimeFormatOptions,
+): string {
+  return formatParisCalendarDate(isoDate, options);
+}
+
+export {
+  FACTONI_LOCALE,
+  FACTONI_TIMEZONE,
+  createParisFormatter,
+  formatParisCalendarDate,
+  formatParisDateTime,
+  parisCalendarIsoDate,
+} from "@/lib/dates/timezone";

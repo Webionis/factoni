@@ -1,3 +1,5 @@
+import { addDaysToIsoDate } from "@/lib/dates/invoice-dates";
+import { parisCalendarIsoDate } from "@/lib/dates/timezone";
 import type { PeriodPresetId } from "@/lib/exports/types";
 
 export interface DateRange {
@@ -5,21 +7,27 @@ export interface DateRange {
   dateTo: string;
 }
 
-function toIsoDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
+function getParisYmd(reference: Date): { year: number; month: number; day: number } {
+  const iso = parisCalendarIsoDate(reference);
+  const [year, month, day] = iso.split("-").map(Number);
+  return { year, month, day };
 }
 
-function startOfMonth(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), 1);
+function startOfMonthParis(reference: Date): string {
+  const { year, month } = getParisYmd(reference);
+  return `${year}-${String(month).padStart(2, "0")}-01`;
 }
 
-function endOfMonth(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+function endOfMonthParis(reference: Date): string {
+  const { year, month } = getParisYmd(reference);
+  const lastDay = new Date(year, month, 0).getDate();
+  return `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
 }
 
-function startOfQuarter(date: Date): Date {
-  const quarter = Math.floor(date.getMonth() / 3);
-  return new Date(date.getFullYear(), quarter * 3, 1);
+function startOfQuarterParis(reference: Date): string {
+  const { year, month } = getParisYmd(reference);
+  const quarterMonth = Math.floor((month - 1) / 3) * 3 + 1;
+  return `${year}-${String(quarterMonth).padStart(2, "0")}-01`;
 }
 
 export const PERIOD_PRESETS: {
@@ -38,20 +46,20 @@ export function resolvePeriodPreset(
   presetId: PeriodPresetId,
   reference = new Date(),
 ): DateRange {
-  const year = reference.getFullYear();
-  const month = reference.getMonth();
+  const { year, month } = getParisYmd(reference);
+  const today = parisCalendarIsoDate(reference);
 
   switch (presetId) {
     case "this_month":
       return {
-        dateFrom: toIsoDate(startOfMonth(reference)),
-        dateTo: toIsoDate(endOfMonth(reference)),
+        dateFrom: startOfMonthParis(reference),
+        dateTo: endOfMonthParis(reference),
       };
     case "last_month": {
-      const last = new Date(year, month - 1, 1);
+      const last = new Date(year, month - 2, 1);
       return {
-        dateFrom: toIsoDate(startOfMonth(last)),
-        dateTo: toIsoDate(endOfMonth(last)),
+        dateFrom: startOfMonthParis(last),
+        dateTo: endOfMonthParis(last),
       };
     }
     case "this_year":
@@ -65,17 +73,16 @@ export function resolvePeriodPreset(
         dateTo: `${year - 1}-12-31`,
       };
     case "last_30_days": {
-      const from = new Date(reference);
-      from.setDate(from.getDate() - 29);
+      const from = addDaysToIsoDate(today, -29);
       return {
-        dateFrom: toIsoDate(from),
-        dateTo: toIsoDate(reference),
+        dateFrom: from ?? today,
+        dateTo: today,
       };
     }
     case "current_quarter":
       return {
-        dateFrom: toIsoDate(startOfQuarter(reference)),
-        dateTo: toIsoDate(reference),
+        dateFrom: startOfQuarterParis(reference),
+        dateTo: today,
       };
     default:
       return { dateFrom: "", dateTo: "" };

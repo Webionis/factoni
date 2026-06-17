@@ -103,8 +103,8 @@ export const BILLING_PAGE_PLANS: BillingPlanCardConfig[] = [
     ],
     price: "19 € / mois",
     highlighted: true,
-    ctaLabel: "Commencer gratuitement",
-    disabled: true,
+    ctaLabel: "Choisir Starter",
+    disabled: false,
   },
   {
     id: "pro",
@@ -119,8 +119,8 @@ export const BILLING_PAGE_PLANS: BillingPlanCardConfig[] = [
       "Automatisations",
     ],
     price: "39 € / mois",
-    ctaLabel: "Accès fondateurs",
+    ctaLabel: "Choisir Pro",
     ctaFootnote: LAUNCH_OFFER.foundersProFootnote,
-    disabled: true,
+    disabled: false,
   },
 ];

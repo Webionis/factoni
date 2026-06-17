@@ -1,6 +1,9 @@
 /**
  * Temps relatif en français (dashboard notifications).
  */
+import { addDaysToIsoDate, todayIsoDate } from "@/lib/dates/invoice-dates";
+import { createParisFormatter } from "@/lib/dates/timezone";
+
 export function formatRelativeTimeFr(
   dateInput: string | Date,
   reference = new Date(),
@@ -22,9 +25,10 @@ export function formatRelativeTimeFr(
     return diffHour === 1 ? "il y a 1 heure" : `il y a ${diffHour} heures`;
   }
 
-  const yesterday = new Date(reference);
-  yesterday.setDate(yesterday.getDate() - 1);
-  if (date.toDateString() === yesterday.toDateString()) {
+  const refToday = todayIsoDate(reference);
+  const dateToday = todayIsoDate(date);
+  const yesterday = addDaysToIsoDate(refToday, -1);
+  if (yesterday && dateToday === yesterday) {
     return "hier";
   }
 
@@ -33,7 +37,7 @@ export function formatRelativeTimeFr(
     return diffDay === 1 ? "il y a 1 jour" : `il y a ${diffDay} jours`;
   }
 
-  return new Intl.DateTimeFormat("fr-FR", {
+  return createParisFormatter({
     day: "numeric",
     month: "short",
   }).format(date);

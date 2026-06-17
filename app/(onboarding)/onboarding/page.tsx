@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { pageMetadata } from "@/lib/metadata";
+import { OnboardingResumeFooter } from "@/components/onboarding/onboarding-resume-footer";
 import {
   CompanyForm,
   defaultCompanyFormValues,
@@ -42,11 +43,13 @@ export default async function OnboardingPage() {
           Offre de lancement — accès anticipé.
         </p>
         <p className="mt-2 text-[15px] leading-relaxed text-[#64748b]">
-          Ces informations apparaîtront sur vos factures. Vous pourrez les
-          modifier plus tard.
+          Recherchez votre entreprise par nom ou SIREN pour préremplir vos
+          informations, ou saisissez-les manuellement. Vous pourrez les modifier
+          plus tard.
         </p>
       </div>
       <CompanyForm mode="onboarding" initialValues={initialValues} />
+      <OnboardingResumeFooter userEmail={user.email} />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { FeatureList } from "@/components/billing/feature-list";
+import { SubscribePlanButton } from "@/components/billing/subscribe-plan-button";
 import { Button } from "@/components/ui/button";
 import type { BillingPlanCardConfig } from "@/lib/billing/plans";
 import type { SubscriptionPlan } from "@/lib/billing/types";
@@ -10,8 +11,10 @@ import {
 import { cn } from "@/lib/utils";
 
 export interface PricingCardProps extends BillingPlanCardConfig {
-  /** Plan actif de l'utilisateur (futur : surbrillance « votre offre ») */
+  /** Plan actif de l'utilisateur */
   currentPlan?: SubscriptionPlan;
+  /** Active le bouton Stripe Checkout */
+  checkoutEnabled?: boolean;
 }
 
 export function PricingCard({
@@ -26,8 +29,10 @@ export function PricingCard({
   highlighted,
   disabled = true,
   currentPlan,
+  checkoutEnabled = false,
 }: PricingCardProps) {
   const isCurrent = currentPlan === id;
+  const isActionDisabled = disabled || isCurrent;
 
   return (
     <article
@@ -78,18 +83,27 @@ export function PricingCard({
       <FeatureList features={features} className="mt-6 flex-1" />
 
       <div className="mt-5 w-full min-w-0">
-        <Button
-          type="button"
-          variant={highlighted ? "default" : "outline"}
-          className={cn(
-            "w-full",
-            disabled && "cursor-not-allowed opacity-50",
-          )}
-          disabled={disabled}
-          aria-disabled={disabled}
-        >
-          {ctaLabel}
-        </Button>
+        {checkoutEnabled ? (
+          <SubscribePlanButton
+            plan={id}
+            label={isCurrent ? "Votre offre actuelle" : ctaLabel}
+            variant={highlighted ? "default" : "outline"}
+            disabled={isActionDisabled}
+          />
+        ) : (
+          <Button
+            type="button"
+            variant={highlighted ? "default" : "outline"}
+            className={cn(
+              "w-full",
+              isActionDisabled && "cursor-not-allowed opacity-50",
+            )}
+            disabled={isActionDisabled}
+            aria-disabled={isActionDisabled}
+          >
+            {ctaLabel}
+          </Button>
+        )}
         {ctaFootnote ? (
           <p className="mt-3 text-xs leading-relaxed text-[#94a3b8] dark:text-[#64748b]">
             {ctaFootnote}

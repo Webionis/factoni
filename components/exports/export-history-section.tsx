@@ -14,17 +14,12 @@ import {
 } from "@/lib/constants/ui";
 import { EXPORT_COMPLETED_EVENT } from "@/lib/exports/events";
 import { formatBytes } from "@/lib/exports/formatting";
+import { formatFrenchDateTime } from "@/lib/format/datetime";
 import type { ExportHistoryRecord } from "@/lib/exports/types";
 import { cn } from "@/lib/utils";
 
 function formatExportDate(iso: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(iso));
+  return formatFrenchDateTime(iso);
 }
 
 const FORMAT_LABELS: Record<string, string> = {

@@ -1,11 +1,9 @@
+import { parisCalendarIsoDate } from "@/lib/dates/timezone";
 import type { InvoiceStatus } from "@/lib/invoices/status";
 
-/** Date du jour au format ISO (fuseau local du serveur / navigateur). */
+/** Date du jour au format ISO (calendrier France). */
 export function todayIsoDate(reference = new Date()): string {
-  const y = reference.getFullYear();
-  const m = String(reference.getMonth() + 1).padStart(2, "0");
-  const d = String(reference.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+  return parisCalendarIsoDate(reference);
 }
 
 /** Échéance strictement dépassée (comparaison sur dates calendaires). */
@@ -63,6 +61,6 @@ export function isInCurrentMonth(
   issueDate: string,
   reference = new Date(),
 ): boolean {
-  const monthKey = `${reference.getFullYear()}-${String(reference.getMonth() + 1).padStart(2, "0")}`;
+  const monthKey = todayIsoDate(reference).slice(0, 7);
   return issueDate.slice(0, 7) === monthKey;
 }

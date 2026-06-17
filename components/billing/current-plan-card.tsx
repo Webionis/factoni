@@ -1,8 +1,12 @@
 import { CheckCircle2 } from "lucide-react";
+import type { ReactNode } from "react";
 
+import { ManageBillingButton } from "@/components/billing/manage-billing-button";
 import { PlanBadge } from "@/components/billing/plan-badge";
 import { LAUNCH_OFFER, PLAN_DISPLAY_NAMES } from "@/lib/billing/plans";
 import type { SubscriptionAccess } from "@/lib/billing/types";
+import { parisCalendarIsoDate } from "@/lib/dates/timezone";
+import { formatParisCalendarDate } from "@/lib/format/datetime";
 import {
   formSectionDescriptionClassName,
   sectionHeadingClassName,
@@ -21,10 +25,66 @@ const LAUNCH_BENEFITS = [
 interface CurrentPlanCardProps {
   access: SubscriptionAccess;
   className?: string;
+  billingPortalEnabled?: boolean;
+  stripeCustomerId?: string | null;
+  currentPeriodEnd?: string | null;
+  cancelAtPeriodEnd?: boolean;
 }
 
-export function CurrentPlanCard({ access, className }: CurrentPlanCardProps) {
+function formatBillingDate(isoDate: string): string {
+  const calendarDate = isoDate.includes("T")
+    ? parisCalendarIsoDate(new Date(isoDate))
+    : isoDate.slice(0, 10);
+
+  return formatParisCalendarDate(calendarDate, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+export function CurrentPlanCard({
+  access,
+  className,
+  billingPortalEnabled = false,
+  stripeCustomerId,
+  currentPeriodEnd,
+  cancelAtPeriodEnd = false,
+}: CurrentPlanCardProps) {
   const isLaunchOffer = access.isBeta;
+  const isPaidPlan = access.plan === "starter" || access.plan === "pro";
+  const showPortal =
+    billingPortalEnabled && Boolean(stripeCustomerId?.trim());
+
+  function renderPeriodLine(): ReactNode {
+    if (!isPaidPlan || !currentPeriodEnd) return null;
+
+    const formattedDate = formatBillingDate(currentPeriodEnd);
+
+    if (cancelAtPeriodEnd) {
+      return (
+        <>
+          {" "}
+          Annulation le{" "}
+          <span className="font-medium text-[#b45309] dark:text-[#fbbf24]">
+            {formattedDate}
+          </span>
+          .
+        </>
+      );
+    }
+
+    return (
+      <>
+        {" "}
+        Renouvellement le{" "}
+        <span className="font-medium text-[#0f172a] dark:text-[#f8fafc]">
+          {formattedDate}
+        </span>
+        .
+      </>
+    );
+  }
 
   return (
     <section
@@ -56,12 +116,24 @@ export function CurrentPlanCard({ access, className }: CurrentPlanCardProps) {
           ) : (
             <p className={cn("mt-3 text-[15px]", formSectionDescriptionClassName)}>
               Offre {PLAN_DISPLAY_NAMES[access.plan]} —{" "}
-              {access.isActive ? "active" : "inactive"}.
+              {cancelAtPeriodEnd
+                ? "active jusqu'à la fin de la période"
+                : access.isActive
+                  ? "active"
+                  : "inactive"}
+              .
+              {renderPeriodLine()}
             </p>
           )}
         </div>
         <PlanBadge plan={access.plan} />
       </div>
+
+      {showPortal ? (
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <ManageBillingButton />
+        </div>
+      ) : null}
 
       {isLaunchOffer ? (
         <>

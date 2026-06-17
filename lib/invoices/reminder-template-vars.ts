@@ -1,3 +1,4 @@
+import { formatFrenchCalendarDate } from "@/lib/format/datetime";
 import { formatCurrency } from "@/lib/invoices/calculate";
 
 export type ReminderTemplateVariables = {
@@ -28,11 +29,11 @@ Cordialement,
 {{company_name}}`;
 
 export function formatReminderDueDate(dateStr: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
+  return formatFrenchCalendarDate(dateStr, {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(dateStr));
+  });
 }
 
 export function buildReminderTemplateVariables(params: {

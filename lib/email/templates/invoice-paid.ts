@@ -1,3 +1,4 @@
+import { formatFrenchDateTime } from "@/lib/format/datetime";
 import { escapeHtml } from "@/lib/email/helpers";
 import { buildFactoniEmailHtml } from "@/lib/email/templates/base";
 import { formatCurrency } from "@/lib/invoices/calculate";
@@ -10,16 +11,6 @@ export interface InvoicePaidEmailContentParams {
   totalTtc: number;
   paidAt: string;
   ownerName?: string | null;
-}
-
-function formatPaidAt(dateStr: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(dateStr));
 }
 
 function appBaseUrl(): string {
@@ -39,7 +30,7 @@ export function buildInvoicePaidEmailContent(
   params: InvoicePaidEmailContentParams,
 ): { subject: string; text: string; html: string } {
   const subject = buildInvoicePaidEmailSubject(params.invoiceNumber);
-  const paidAtLabel = formatPaidAt(params.paidAt);
+  const paidAtLabel = formatFrenchDateTime(params.paidAt);
   const amountLabel = `${formatCurrency(params.totalTtc)} TTC`;
   const greeting = params.ownerName?.trim()
     ? `Bonjour ${params.ownerName.trim()},`

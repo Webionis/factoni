@@ -4,13 +4,13 @@ import { useMemo, useState } from "react";
 
 import { formatCurrency } from "@/lib/invoices/calculate";
 import type { RevenueChartPayload } from "@/lib/data/dashboard";
+import { dashboardSectionSubheadingClassName } from "@/lib/constants/dashboard-mobile";
 import {
   fadeInUpClassName,
   filterPillActiveClassName,
   filterPillClassName,
   filterPillInactiveClassName,
   sectionHeadingClassName,
-  sectionSubheadingClassName,
   selectClassName,
   surfaceCardClassName,
 } from "@/lib/constants/ui";
@@ -129,7 +129,7 @@ export function RevenueChart({ chart }: RevenueChartProps) {
           >
             {title}
           </h2>
-          <p className={cn("mt-1", sectionSubheadingClassName)}>
+          <p className={cn("mt-1", dashboardSectionSubheadingClassName)}>
             Factures envoyées, payées ou en retard
           </p>
         </div>

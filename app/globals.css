@@ -204,120 +204,81 @@
     touch-action: manipulation;
   }
 
-  /* Liquid glass — barre de navigation mobile. */
-  .ff-liquid-glass-surface {
+  /*
+   * Barre du bas — liquid glass (archisvaze/liquid-glass).
+   * Chrome : .ff-bottom-nav--liquid + backdrop-filter url()
+   */
+  :root {
+    --ff-glass-tint: 255, 255, 255;
+    --ff-glass-tint-opacity: 0.62;
+    --ff-glass-shadow-blur: 20px;
+    --ff-glass-shadow-spread: -5px;
+    --ff-glass-shadow-color: rgba(255, 255, 255, 0.45);
+    --ff-glass-outer-shadow: 24px;
+    --ff-glass-frost: 27px;
+  }
+
+  .dark {
+    --ff-glass-tint: 22, 24, 30;
+    --ff-glass-tint-opacity: 0.5;
+    --ff-glass-shadow-color: rgba(255, 255, 255, 0.28);
+    --ff-glass-outer-shadow: 28px;
+    --ff-glass-frost: 29px;
+  }
+
+  .ff-bottom-nav {
     isolation: isolate;
     overflow: hidden;
+    border-radius: 9999px;
     background: transparent;
+    box-shadow: 0 4px var(--ff-glass-outer-shadow) rgba(15, 23, 42, 0.14);
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
   }
 
-  .ff-liquid-glass-surface--bar {
-    border-radius: 1.625rem;
-    box-shadow:
-      0 12px 36px rgba(15, 23, 42, 0.12),
-      0 3px 10px rgba(15, 23, 42, 0.05);
+  .dark .ff-bottom-nav {
+    box-shadow: 0 4px var(--ff-glass-outer-shadow) rgba(0, 0, 0, 0.32);
   }
 
-  .ff-liquid-glass-surface__lens {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    border-radius: inherit;
-    background: rgba(255, 255, 255, 0.32);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    backdrop-filter: blur(16px) saturate(140%);
-    pointer-events: none;
-  }
-
-  .ff-liquid-glass-surface__mirror {
+  .ff-bottom-nav::before {
+    content: "";
     position: absolute;
     inset: 0;
     z-index: 1;
     border-radius: inherit;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.18) 0%,
-      rgba(255, 255, 255, 0.04) 5%,
-      transparent 14%
-    );
     pointer-events: none;
+    background-color: rgba(var(--ff-glass-tint), var(--ff-glass-tint-opacity));
+    box-shadow:
+      inset 0 0 var(--ff-glass-shadow-blur) var(--ff-glass-shadow-spread)
+      var(--ff-glass-shadow-color);
   }
 
-  .ff-liquid-glass-surface__rim {
+  .ff-bottom-nav::after {
+    content: "";
     position: absolute;
     inset: 0;
-    z-index: 1;
+    z-index: -1;
     border-radius: inherit;
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.55),
-      inset 0 -0.5px 0 rgba(15, 23, 42, 0.04);
+    isolation: isolate;
     pointer-events: none;
+    -webkit-backdrop-filter: blur(var(--ff-glass-frost)) saturate(175%);
+    backdrop-filter: blur(var(--ff-glass-frost)) saturate(175%);
   }
 
-  .dark .ff-liquid-glass-surface--bar {
-    box-shadow:
-      0 12px 36px rgba(0, 0, 0, 0.38),
-      0 3px 10px rgba(0, 0, 0, 0.18);
-  }
-
-  .dark .ff-liquid-glass-surface__lens {
-    background: rgba(30, 41, 59, 0.38);
-    -webkit-backdrop-filter: blur(16px) saturate(130%);
-    backdrop-filter: blur(16px) saturate(130%);
-  }
-
-  .dark .ff-liquid-glass-surface__mirror {
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 255, 255, 0.02) 6%,
-      transparent 14%
-    );
-  }
-
-  .dark .ff-liquid-glass-surface__rim {
-    border-color: rgba(255, 255, 255, 0.16);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.2),
-      inset 0 -0.5px 0 rgba(0, 0, 0, 0.2);
-  }
-
-  .ff-liquid-glass-fade-bottom {
-    background: linear-gradient(
-      to top,
-      rgba(241, 245, 249, 0.18) 0%,
-      rgba(241, 245, 249, 0.05) 40%,
-      transparent 75%
-    );
-  }
-
-  .dark .ff-liquid-glass-fade-bottom {
-    background: linear-gradient(
-      to top,
-      rgba(15, 23, 42, 0.16) 0%,
-      rgba(15, 23, 42, 0.05) 40%,
-      transparent 75%
-    );
+  .ff-bottom-nav.ff-bottom-nav--liquid::after {
+    -webkit-backdrop-filter: url(#ff-liquid-glass-filter);
+    backdrop-filter: url(#ff-liquid-glass-filter);
   }
 
   @media (prefers-reduced-transparency: reduce) {
-    .ff-liquid-glass-surface__lens {
-      background: rgba(255, 255, 255, 0.92);
+    .ff-bottom-nav::after {
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
     }
 
-    .dark .ff-liquid-glass-surface__lens {
-      background: rgba(30, 41, 59, 0.94);
-    }
-
-    .ff-liquid-glass-surface__mirror {
-      opacity: 0.35;
-    }
-
-    .ff-liquid-glass-fade-bottom {
-      background: transparent;
+    .ff-bottom-nav::before {
+      background-color: rgba(var(--ff-glass-tint), 0.94);
+      box-shadow: none;
     }
   }
 

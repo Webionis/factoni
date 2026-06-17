@@ -10,8 +10,9 @@ import {
 import { sendQuoteDepositPaidEmail } from "@/lib/email/send-quote-deposit-emails";
 import { logDepositPaid } from "@/lib/quotes/deposit-paid-transition-log";
 import { normalizeQuoteDepositStatus } from "@/lib/quotes/deposit";
-import { getAppBaseUrl } from "@/lib/stripe/client";
+import { formatFrenchDateTime } from "@/lib/format/datetime";
 import { quoteDisplayNumber } from "@/lib/quotes/status";
+import { getAppBaseUrl } from "@/lib/stripe/client";
 import { createAdminClient, isAdminClientConfigured } from "@/lib/supabase/admin";
 import { logServerError } from "@/lib/logger";
 
@@ -99,13 +100,7 @@ export async function handleQuoteDepositPaidSideEffects(
 
     if (ownerEmail) {
       const baseUrl = getAppBaseUrl();
-      const paidAtLabel = new Intl.DateTimeFormat("fr-FR", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(new Date(paidAt));
+      const paidAtLabel = formatFrenchDateTime(paidAt);
 
       const publicToken = quote.public_document_token;
       const receiptUrl = publicToken

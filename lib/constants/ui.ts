@@ -303,6 +303,15 @@ export const dataTableScrollWrapperClassName = cn(
 export const dataTableElementClassName =
   "w-full max-md:table-fixed border-collapse text-sm md:min-w-[36rem]";
 
+/** Tableau sans scroll horizontal — contenu contraint à la largeur du bloc. */
+export const dataTableContainedWrapperClassName = cn(
+  dataTableClassName,
+  "min-w-0 w-full overflow-x-hidden",
+);
+
+export const dataTableContainedElementClassName =
+  "w-full table-fixed border-collapse text-sm";
+
 /** Badge statut compact dans les lignes de tableau sur mobile. */
 export const dataTableStatusBadgeClassName =
   "max-md:h-5 max-md:gap-1 max-md:px-1.5 max-md:text-[10px] md:h-6 md:px-2.5 md:text-xs";

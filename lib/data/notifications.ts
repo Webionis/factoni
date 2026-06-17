@@ -109,7 +109,7 @@ export type DashboardNotification =
       isUnread: boolean;
     };
 
-export const ACTIVITY_INITIAL_VISIBLE = 4;
+export const ACTIVITY_INITIAL_VISIBLE = 2;
 export const ACTIVITY_FETCH_LIMIT = 50;
 
 const NOTIFICATION_TYPES: NotificationType[] = [

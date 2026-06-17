@@ -13,6 +13,7 @@ import {
   reminderTypeLabel,
   type AutoInvoiceReminderType,
 } from "@/lib/invoices/reminder-types";
+import { formatFrenchDateTime, formatParisCalendarDate } from "@/lib/format/datetime";
 import { cn } from "@/lib/utils";
 
 interface InvoiceRemindersSectionProps {
@@ -28,21 +29,15 @@ interface InvoiceRemindersSectionProps {
 }
 
 function formatReminderDate(dateStr: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(dateStr));
+  return formatFrenchDateTime(dateStr);
 }
 
 function formatShortDate(dateStr: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
+  return formatParisCalendarDate(dateStr, {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(`${dateStr}T12:00:00`));
+  });
 }
 
 function historyLine(reminder: InvoiceReminderRow): string {

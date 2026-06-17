@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { requestQuoteDepositAction } from "@/lib/actions/quote-deposit";
+import { formatFrenchDateTime } from "@/lib/format/datetime";
 import { formatCurrency } from "@/lib/invoices/calculate";
 import {
   calculateDepositAmount,
@@ -78,13 +79,7 @@ export function QuoteDepositSection({ quote }: QuoteDepositSectionProps) {
           {depositInfo.paidAt ? (
             <p className="text-muted-foreground">
               Payé le{" "}
-              {new Intl.DateTimeFormat("fr-FR", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              }).format(new Date(depositInfo.paidAt))}
+              {formatFrenchDateTime(depositInfo.paidAt)}
             </p>
           ) : null}
           {depositInfo.remainingBalance != null ? (

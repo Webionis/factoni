@@ -71,7 +71,7 @@ export function MobileHeader({ className }: MobileHeaderProps) {
           <Link
             href="/dashboard"
             onClick={handleBellClick}
-            className="relative flex size-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="relative flex size-10 items-center justify-center rounded-xl text-black transition-colors hover:bg-[rgba(15,23,42,0.06)] dark:text-white dark:hover:bg-[rgba(255,255,255,0.1)]"
             aria-label={
               hasUnread
                 ? `Notifications, ${unreadCount} non lue${unreadCount > 1 ? "s" : ""}`

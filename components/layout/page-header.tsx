@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 interface PageHeaderProps {
   title: string;
   description?: string;
+  descriptionClassName?: string;
   eyebrow?: string;
   action?: React.ReactNode;
   className?: string;
@@ -16,6 +17,7 @@ interface PageHeaderProps {
 export function PageHeader({
   title,
   description,
+  descriptionClassName,
   eyebrow,
   action,
   className,
@@ -33,7 +35,9 @@ export function PageHeader({
         ) : null}
         <h1 className={cn(pageTitleClassName, "text-2xl sm:text-3xl")}>{title}</h1>
         {description ? (
-          <p className={pageDescriptionClassName}>{description}</p>
+          <p className={cn(pageDescriptionClassName, descriptionClassName)}>
+            {description}
+          </p>
         ) : null}
       </div>
       {action ? (

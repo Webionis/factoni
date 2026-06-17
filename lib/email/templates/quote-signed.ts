@@ -1,5 +1,6 @@
 import { escapeHtml } from "@/lib/email/helpers";
 import { buildFactoniEmailHtml } from "@/lib/email/templates/base";
+import { formatFrenchDateTime } from "@/lib/format/datetime";
 import { formatCurrency } from "@/lib/invoices/calculate";
 import { siteConfig } from "@/lib/site";
 
@@ -11,16 +12,6 @@ export interface QuoteSignedEmailContentParams {
   totalTtc: number;
   signedAt: string;
   ownerName?: string | null;
-}
-
-function formatSignedAt(dateStr: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(dateStr));
 }
 
 function appBaseUrl(): string {
@@ -40,7 +31,7 @@ export function buildQuoteSignedEmailContent(
   params: QuoteSignedEmailContentParams,
 ): { subject: string; text: string; html: string } {
   const subject = buildQuoteSignedEmailSubject(params.quoteNumber);
-  const signedAtLabel = formatSignedAt(params.signedAt);
+  const signedAtLabel = formatFrenchDateTime(params.signedAt);
   const amountLabel = `${formatCurrency(params.totalTtc)} TTC`;
   const greeting = params.ownerName?.trim()
     ? `Bonjour ${params.ownerName.trim()},`

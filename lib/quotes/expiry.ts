@@ -3,6 +3,7 @@ import {
   quoteHasManualStatusActions,
   type QuoteStatus,
 } from "@/lib/quotes/status";
+import { todayIsoDate } from "@/lib/dates/invoice-dates";
 
 /** Devis expiré si envoyé et date de validité dépassée (affichage, DB inchangée). */
 export function getEffectiveQuoteStatus(
@@ -14,7 +15,7 @@ export function getEffectiveQuoteStatus(
     return status;
   }
 
-  const today = reference.toISOString().slice(0, 10);
+  const today = todayIsoDate(reference);
   if (validityDate < today) {
     return "expired";
   }

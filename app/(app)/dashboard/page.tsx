@@ -29,6 +29,9 @@ import { createClient } from "@/lib/supabase/server";
 
 export const metadata = pageMetadata("dashboard");
 
+/** Cache navigation client — affichage instantané entre sections. */
+export const unstable_dynamicStaleTime = 300;
+
 export default async function DashboardPage() {
   const supabase = await createClient();
   const {
@@ -82,48 +85,86 @@ export default async function DashboardPage() {
   return (
     <div className="min-w-0 space-y-6 md:space-y-8">
       <DashboardActivityScroll />
-      <DashboardHeader
-        greetingName={getGreetingName({
-          tradeName: company?.trade_name,
-          email: user.email,
-        })}
-        companyName={companyName}
-        monthLabel={monthLabel}
-        insights={heroInsights}
-      />
 
-      <OnboardingChecklist steps={onboardingSteps} />
-
-      <DashboardStatGrid stats={data.stats} />
-
-      <DashboardShortcuts />
-
-      {showQuoteStats ? (
-        <div className="grid min-w-0 gap-6 lg:grid-cols-2 lg:items-start">
-          <DashboardQuoteStats stats={data.quoteStats} />
-          <ClientStatsCard clientCount={data.stats.clientCount} />
-        </div>
-      ) : (
-        <ClientStatsCard clientCount={data.stats.clientCount} />
-      )}
-
-      {!data.stats.hasRevenueThisMonth && data.stats.totalInvoices > 0 ? (
-        <MonthEmptyBanner />
-      ) : null}
-
-      <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] xl:items-start">
-        <DashboardRevenueColumn
-          chart={data.revenueChart}
-          jobs={upcomingJobs}
+      {/* Mobile — court, actionnable */}
+      <div className="flex flex-col gap-5 md:hidden">
+        <DashboardHeader
+          greetingName={getGreetingName({
+            tradeName: company?.trade_name,
+            email: user.email,
+          })}
+          companyName={companyName}
+          monthLabel={monthLabel}
+          insights={heroInsights}
+          compact
         />
+
+        <OnboardingChecklist steps={onboardingSteps} />
+
+        <DashboardShortcuts compact />
+
+        <DashboardStatGrid stats={data.stats} compact />
+
+        {!data.stats.hasRevenueThisMonth && data.stats.totalInvoices > 0 ? (
+          <MonthEmptyBanner />
+        ) : null}
+
+        <DashboardRevenueColumn chart={data.revenueChart} jobs={upcomingJobs} />
+
         <DashboardNotifications
           notifications={data.notifications}
           unreadCount={data.unreadNotificationCount}
           hasMoreActivities={data.hasMoreActivities}
         />
+
+        <RecentInvoices invoices={data.recentInvoices} maxItems={4} />
       </div>
 
-      <RecentInvoices invoices={data.recentInvoices} />
+      {/* Desktop — vue complète */}
+      <div className="hidden flex-col gap-8 md:flex">
+        <DashboardHeader
+          greetingName={getGreetingName({
+            tradeName: company?.trade_name,
+            email: user.email,
+          })}
+          companyName={companyName}
+          monthLabel={monthLabel}
+          insights={heroInsights}
+        />
+
+        <OnboardingChecklist steps={onboardingSteps} />
+
+        <DashboardStatGrid stats={data.stats} />
+
+        <DashboardShortcuts />
+
+        {showQuoteStats ? (
+          <div className="grid min-w-0 gap-6 lg:grid-cols-2 lg:items-start">
+            <DashboardQuoteStats stats={data.quoteStats} />
+            <ClientStatsCard clientCount={data.stats.clientCount} />
+          </div>
+        ) : (
+          <ClientStatsCard clientCount={data.stats.clientCount} />
+        )}
+
+        {!data.stats.hasRevenueThisMonth && data.stats.totalInvoices > 0 ? (
+          <MonthEmptyBanner />
+        ) : null}
+
+        <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] xl:items-start">
+          <DashboardRevenueColumn
+            chart={data.revenueChart}
+            jobs={upcomingJobs}
+          />
+          <DashboardNotifications
+            notifications={data.notifications}
+            unreadCount={data.unreadNotificationCount}
+            hasMoreActivities={data.hasMoreActivities}
+          />
+        </div>
+
+        <RecentInvoices invoices={data.recentInvoices} />
+      </div>
     </div>
   );
 }

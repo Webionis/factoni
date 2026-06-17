@@ -13,6 +13,7 @@ interface DashboardHeaderProps {
   companyName: string;
   monthLabel: string;
   insights?: HeroInsight[];
+  compact?: boolean;
 }
 
 export function DashboardHeader({
@@ -20,6 +21,7 @@ export function DashboardHeader({
   companyName,
   monthLabel,
   insights = [],
+  compact = false,
 }: DashboardHeaderProps) {
   const hour = new Date().getHours();
   const salutation =
@@ -29,7 +31,12 @@ export function DashboardHeader({
     <div className="min-w-0 space-y-3">
       <PageHeader
         title={`${salutation} ${greetingName}`}
-        description={`${companyName} — ${monthLabel}. Vue d'ensemble de votre activité.`}
+        description={
+          compact
+            ? monthLabel
+            : `${companyName} — ${monthLabel}. Vue d'ensemble de votre activité.`
+        }
+        descriptionClassName={compact ? "text-sm text-[#64748b] dark:text-[#94a3b8]" : undefined}
       />
 
       {insights.length > 0 ? (

@@ -12,6 +12,9 @@ import { cn } from "@/lib/utils";
 
 export const metadata = pageMetadata("clients");
 
+/** Cache navigation client — affichage instantané entre sections. */
+export const unstable_dynamicStaleTime = 300;
+
 export default async function ClientsPage() {
   const supabase = await createClient();
   const {

@@ -19,6 +19,9 @@ import { cn } from "@/lib/utils";
 
 export const metadata = pageMetadata("agenda");
 
+/** Cache navigation client — affichage instantané entre sections. */
+export const unstable_dynamicStaleTime = 300;
+
 interface AgendaPageProps {
   searchParams: Promise<{ create?: string }>;
 }

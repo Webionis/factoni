@@ -9,10 +9,10 @@ import {
   ACTIVITY_INITIAL_VISIBLE,
   type DashboardNotification,
 } from "@/lib/data/notifications";
+import { dashboardSectionSubheadingClassName } from "@/lib/constants/dashboard-mobile";
 import {
   fadeInUpClassName,
   sectionHeadingClassName,
-  sectionSubheadingClassName,
   surfaceCardClassName,
 } from "@/lib/constants/ui";
 import { DASHBOARD_ACTIVITY_SECTION_ID } from "@/lib/navigation/dashboard-activity";
@@ -73,7 +73,7 @@ export function DashboardNotifications({
               </span>
             ) : null}
           </div>
-          <p className={cn("mt-0.5", sectionSubheadingClassName)}>
+          <p className={cn("mt-0.5", dashboardSectionSubheadingClassName)}>
             Paiements, relances et événements sur vos documents.
           </p>
         </div>

@@ -32,11 +32,13 @@ const STATUS_STYLES: Record<
 interface ScheduledJobStatusBadgeProps {
   status: ScheduledJobStatus;
   className?: string;
+  compact?: boolean;
 }
 
 export function ScheduledJobStatusBadge({
   status,
   className,
+  compact = false,
 }: ScheduledJobStatusBadgeProps) {
   const styles = STATUS_STYLES[status] ?? STATUS_STYLES.planned;
 
@@ -44,7 +46,8 @@ export function ScheduledJobStatusBadge({
     <Badge
       variant="secondary"
       className={cn(
-        "h-6 gap-1.5 rounded-lg border-0 px-2.5 text-xs font-medium",
+        "h-6 max-w-full gap-1.5 rounded-lg border-0 px-2.5 text-xs font-medium",
+        compact && "h-5 gap-1 px-1.5 text-[10px] sm:h-6 sm:gap-1.5 sm:px-2.5 sm:text-xs",
         styles.className,
         className,
       )}
@@ -53,7 +56,9 @@ export function ScheduledJobStatusBadge({
         className={cn("size-1.5 shrink-0 rounded-full", styles.dot)}
         aria-hidden
       />
-      {SCHEDULED_JOB_STATUS_LABELS[status] ?? status}
+      <span className="truncate">
+        {SCHEDULED_JOB_STATUS_LABELS[status] ?? status}
+      </span>
     </Badge>
   );
 }

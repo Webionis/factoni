@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
+import { CompanySearchCombobox } from "@/components/company/company-search-combobox";
 import { completeOnboarding, updateCompany } from "@/lib/actions/company";
 import { applyActionResult, runServerAction } from "@/lib/client/action-feedback";
 import { useRouter } from "next/navigation";
@@ -203,6 +204,7 @@ export function CompanyForm({ mode, initialValues }: CompanyFormProps) {
         description="Nom affiché sur vos documents et dans l'application."
         className={mode === "settings" ? "sm:pb-5" : undefined}
       >
+        <CompanySearchCombobox setValue={setValue} />
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             label="Nom commercial / enseigne"

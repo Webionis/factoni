@@ -1,8 +1,12 @@
 /**
- * Dates facture au format ISO (YYYY-MM-DD), sans décalage timezone.
+ * Dates facture au format ISO (YYYY-MM-DD), calendrier France.
  */
 
-function parseIsoDateParts(isoDate: string): { year: number; month: number; day: number } | null {
+import { parisCalendarIsoDate } from "@/lib/dates/timezone";
+
+function parseIsoDateParts(
+  isoDate: string,
+): { year: number; month: number; day: number } | null {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
   if (!match) return null;
   const year = Number(match[1]);
@@ -37,11 +41,21 @@ export function addOneMonthToIsoDate(isoDate: string): string | null {
   return formatIsoDateParts(year, month, day);
 }
 
-export function todayIsoDate(): string {
-  const now = new Date();
+/** Ajoute ou retire des jours sur une date calendaire ISO. */
+export function addDaysToIsoDate(isoDate: string, days: number): string | null {
+  const parts = parseIsoDateParts(isoDate);
+  if (!parts) return null;
+
+  const date = new Date(parts.year, parts.month - 1, parts.day);
+  date.setDate(date.getDate() + days);
   return formatIsoDateParts(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    now.getDate(),
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate(),
   );
+}
+
+/** Date du jour en France (YYYY-MM-DD). */
+export function todayIsoDate(reference = new Date()): string {
+  return parisCalendarIsoDate(reference);
 }

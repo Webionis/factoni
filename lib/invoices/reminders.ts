@@ -18,6 +18,7 @@ import {
   sendInvoiceReminderOwnerEmail,
 } from "@/lib/email/send-invoice-reminder-emails";
 import { getInvoiceClientEmail } from "@/lib/invoices/client-contact";
+import { addDaysToIsoDate } from "@/lib/dates/invoice-dates";
 import { todayIsoDate, isPastDueDate } from "@/lib/invoices/overdue";
 import {
   buildReminderTemplateVariables,
@@ -132,9 +133,8 @@ export function computeNextAutoReminderDate(
     if (!isAutoTierEnabled(company, tier.type)) continue;
     if (sentTypes.has(tier.type)) continue;
 
-    const target = new Date(`${dueDate}T12:00:00`);
-    target.setDate(target.getDate() + tier.daysAfterDue);
-    const targetIso = target.toISOString().slice(0, 10);
+    const targetIso = addDaysToIsoDate(dueDate, tier.daysAfterDue);
+    if (!targetIso) continue;
 
     if (targetIso <= todayIsoDate(reference)) {
       return { type: tier.type, date: todayIsoDate(reference) };

@@ -1,5 +1,6 @@
 import { Image, Text, View } from "@react-pdf/renderer";
 
+import { formatPdfDateTime } from "@/lib/pdf/format";
 import { pdfStyles } from "@/lib/pdf/styles";
 import type { InvoicePdfData } from "@/lib/pdf/types";
 
@@ -10,13 +11,7 @@ interface PdfAcceptanceSectionProps {
 export function PdfAcceptanceSection({ data }: PdfAcceptanceSectionProps) {
   if (!data.acceptance) return null;
 
-  const acceptedDate = new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(data.acceptance.acceptedAt));
+  const acceptedDate = formatPdfDateTime(data.acceptance.acceptedAt);
 
   return (
     <View style={pdfStyles.acceptanceSection} wrap={false}>

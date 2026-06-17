@@ -51,6 +51,7 @@ export function MobileMoreMenu({ open, onClose }: MobileMoreMenuProps) {
               <li key={href}>
                 <Link
                   href={href}
+                  prefetch
                   onClick={onClose}
                   className={cn(
                     mobileMoreMenuItemClassName,

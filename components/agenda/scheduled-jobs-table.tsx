@@ -8,13 +8,17 @@ import {
   scheduledJobLocationLabel,
   type ScheduledJobWithRelations,
 } from "@/lib/data/scheduled-jobs";
-import { formatShortDayLabel, parseIsoDate } from "@/lib/dates/calendar-range";
+import {
+  formatAgendaTableDateParts,
+  formatShortDayLabel,
+  parseIsoDate,
+} from "@/lib/dates/calendar-range";
 import { formatScheduledJobTime } from "@/lib/scheduled-jobs/status";
 import {
-  dataTableElementClassName,
+  dataTableContainedElementClassName,
+  dataTableContainedWrapperClassName,
   dataTableHeadClassName,
   dataTableRowClassName,
-  dataTableScrollWrapperClassName,
   interactiveRowClassName,
 } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
@@ -33,23 +37,59 @@ export function ScheduledJobsTable({
   }
 
   return (
-    <div className={dataTableScrollWrapperClassName}>
-      <table className={dataTableElementClassName}>
+    <div className={dataTableContainedWrapperClassName}>
+      <table className={dataTableContainedElementClassName}>
         <thead>
           <tr>
-            <th className={cn(dataTableHeadClassName, "px-5 py-3")}>Date</th>
-            <th className={cn(dataTableHeadClassName, "hidden px-4 py-3 sm:table-cell")}>
+            <th
+              className={cn(
+                dataTableHeadClassName,
+                "w-[30%] px-3 py-3 sm:w-[14%] sm:px-5",
+              )}
+            >
+              Date
+            </th>
+            <th
+              className={cn(
+                dataTableHeadClassName,
+                "hidden w-[10%] px-3 py-3 sm:table-cell",
+              )}
+            >
               Heure
             </th>
-            <th className={cn(dataTableHeadClassName, "px-4 py-3")}>Rendez-vous</th>
-            <th className={cn(dataTableHeadClassName, "hidden px-4 py-3 lg:table-cell")}>
+            <th className={cn(dataTableHeadClassName, "px-2 py-3 sm:px-4")}>
+              Rendez-vous
+            </th>
+            <th
+              className={cn(
+                dataTableHeadClassName,
+                "hidden w-[16%] px-3 py-3 lg:table-cell",
+              )}
+            >
               Client
             </th>
-            <th className={cn(dataTableHeadClassName, "hidden px-4 py-3 xl:table-cell")}>
+            <th
+              className={cn(
+                dataTableHeadClassName,
+                "hidden w-[14%] px-3 py-3 xl:table-cell",
+              )}
+            >
               Lieu
             </th>
-            <th className={cn(dataTableHeadClassName, "px-4 py-3")}>Statut</th>
-            <th className={cn(dataTableHeadClassName, "w-10 px-3 py-3")}>
+            <th
+              className={cn(
+                dataTableHeadClassName,
+                "w-[34%] whitespace-nowrap px-2 py-3 sm:w-[14%] sm:px-3",
+              )}
+            >
+              Statut
+            </th>
+            <th
+              className={cn(
+                dataTableHeadClassName,
+                "hidden w-10 px-3 py-3 sm:table-cell",
+              )}
+            >
               <span className="sr-only">Ouvrir</span>
             </th>
           </tr>
@@ -59,38 +99,58 @@ export function ScheduledJobsTable({
             const clientLabel = scheduledJobClientLabel(job);
             const locationLabel = scheduledJobLocationLabel(job);
             const timeLabel = formatScheduledJobTime(job.scheduled_time);
+            const jobDate = parseIsoDate(job.scheduled_date);
+            const mobileDate = formatAgendaTableDateParts(jobDate);
 
             return (
               <tr
                 key={job.id}
-                className={cn(dataTableRowClassName, interactiveRowClassName, "cursor-pointer")}
+                className={cn(
+                  dataTableRowClassName,
+                  interactiveRowClassName,
+                  "cursor-pointer",
+                )}
                 onClick={() => onJobClick(job)}
               >
-                <td className="px-5 py-3.5 text-[13px] font-medium capitalize text-[#475569] dark:text-[#94a3b8]">
-                  {formatShortDayLabel(parseIsoDate(job.scheduled_date))}
+                <td className="px-3 py-3.5 align-top sm:px-5">
+                  <div className="sm:hidden">
+                    <span className="block text-[11px] font-semibold capitalize leading-tight text-[#64748b] dark:text-[#94a3b8]">
+                      {mobileDate.weekday}
+                    </span>
+                    <span className="mt-0.5 block text-[12px] font-semibold capitalize leading-tight text-[#0f172a] dark:text-[#f8fafc]">
+                      {mobileDate.dayMonth}
+                    </span>
+                  </div>
+                  <span className="hidden text-[13px] font-medium capitalize text-[#475569] sm:block dark:text-[#94a3b8]">
+                    {formatShortDayLabel(jobDate)}
+                  </span>
                 </td>
-                <td className="hidden px-4 py-3.5 tabular-nums text-[#64748b] sm:table-cell dark:text-[#94a3b8]">
-                  {timeLabel ?? "—"}
+                <td className="hidden px-3 py-3.5 tabular-nums text-[#64748b] sm:table-cell dark:text-[#94a3b8]">
+                  <span className="block truncate">{timeLabel ?? "—"}</span>
                 </td>
-                <td className="max-w-[220px] px-4 py-3.5">
-                  <span className="font-semibold tracking-tight text-[#0f172a] dark:text-[#f8fafc]">
+                <td className="min-w-0 px-2 py-3.5 sm:px-4">
+                  <span className="block truncate font-semibold tracking-tight text-[#0f172a] dark:text-[#f8fafc]">
                     {job.title}
                   </span>
-                  <span className="mt-0.5 block text-xs text-[#94a3b8] sm:hidden">
+                  <span className="mt-0.5 block truncate text-xs text-[#94a3b8] sm:hidden">
                     {timeLabel ? `${timeLabel} · ` : ""}
                     {clientLabel ?? "Sans client"}
                   </span>
                 </td>
-                <td className="hidden max-w-[160px] truncate px-4 py-3.5 text-[#64748b] lg:table-cell dark:text-[#94a3b8]">
-                  {clientLabel ?? "—"}
+                <td className="hidden min-w-0 px-3 py-3.5 text-[#64748b] lg:table-cell dark:text-[#94a3b8]">
+                  <span className="block truncate">{clientLabel ?? "—"}</span>
                 </td>
-                <td className="hidden max-w-[140px] truncate px-4 py-3.5 text-[#64748b] xl:table-cell dark:text-[#94a3b8]">
-                  {locationLabel ?? "—"}
+                <td className="hidden min-w-0 px-3 py-3.5 text-[#64748b] xl:table-cell dark:text-[#94a3b8]">
+                  <span className="block truncate">{locationLabel ?? "—"}</span>
                 </td>
-                <td className="px-4 py-3.5">
-                  <ScheduledJobStatusBadge status={job.status} />
+                <td className="px-2 py-3.5 sm:px-3">
+                  <ScheduledJobStatusBadge
+                    status={job.status}
+                    compact
+                    className="max-w-full"
+                  />
                 </td>
-                <td className="px-3 py-3.5">
+                <td className="hidden px-3 py-3.5 sm:table-cell">
                   <button
                     type="button"
                     onClick={(e) => {

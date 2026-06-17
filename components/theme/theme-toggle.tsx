@@ -26,7 +26,7 @@ export function ThemeToggle({ variant = "menu", className }: ThemeToggleProps) {
         type="button"
         onClick={() => setTheme(isDark ? "light" : "dark")}
         className={cn(
-          "flex size-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+          "flex size-10 items-center justify-center rounded-xl text-black transition-colors hover:bg-[rgba(15,23,42,0.06)] dark:text-white dark:hover:bg-[rgba(255,255,255,0.1)]",
           className,
         )}
         aria-pressed={isDark}

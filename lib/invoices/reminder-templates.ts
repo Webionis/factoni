@@ -1,3 +1,4 @@
+import { formatFrenchCalendarDate } from "@/lib/format/datetime";
 import { formatCurrency } from "@/lib/invoices/calculate";
 
 export const REMINDER_TEMPLATE_IDS = [
@@ -34,11 +35,11 @@ export interface ReminderTemplateDefinition {
 }
 
 function formatTemplateDate(dateStr: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
+  return formatFrenchCalendarDate(dateStr, {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(dateStr));
+  });
 }
 
 function resolveContext(
