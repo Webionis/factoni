@@ -26,6 +26,7 @@ interface BillingSettingsPageProps {
     session_id?: string;
     portal?: string;
     upgrade?: string;
+    downgrade?: string;
   }>;
 }
 
@@ -94,7 +95,11 @@ export default async function BillingSettingsPage({
       ? await fetchBillingHistory(subscription.stripe_customer_id)
       : [];
   const noticeStatus =
-    params.portal === "return" ? "portal" : params.checkout;
+    params.downgrade === "scheduled"
+      ? "scheduled"
+      : params.portal === "return"
+        ? "portal"
+        : params.checkout;
 
   return (
     <div className="w-full space-y-10 pb-4">
@@ -112,12 +117,16 @@ export default async function BillingSettingsPage({
       />
 
       <CurrentPlanCard
-        access={access}
+        plan={access.plan}
+        isActive={access.isActive}
+        isBeta={access.isBeta}
         className="relative"
         billingPortalEnabled={billingReady}
         stripeCustomerId={subscription?.stripe_customer_id}
         currentPeriodEnd={billingPeriodEnd}
         cancelAtPeriodEnd={cancelAtPeriodEnd}
+        pendingPlan={subscription?.pending_plan ?? null}
+        pendingPlanEffectiveAt={subscription?.pending_plan_effective_at ?? null}
       />
 
       <section aria-labelledby="future-plans-heading" className="space-y-5">
@@ -135,21 +144,30 @@ export default async function BillingSettingsPage({
         <ul className="mx-auto grid w-full min-w-0 max-w-[52rem] gap-5 sm:gap-6 md:grid-cols-2 md:gap-6 lg:gap-8">
           {BILLING_PAGE_PLANS.map((plan) => {
             const isCurrentPlan = access.plan === plan.id;
+            const isPendingTarget =
+              subscription?.pending_plan === plan.id && !isCurrentPlan;
             const upgradeLabel =
               access.plan === "starter" && plan.id === "pro"
                 ? "Passer à Pro"
                 : access.plan === "pro" && plan.id === "starter"
                   ? "Passer à Starter"
                   : plan.ctaLabel;
+            const actionLabel = isCurrentPlan
+              ? "Votre offre actuelle"
+              : isPendingTarget
+                ? "Changement programmé"
+                : upgradeLabel;
 
             return (
               <li key={plan.id} className="min-h-0">
                 <PricingCard
                   {...plan}
-                  ctaLabel={isCurrentPlan ? "Votre offre actuelle" : upgradeLabel}
+                  ctaLabel={actionLabel}
                   currentPlan={access.plan}
                   checkoutEnabled={billingReady}
-                  disabled={!billingReady || isCurrentPlan}
+                  disabled={
+                    !billingReady || isCurrentPlan || isPendingTarget
+                  }
                 />
               </li>
             );

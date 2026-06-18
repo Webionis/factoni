@@ -12,6 +12,13 @@ export function isPlanUpgrade(
   return PLAN_RANK[targetPlan] > PLAN_RANK[currentPlan];
 }
 
+export function isPlanDowngrade(
+  currentPlan: BillingCheckoutPlan,
+  targetPlan: BillingCheckoutPlan,
+): boolean {
+  return PLAN_RANK[targetPlan] < PLAN_RANK[currentPlan];
+}
+
 export function isPaidPlan(
   plan: string,
 ): plan is BillingCheckoutPlan {

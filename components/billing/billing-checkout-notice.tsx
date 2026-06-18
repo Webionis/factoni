@@ -26,6 +26,11 @@ export function BillingCheckoutNotice({ status }: BillingCheckoutNoticeProps) {
       toast.message("Paiement annulé — aucun changement n'a été effectué.");
     } else if (status === "portal") {
       toast.message("Abonnement mis à jour.");
+    } else if (status === "scheduled") {
+      toast.success(
+        "Changement d'abonnement enregistré. Consultez le détail dans votre offre actuelle.",
+        { duration: 6000 },
+      );
     }
 
     router.replace("/settings/billing");

@@ -204,10 +204,7 @@
     touch-action: manipulation;
   }
 
-  /*
-   * Barre du bas — liquid glass (archisvaze/liquid-glass).
-   * Chrome : .ff-bottom-nav--liquid + backdrop-filter url()
-   */
+  /* Barre du bas — verre dépoli (blur + teinte, compatible iOS / desktop) */
   :root {
     --ff-glass-tint: 255, 255, 255;
     --ff-glass-tint-opacity: 0.62;
@@ -263,11 +260,6 @@
     pointer-events: none;
     -webkit-backdrop-filter: blur(var(--ff-glass-frost)) saturate(175%);
     backdrop-filter: blur(var(--ff-glass-frost)) saturate(175%);
-  }
-
-  .ff-bottom-nav.ff-bottom-nav--liquid::after {
-    -webkit-backdrop-filter: url(#ff-liquid-glass-filter);
-    backdrop-filter: url(#ff-liquid-glass-filter);
   }
 
   @media (prefers-reduced-transparency: reduce) {

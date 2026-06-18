@@ -4,8 +4,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { formatBillingDateLabel } from "@/lib/billing/format-billing-date";
+import { getScheduledDowngradeToast } from "@/lib/billing/plan-messaging";
 import type { BillingCheckoutPlan } from "@/lib/billing/stripe/config";
-import { PLAN_DISPLAY_NAMES } from "@/lib/billing/plans";
+import { isPaidPlan } from "@/lib/billing/stripe/plan-utils";
 import { cn } from "@/lib/utils";
 
 interface SubscribePlanButtonProps {
@@ -40,15 +42,36 @@ export function SubscribePlanButton({
         url?: string;
         error?: string;
         upgraded?: boolean;
+        scheduled?: boolean;
+        effectiveAt?: string;
         plan?: BillingCheckoutPlan;
+        currentPlan?: BillingCheckoutPlan;
         paymentRequired?: boolean;
       };
 
+      if (response.ok && data.scheduled && data.effectiveAt) {
+        const targetPlan = data.plan ?? plan;
+        const currentPlan =
+          data.currentPlan && isPaidPlan(data.currentPlan)
+            ? data.currentPlan
+            : targetPlan === "starter"
+              ? "pro"
+              : "starter";
+        const effectiveDateLabel = formatBillingDateLabel(data.effectiveAt);
+
+        toast.success(
+          getScheduledDowngradeToast({
+            currentPlan,
+            targetPlan,
+            effectiveDateLabel,
+          }),
+          { duration: 8000 },
+        );
+        window.location.href = "/settings/billing";
+        return;
+      }
+
       if (response.ok && data.upgraded) {
-        const planName = data.plan
-          ? PLAN_DISPLAY_NAMES[data.plan]
-          : PLAN_DISPLAY_NAMES[plan];
-        toast.success(`Vous êtes passé à l'offre ${planName}.`);
         window.location.href = "/settings/billing?checkout=success";
         return;
       }
@@ -74,7 +97,7 @@ export function SubscribePlanButton({
       disabled={disabled || isLoading}
       onClick={handleClick}
     >
-      {isLoading ? "Mise à jour…" : label}
+      {isLoading ? "Enregistrement…" : label}
     </Button>
   );
 }

@@ -4,6 +4,8 @@ import {
   LegalPageShell,
   LegalSection,
 } from "@/components/marketing/legal-page-shell";
+import { LegalPublisherDetails } from "@/components/marketing/legal-publisher-details";
+import { getLegalPublisher } from "@/lib/legal/publisher";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata = pageMetadata("privacy", {
@@ -12,6 +14,8 @@ export const metadata = pageMetadata("privacy", {
 });
 
 export default function ConfidentialitePage() {
+  const publisher = getLegalPublisher();
+
   return (
     <LegalPageShell
       title="Politique de confidentialité"
@@ -26,17 +30,7 @@ export default function ConfidentialitePage() {
       </LegalSection>
 
       <LegalSection title="Responsable du traitement">
-        <ul className="list-none space-y-1 p-0">
-          <li>
-            <strong className="font-medium text-[#334155]">Nom :</strong> À compléter
-          </li>
-          <li>
-            <strong className="font-medium text-[#334155]">Adresse :</strong> À compléter
-          </li>
-          <li>
-            <strong className="font-medium text-[#334155]">Email :</strong> À compléter
-          </li>
-        </ul>
+        <LegalPublisherDetails />
       </LegalSection>
 
       <LegalSection title="Données collectées">
@@ -127,6 +121,10 @@ export default function ConfidentialitePage() {
             </strong>{" "}
             si activé : Sentry
           </li>
+          <li>
+            <strong className="font-medium text-[#334155]">Stripe :</strong>{" "}
+            paiement des abonnements Factoni
+          </li>
           <li>Aucun partage commercial avec des tiers</li>
         </ul>
       </LegalSection>
@@ -177,7 +175,12 @@ export default function ConfidentialitePage() {
       <LegalSection title="Exercer ses droits">
         <p>
           Pour exercer vos droits, contactez-nous à l&apos;adresse suivante :{" "}
-          <strong className="font-medium text-[#334155]">À compléter</strong>
+          <a
+            href={`mailto:${publisher.email}`}
+            className="font-medium text-[#2563eb] hover:underline"
+          >
+            {publisher.email}
+          </a>
         </p>
       </LegalSection>
 

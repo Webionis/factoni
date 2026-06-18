@@ -6,7 +6,6 @@ import { BellOff, ChevronDown } from "lucide-react";
 import { NotificationItem } from "@/components/dashboard/notification-item";
 import { Button } from "@/components/ui/button";
 import {
-  ACTIVITY_INITIAL_VISIBLE,
   type DashboardNotification,
 } from "@/lib/data/notifications";
 import { dashboardSectionSubheadingClassName } from "@/lib/constants/dashboard-mobile";
@@ -22,12 +21,14 @@ interface DashboardNotificationsProps {
   notifications: DashboardNotification[];
   unreadCount: number;
   hasMoreActivities: boolean;
+  initialVisible: number;
 }
 
 export function DashboardNotifications({
   notifications: initialNotifications,
   unreadCount: initialUnreadCount,
   hasMoreActivities,
+  initialVisible,
 }: DashboardNotificationsProps) {
   const [notifications, setNotifications] = useState(initialNotifications);
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
@@ -35,10 +36,10 @@ export function DashboardNotifications({
 
   const visibleNotifications = expanded
     ? notifications
-    : notifications.slice(0, ACTIVITY_INITIAL_VISIBLE);
+    : notifications.slice(0, initialVisible);
 
   const showExpandButton =
-    hasMoreActivities && notifications.length > ACTIVITY_INITIAL_VISIBLE;
+    hasMoreActivities && notifications.length > initialVisible;
 
   const handleNotificationRead = useCallback((notificationId: string) => {
     setNotifications((current) =>

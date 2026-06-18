@@ -5,6 +5,7 @@ import {
   getPlanForStripePriceId,
 } from "@/lib/billing/stripe/config";
 import { syncSubscriptionFromStripe } from "@/lib/billing/stripe/sync";
+import { releaseSubscriptionScheduleIfAny } from "@/lib/billing/stripe/subscription-schedule";
 import { getStripeClient } from "@/lib/stripe/client";
 
 interface ApplyPaidUpgradeParams {
@@ -44,9 +45,19 @@ export async function applyPaidSubscriptionUpgrade(
     updateParams.cancel_at_period_end = false;
   }
 
+  await releaseSubscriptionScheduleIfAny(params.stripeSubscriptionId);
+
   const updated = await stripe.subscriptions.update(
     params.stripeSubscriptionId,
-    updateParams,
+    {
+      ...updateParams,
+      metadata: {
+        ...subscription.metadata,
+        user_id: params.userId,
+        plan: params.targetPlan,
+        pending_plan: "",
+      },
+    },
   );
 
   const priceId = updated.items.data[0]?.price?.id;

@@ -251,9 +251,6 @@ export const legalPageSectionCardClassName = cn(
 export const legalPageSectionTitleClassName =
   "text-base font-semibold tracking-tight text-[#0f172a]";
 
-export const legalPageDisclaimerClassName =
-  "rounded-xl border border-[rgba(15,23,42,0.06)] bg-[#f8fafc] px-4 py-3 text-[13px] leading-relaxed text-[#94a3b8]";
-
 /** Carte auth — alignée dashboard, plus de respiration. */
 export const authCardClassName = cn(
   surfaceCardClassName,

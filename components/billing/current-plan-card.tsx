@@ -1,12 +1,12 @@
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Info } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { ManageBillingButton } from "@/components/billing/manage-billing-button";
 import { PlanBadge } from "@/components/billing/plan-badge";
+import { formatBillingDateLabel } from "@/lib/billing/format-billing-date";
+import { getScheduledDowngradeMessage } from "@/lib/billing/plan-messaging";
 import { LAUNCH_OFFER, PLAN_DISPLAY_NAMES } from "@/lib/billing/plans";
-import type { SubscriptionAccess } from "@/lib/billing/types";
-import { parisCalendarIsoDate } from "@/lib/dates/timezone";
-import { formatParisCalendarDate } from "@/lib/format/datetime";
+import type { SubscriptionPlan } from "@/lib/billing/types";
 import {
   formSectionDescriptionClassName,
   sectionHeadingClassName,
@@ -23,43 +23,43 @@ const LAUNCH_BENEFITS = [
 ] as const;
 
 interface CurrentPlanCardProps {
-  access: SubscriptionAccess;
   className?: string;
   billingPortalEnabled?: boolean;
   stripeCustomerId?: string | null;
   currentPeriodEnd?: string | null;
   cancelAtPeriodEnd?: boolean;
-}
-
-function formatBillingDate(isoDate: string): string {
-  const calendarDate = isoDate.includes("T")
-    ? parisCalendarIsoDate(new Date(isoDate))
-    : isoDate.slice(0, 10);
-
-  return formatParisCalendarDate(calendarDate, {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  pendingPlan?: SubscriptionPlan | null;
+  pendingPlanEffectiveAt?: string | null;
+  plan: SubscriptionPlan;
+  isActive: boolean;
+  isBeta: boolean;
 }
 
 export function CurrentPlanCard({
-  access,
   className,
   billingPortalEnabled = false,
   stripeCustomerId,
   currentPeriodEnd,
   cancelAtPeriodEnd = false,
+  pendingPlan = null,
+  pendingPlanEffectiveAt = null,
+  plan,
+  isActive,
+  isBeta,
 }: CurrentPlanCardProps) {
-  const isLaunchOffer = access.isBeta;
-  const isPaidPlan = access.plan === "starter" || access.plan === "pro";
+  const isLaunchOffer = isBeta;
+  const isPaidPlan = plan === "starter" || plan === "pro";
+  const hasPendingPlanChange =
+    pendingPlan != null &&
+    pendingPlan !== plan &&
+    (pendingPlan === "starter" || pendingPlan === "pro");
   const showPortal =
     billingPortalEnabled && Boolean(stripeCustomerId?.trim());
 
   function renderPeriodLine(): ReactNode {
     if (!isPaidPlan || !currentPeriodEnd) return null;
 
-    const formattedDate = formatBillingDate(currentPeriodEnd);
+    const formattedDate = formatBillingDateLabel(currentPeriodEnd);
 
     if (cancelAtPeriodEnd) {
       return (
@@ -68,6 +68,23 @@ export function CurrentPlanCard({
           Annulation le{" "}
           <span className="font-medium text-[#b45309] dark:text-[#fbbf24]">
             {formattedDate}
+          </span>
+          .
+        </>
+      );
+    }
+
+    if (hasPendingPlanChange) {
+      const pendingDate = pendingPlanEffectiveAt
+        ? formatBillingDateLabel(pendingPlanEffectiveAt)
+        : formattedDate;
+
+      return (
+        <>
+          {" "}
+          Changement vers {PLAN_DISPLAY_NAMES[pendingPlan]} le{" "}
+          <span className="font-medium text-[#b45309] dark:text-[#fbbf24]">
+            {pendingDate}
           </span>
           .
         </>
@@ -115,19 +132,44 @@ export function CurrentPlanCard({
             </p>
           ) : (
             <p className={cn("mt-3 text-[15px]", formSectionDescriptionClassName)}>
-              Offre {PLAN_DISPLAY_NAMES[access.plan]} —{" "}
+              Offre {PLAN_DISPLAY_NAMES[plan]} —{" "}
               {cancelAtPeriodEnd
                 ? "active jusqu'à la fin de la période"
-                : access.isActive
-                  ? "active"
-                  : "inactive"}
+                : hasPendingPlanChange
+                  ? `active jusqu'au changement prévu`
+                  : isActive
+                    ? "active"
+                    : "inactive"}
               .
               {renderPeriodLine()}
             </p>
           )}
         </div>
-        <PlanBadge plan={access.plan} />
+        <PlanBadge plan={plan} />
       </div>
+
+      {hasPendingPlanChange && pendingPlanEffectiveAt && isPaidPlan ? (
+        <div
+          className={cn(
+            "mt-5 flex gap-3 px-4 py-3.5",
+            surfaceInsetClassName,
+            "border-[rgba(180,83,9,0.18)] bg-[rgba(255,251,235,0.9)] dark:border-[rgba(251,191,36,0.2)] dark:bg-[rgba(120,53,15,0.18)]",
+          )}
+          role="status"
+        >
+          <Info
+            className="mt-0.5 size-4 shrink-0 text-[#b45309] dark:text-[#fbbf24]"
+            aria-hidden
+          />
+          <p className="text-sm leading-relaxed text-[#92400e] dark:text-[#fde68a]">
+            {getScheduledDowngradeMessage({
+              currentPlan: plan,
+              targetPlan: pendingPlan,
+              effectiveDateLabel: formatBillingDateLabel(pendingPlanEffectiveAt),
+            })}
+          </p>
+        </div>
+      ) : null}
 
       {showPortal ? (
         <div className="mt-5 flex flex-wrap items-center gap-3">

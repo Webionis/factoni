@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { countClientsForUser } from "@/lib/data/clients";
 import { listInvoicesForDashboard, type InvoiceWithClient } from "@/lib/data/invoices";
 import {
-  ACTIVITY_INITIAL_VISIBLE,
+  ACTIVITY_INITIAL_VISIBLE_DESKTOP,
   countNotificationsForUser,
   getUnreadNotificationsCount,
   listNotificationsForUser,
@@ -298,6 +298,6 @@ export async function getDashboardData(
     notifications,
     unreadNotificationCount,
     totalActivitiesCount,
-    hasMoreActivities: totalActivitiesCount > ACTIVITY_INITIAL_VISIBLE,
+    hasMoreActivities: totalActivitiesCount > ACTIVITY_INITIAL_VISIBLE_DESKTOP,
   };
 }

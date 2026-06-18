@@ -5,7 +5,12 @@ import {
   getPlanForStripePriceId,
   getStripePriceIdForPlan,
 } from "@/lib/billing/stripe/config";
+import {
+  getSubscriptionPeriodEndUnix,
+  releaseSubscriptionScheduleIfAny,
+} from "@/lib/billing/stripe/subscription-schedule";
 import { syncSubscriptionFromStripe } from "@/lib/billing/stripe/sync";
+import { upsertSubscriptionPendingChange } from "@/lib/data/subscriptions";
 import { getStripeClient } from "@/lib/stripe/client";
 
 interface ChangeSubscriptionPlanParams {
@@ -14,30 +19,17 @@ interface ChangeSubscriptionPlanParams {
   targetPlan: BillingCheckoutPlan;
 }
 
-function assertTargetPriceApplied(
-  subscription: StripeTypes.Subscription,
-  targetPlan: BillingCheckoutPlan,
-): void {
-  const priceId =
-    typeof subscription.items.data[0]?.price === "object"
-      ? subscription.items.data[0]?.price?.id
-      : subscription.items.data[0]?.price;
-
-  const resolvedPlan = getPlanForStripePriceId(
-    typeof priceId === "string" ? priceId : null,
-  );
-
-  if (resolvedPlan !== targetPlan) {
-    throw new Error("Le changement d'offre n'a pas été appliqué par Stripe.");
-  }
+export interface ScheduledPlanChangeResult {
+  subscription: StripeTypes.Subscription;
+  effectiveAt: string;
 }
 
-/** Rétrogradation immédiate sans crédit client (Pro → Starter). */
-export async function changeSubscriptionPlan(
+/** Rétrogradation en fin de période (ex. Pro → Starter) — l'offre actuelle reste active jusqu'au renouvellement. */
+export async function scheduleSubscriptionDowngrade(
   params: ChangeSubscriptionPlanParams,
-): Promise<StripeTypes.Subscription> {
-  const priceId = getStripePriceIdForPlan(params.targetPlan);
-  if (!priceId) {
+): Promise<ScheduledPlanChangeResult> {
+  const targetPriceId = getStripePriceIdForPlan(params.targetPlan);
+  if (!targetPriceId) {
     throw new Error(`Price ID manquant pour le plan ${params.targetPlan}.`);
   }
 
@@ -46,45 +38,105 @@ export async function changeSubscriptionPlan(
     params.stripeSubscriptionId,
   );
 
-  const subscriptionItemId = subscription.items.data[0]?.id;
-  if (!subscriptionItemId) {
-    throw new Error("Aucune ligne d'abonnement Stripe trouvée.");
+  const subscriptionItem = subscription.items.data[0];
+  const subscriptionItemId = subscriptionItem?.id;
+  const currentPriceRef = subscriptionItem?.price;
+  const currentPriceId =
+    typeof currentPriceRef === "string"
+      ? currentPriceRef
+      : currentPriceRef?.id;
+
+  const currentPlan = getPlanForStripePriceId(currentPriceId);
+  const periodEnd = getSubscriptionPeriodEndUnix(subscription);
+
+  if (!subscriptionItemId || !currentPriceId || !periodEnd || !currentPlan) {
+    throw new Error("Abonnement Stripe incomplet pour programmer le changement.");
   }
 
-  const updateParams: StripeTypes.SubscriptionUpdateParams = {
-    items: [{ id: subscriptionItemId, price: priceId }],
-    proration_behavior: "none",
-    metadata: {
-      user_id: params.userId,
-      plan: params.targetPlan,
-    },
-  };
+  await releaseSubscriptionScheduleIfAny(params.stripeSubscriptionId);
 
   if (subscription.cancel_at != null) {
-    updateParams.cancel_at = "";
+    await stripe.subscriptions.update(params.stripeSubscriptionId, {
+      cancel_at: "",
+    });
   } else if (subscription.cancel_at_period_end) {
-    updateParams.cancel_at_period_end = false;
+    await stripe.subscriptions.update(params.stripeSubscriptionId, {
+      cancel_at_period_end: false,
+    });
   }
 
-  const updated = await stripe.subscriptions.update(
-    params.stripeSubscriptionId,
-    updateParams,
-  );
+  const schedule = await stripe.subscriptionSchedules.create({
+    from_subscription: params.stripeSubscriptionId,
+  });
 
-  assertTargetPriceApplied(updated, params.targetPlan);
-  return updated;
+  const phaseStart = schedule.phases[0]?.start_date;
+  if (!phaseStart) {
+    throw new Error("Impossible de lire la phase courante de l'abonnement.");
+  }
+
+  await stripe.subscriptionSchedules.update(schedule.id, {
+    end_behavior: "release",
+    phases: [
+      {
+        items: [{ price: currentPriceId, quantity: 1 }],
+        start_date: phaseStart,
+        end_date: periodEnd,
+        proration_behavior: "none",
+      },
+      {
+        items: [{ price: targetPriceId, quantity: 1 }],
+        start_date: periodEnd,
+        proration_behavior: "none",
+        billing_cycle_anchor: "phase_start",
+        collection_method: "charge_automatically",
+      },
+    ],
+    metadata: {
+      user_id: params.userId,
+      pending_plan: params.targetPlan,
+    },
+  });
+
+  const updated = await stripe.subscriptions.retrieve(params.stripeSubscriptionId, {
+    expand: ["schedule"],
+  });
+
+  await stripe.subscriptions.update(params.stripeSubscriptionId, {
+    metadata: {
+      ...updated.metadata,
+      user_id: params.userId,
+      plan: currentPlan,
+      pending_plan: params.targetPlan,
+    },
+  });
+
+  const effectiveAt = new Date(periodEnd * 1000).toISOString();
+
+  return {
+    subscription: await stripe.subscriptions.retrieve(params.stripeSubscriptionId, {
+      expand: ["schedule"],
+    }),
+    effectiveAt,
+  };
 }
 
-export async function changeSubscriptionPlanAndSync(
+export async function scheduleSubscriptionDowngradeAndSync(
   params: ChangeSubscriptionPlanParams,
-): Promise<StripeTypes.Subscription> {
-  const updated = await changeSubscriptionPlan(params);
-  await syncSubscriptionFromStripe(updated, params.userId);
-  return updated;
+): Promise<ScheduledPlanChangeResult> {
+  const result = await scheduleSubscriptionDowngrade(params);
+  await syncSubscriptionFromStripe(result.subscription, params.userId);
+
+  await upsertSubscriptionPendingChange({
+    userId: params.userId,
+    pendingPlan: params.targetPlan,
+    pendingPlanEffectiveAt: result.effectiveAt,
+  });
+
+  return result;
 }
 
 export function getPlanChangeErrorMessage(): string {
-  return "Impossible de changer d'offre pour le moment.";
+  return "Impossible de programmer le changement d'offre pour le moment.";
 }
 
 export function isPlanChangePaymentError(): boolean {

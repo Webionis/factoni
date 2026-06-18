@@ -28,17 +28,36 @@ function resolveUserId(
 function resolvePlanFromSubscription(
   subscription: Stripe.Subscription,
 ): SubscriptionPlan {
-  const metaPlan = subscription.metadata?.plan?.trim();
-  if (metaPlan === "starter" || metaPlan === "pro") {
-    return metaPlan;
-  }
-
   for (const item of subscription.items.data) {
     const mapped = getPlanForStripePriceId(item.price?.id);
     if (mapped) return mapped;
   }
 
+  const metaPlan = subscription.metadata?.plan?.trim();
+  if (metaPlan === "starter" || metaPlan === "pro") {
+    return metaPlan;
+  }
+
   return "starter";
+}
+
+function resolvePendingPlanFromSubscription(
+  subscription: Stripe.Subscription,
+  currentPlan: SubscriptionPlan,
+): { pendingPlan: SubscriptionPlan | null; pendingPlanEffectiveAt: string | null } {
+  const metaPending = subscription.metadata?.pending_plan?.trim();
+  if (metaPending !== "starter" && metaPending !== "pro") {
+    return { pendingPlan: null, pendingPlanEffectiveAt: null };
+  }
+
+  if (metaPending === currentPlan) {
+    return { pendingPlan: null, pendingPlanEffectiveAt: null };
+  }
+
+  return {
+    pendingPlan: metaPending,
+    pendingPlanEffectiveAt: getSubscriptionPeriodEnd(subscription),
+  };
 }
 
 function resolveCustomerId(
@@ -52,6 +71,7 @@ function resolveCustomerId(
 
 import {
   getSubscriptionBillingPeriodEnd,
+  getSubscriptionPeriodEnd,
   isSubscriptionScheduledForCancellation,
 } from "@/lib/billing/stripe/subscription-state";
 
@@ -64,14 +84,20 @@ function toSyncPayload(
     throw new Error("Customer Stripe manquant sur l'abonnement.");
   }
 
+  const plan = resolvePlanFromSubscription(subscription);
+  const { pendingPlan, pendingPlanEffectiveAt } =
+    resolvePendingPlanFromSubscription(subscription, plan);
+
   return {
     userId,
-    plan: resolvePlanFromSubscription(subscription),
+    plan,
     status: mapStripeSubscriptionStatus(subscription.status),
     stripeCustomerId: customerId,
     stripeSubscriptionId: subscription.id,
     currentPeriodEnd: getSubscriptionBillingPeriodEnd(subscription),
     cancelAtPeriodEnd: isSubscriptionScheduledForCancellation(subscription),
+    pendingPlan,
+    pendingPlanEffectiveAt,
   };
 }
 
@@ -126,6 +152,8 @@ export async function handleSubscriptionDeleted(
       stripeSubscriptionId: null,
       currentPeriodEnd: null,
       cancelAtPeriodEnd: false,
+      pendingPlan: null,
+      pendingPlanEffectiveAt: null,
     });
     return;
   }
@@ -141,6 +169,8 @@ export async function handleSubscriptionDeleted(
     stripeSubscriptionId: null,
     currentPeriodEnd: null,
     cancelAtPeriodEnd: false,
+    pendingPlan: null,
+    pendingPlanEffectiveAt: null,
   });
 }
 

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { BILLING_CHECKOUT_PLANS } from "@/lib/billing/stripe/config";
 import {
-  changeSubscriptionPlanAndSync,
+  scheduleSubscriptionDowngradeAndSync,
   getPlanChangeErrorMessage,
 } from "@/lib/billing/stripe/change-plan";
 import { createSubscriptionCheckoutSession } from "@/lib/billing/stripe/checkout";
@@ -74,6 +74,17 @@ export async function POST(request: Request) {
     );
   }
 
+  if (
+    subscription?.pending_plan === plan &&
+    hasPaidSubscription &&
+    access.plan !== plan
+  ) {
+    return NextResponse.json(
+      { error: "Ce changement d'offre est déjà programmé." },
+      { status: 409 },
+    );
+  }
+
   if (hasPaidSubscription && stripeSubscriptionId && stripeCustomerId && access.plan !== plan) {
     if (!isPaidPlan(access.plan)) {
       return NextResponse.json(
@@ -124,15 +135,20 @@ export async function POST(request: Request) {
     }
 
     try {
-      await changeSubscriptionPlanAndSync({
+      const { effectiveAt } = await scheduleSubscriptionDowngradeAndSync({
         stripeSubscriptionId,
         userId: user.id,
         targetPlan: plan,
       });
 
-      return NextResponse.json({ upgraded: true, plan });
+      return NextResponse.json({
+        scheduled: true,
+        plan,
+        currentPlan: access.plan,
+        effectiveAt,
+      });
     } catch (error) {
-      logServerError("billing.change_plan", error, {
+      logServerError("billing.schedule_downgrade", error, {
         userId: user.id,
         plan,
         stripeSubscriptionId,

@@ -17,6 +17,10 @@ import { buildHeroInsights, getGreetingName } from "@/lib/dashboard/hero-insight
 import { buildOnboardingSteps } from "@/lib/dashboard/onboarding-steps";
 import { getDashboardData } from "@/lib/data/dashboard";
 import {
+  ACTIVITY_INITIAL_VISIBLE_DESKTOP,
+  ACTIVITY_INITIAL_VISIBLE_MOBILE,
+} from "@/lib/data/notifications";
+import {
   countScheduledJobsInRange,
   listUpcomingScheduledJobs,
 } from "@/lib/data/scheduled-jobs";
@@ -114,7 +118,10 @@ export default async function DashboardPage() {
         <DashboardNotifications
           notifications={data.notifications}
           unreadCount={data.unreadNotificationCount}
-          hasMoreActivities={data.hasMoreActivities}
+          hasMoreActivities={
+            data.totalActivitiesCount > ACTIVITY_INITIAL_VISIBLE_MOBILE
+          }
+          initialVisible={ACTIVITY_INITIAL_VISIBLE_MOBILE}
         />
 
         <RecentInvoices invoices={data.recentInvoices} maxItems={4} />
@@ -159,7 +166,10 @@ export default async function DashboardPage() {
           <DashboardNotifications
             notifications={data.notifications}
             unreadCount={data.unreadNotificationCount}
-            hasMoreActivities={data.hasMoreActivities}
+            hasMoreActivities={
+              data.totalActivitiesCount > ACTIVITY_INITIAL_VISIBLE_DESKTOP
+            }
+            initialVisible={ACTIVITY_INITIAL_VISIBLE_DESKTOP}
           />
         </div>
 

@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
-import { LiquidGlassNavFilter } from "@/components/layout/liquid-glass-nav-filter";
 import {
   CalendarDays,
   ClipboardList,
@@ -42,7 +41,6 @@ const navItemActivePillClassName =
   "bg-[rgba(15,23,42,0.07)] dark:bg-[rgba(255,255,255,0.16)]";
 
 export function BottomNav() {
-  const navRef = useRef<HTMLElement>(null);
   const pathname = usePathname();
   const router = useRouter();
   const { unreadCount } = useUnreadNotifications();
@@ -65,9 +63,7 @@ export function BottomNav() {
 
   return (
     <>
-      <LiquidGlassNavFilter targetRef={navRef} />
       <nav
-        ref={navRef}
         className={cn(
           "ff-bottom-nav fixed inset-x-4 z-50 md:hidden",
           "bottom-[max(0.75rem,env(safe-area-inset-bottom))]",

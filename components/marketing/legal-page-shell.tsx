@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import {
-  legalPageDisclaimerClassName,
   legalPageSectionCardClassName,
   legalPageSectionTitleClassName,
   marketingSectionClassName,
@@ -42,13 +41,7 @@ export function LegalPageShell({
 
         <div className="space-y-5">{children}</div>
 
-        <p className={cn(legalPageDisclaimerClassName, "mt-10")}>
-          Ces informations doivent être adaptées à votre situation juridique, votre
-          structure et vos prestataires avant mise en production. Elles ne
-          constituent pas une validation juridique définitive.
-        </p>
-
-        <p className="mt-8">
+        <p className="mt-10">
           <Link
             href="/"
             className="text-[15px] font-medium text-[#2563eb] transition-opacity duration-[180ms] hover:opacity-80"
