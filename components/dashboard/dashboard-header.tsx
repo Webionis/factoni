@@ -1,5 +1,7 @@
 "use client";
 
+import { PlanBadge } from "@/components/billing/plan-badge";
+import { useSubscriptionAccess } from "@/components/billing/subscription-provider";
 import { PageHeader } from "@/components/layout/page-header";
 import {
   dashboardHeroInsightClassName,
@@ -23,6 +25,7 @@ export function DashboardHeader({
   insights = [],
   compact = false,
 }: DashboardHeaderProps) {
+  const { plan } = useSubscriptionAccess();
   const hour = new Date().getHours();
   const salutation =
     hour < 12 ? "Bonjour" : hour < 18 ? "Bon après-midi" : "Bonsoir";
@@ -31,6 +34,7 @@ export function DashboardHeader({
     <div className="min-w-0 space-y-3">
       <PageHeader
         title={`${salutation} ${greetingName}`}
+        titleAccessory={<PlanBadge plan={plan} />}
         description={
           compact
             ? monthLabel

@@ -164,9 +164,9 @@ export const dateTimeInputClassName = cn(
   "appearance-none pr-2 [-webkit-appearance:none]",
 );
 
-/** Landing & pages publiques — rythme éditorial, sans glassmorphism. */
+/** Landing & pages publiques — rythme éditorial, fond opaque (pas de transparence au scroll). */
 export const marketingHeaderClassName =
-  "sticky top-0 z-50 border-b border-[rgba(15,23,42,0.06)] bg-white/98 supports-[backdrop-filter]:bg-white/90";
+  "sticky top-0 z-50 border-b border-[rgba(15,23,42,0.06)] bg-white";
 
 export const marketingSectionClassName = "bg-[#f8fafc]";
 

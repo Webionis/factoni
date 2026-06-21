@@ -3,7 +3,11 @@ import { Check } from "lucide-react";
 
 import { LandingScrollReveal } from "@/components/marketing/landing-scroll-reveal";
 import { buttonVariants } from "@/components/ui/button";
-import { LAUNCH_OFFER, PUBLIC_PRICING_PLANS } from "@/lib/billing/plans";
+import {
+  getLandingPricingFooter,
+  getLandingPricingLead,
+  getPublicPricingPlans,
+} from "@/lib/billing/plans";
 import {
   landingMobileBodyClassName,
   landingMobileCtaPrimaryClassName,
@@ -49,14 +53,13 @@ export function LandingPricing() {
               Deux offres, une facturation pro
             </h2>
             <p className={cn(marketingSectionLeadClassName, "mt-4 text-[15px] md:text-base")}>
-              Starter à 19&nbsp;€/mois · Pro à 39&nbsp;€/mois.{" "}
-              {LAUNCH_OFFER.earlyAccess.toLowerCase()} — sans carte bancaire.
+              {getLandingPricingLead()}
             </p>
           </div>
         </LandingScrollReveal>
 
         <ul className="mx-auto mt-10 flex w-full min-w-0 max-w-[52rem] flex-col gap-5 sm:gap-6 md:mt-12 md:grid md:grid-cols-2 md:gap-6 lg:gap-8">
-          {PUBLIC_PRICING_PLANS.map((plan, i) => (
+          {getPublicPricingPlans().map((plan, i) => (
             <LandingScrollReveal key={plan.id} delayMs={60 + i * 40} className="w-full min-w-0">
               <li
                 className={cn(
@@ -154,7 +157,7 @@ export function LandingPricing() {
         </ul>
 
         <p className="mx-auto mt-8 max-w-xl text-center text-xs font-medium text-[#94a3b8]">
-          {LAUNCH_OFFER.noCardRequired}
+          {getLandingPricingFooter()}
         </p>
       </div>
     </section>

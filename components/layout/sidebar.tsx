@@ -96,7 +96,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "sticky top-0 z-40 hidden h-dvh flex-col border-r border-[rgba(15,23,42,0.06)] bg-[#fcfcfd] dark:border-[rgba(148,163,184,0.12)] dark:bg-[rgba(15,23,42,0.92)] md:flex",
+        "sticky top-0 z-40 hidden h-dvh flex-col border-r border-[rgba(15,23,42,0.06)] bg-[#fcfcfd] dark:border-[rgba(148,163,184,0.12)] dark:bg-[#0f172a] md:flex",
         sidebarWidthClassName,
       )}
       aria-label="Navigation principale"

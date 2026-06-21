@@ -8,6 +8,7 @@ import {
   type ActionResult,
 } from "@/lib/actions/errors";
 import { requireAuthenticatedUser } from "@/lib/actions/utils";
+import { requireFeatureForUser } from "@/lib/billing/feature-guard";
 import { getClientById } from "@/lib/data/clients";
 import { getActiveClientLocationById } from "@/lib/data/client-locations";
 import {
@@ -57,6 +58,19 @@ async function validateJobRelations(
   return {};
 }
 
+async function requireAgendaFeature(
+  supabase: Awaited<ReturnType<typeof import("@/lib/supabase/server").createClient>>,
+  userId: string,
+): Promise<{ error?: string }> {
+  const featureCheck = await requireFeatureForUser(
+    supabase,
+    userId,
+    "agendaScheduling",
+  );
+  if (!featureCheck.ok) return { error: featureCheck.error };
+  return {};
+}
+
 export async function createScheduledJobAction(
   rawValues: ScheduledJobFormValues,
 ): Promise<ActionResult & { job?: ScheduledJobWithRelations }> {
@@ -68,6 +82,9 @@ export async function createScheduledJobAction(
   const auth = await requireAuthenticatedUser();
   if (auth.error !== null) return { error: auth.error };
   const { supabase, user } = auth;
+
+  const agendaCheck = await requireAgendaFeature(supabase, user.id);
+  if (agendaCheck.error) return { error: agendaCheck.error };
 
   const clientId = normalizeOptionalId(parsed.data.client_id);
   const locationId = normalizeOptionalId(parsed.data.client_location_id);
@@ -116,6 +133,9 @@ export async function updateScheduledJobAction(
   if (auth.error !== null) return { error: auth.error };
   const { supabase, user } = auth;
 
+  const agendaCheck = await requireAgendaFeature(supabase, user.id);
+  if (agendaCheck.error) return { error: agendaCheck.error };
+
   const existing = await getScheduledJobById(supabase, jobId, user.id);
   if (!existing || existing.archived_at) {
     return { error: agendaCopy.notFound };
@@ -161,6 +181,9 @@ export async function archiveScheduledJobAction(
   if (auth.error !== null) return { error: auth.error };
   const { supabase, user } = auth;
 
+  const agendaCheck = await requireAgendaFeature(supabase, user.id);
+  if (agendaCheck.error) return { error: agendaCheck.error };
+
   const { error } = await supabase
     .from("scheduled_jobs")
     .update({ archived_at: new Date().toISOString() })
@@ -182,6 +205,9 @@ export async function updateScheduledJobStatusAction(
   const auth = await requireAuthenticatedUser();
   if (auth.error !== null) return { error: auth.error };
   const { supabase, user } = auth;
+
+  const agendaCheck = await requireAgendaFeature(supabase, user.id);
+  if (agendaCheck.error) return { error: agendaCheck.error };
 
   const { error } = await supabase
     .from("scheduled_jobs")

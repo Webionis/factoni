@@ -3,7 +3,7 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface FeatureListProps {
-  features: string[];
+  features: readonly string[];
   className?: string;
 }
 

@@ -1,4 +1,5 @@
 import {
+  CalendarDays,
   Cloud,
   FileCheck2,
   FileSpreadsheet,
@@ -18,6 +19,16 @@ import { marketingTrustItemClassName } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
 const TRUST_ITEMS = [
+  {
+    icon: FileCheck2,
+    title: "Devis & factures",
+    desc: "Création, envoi et suivi — Starter.",
+  },
+  {
+    icon: CalendarDays,
+    title: "Agenda intégré",
+    desc: "Planifiez vos rendez-vous — Starter.",
+  },
   {
     icon: FileCheck2,
     title: "Réforme 2026",
@@ -41,12 +52,12 @@ const TRUST_ITEMS = [
   {
     icon: Hash,
     title: "Numérotation légale",
-    desc: "Numéro FF-YYYY-NNNNNN attribué à l'envoi.",
+    desc: "Numéro FF-YYYY-NNNNNN attribué à l'envoi — Starter.",
   },
   {
     icon: FileSpreadsheet,
     title: "Export comptable",
-    desc: "Export CSV de vos factures pour votre comptable.",
+    desc: "Export CSV factures & devis — Starter.",
   },
 ] as const;
 

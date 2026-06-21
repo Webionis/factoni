@@ -17,6 +17,9 @@ export const signupSchema = z
       .regex(/[A-Za-z]/, "Au moins une lettre")
       .regex(/[0-9]/, "Au moins un chiffre"),
     confirmPassword: z.string(),
+    acceptTerms: z.boolean().refine((value) => value, {
+      message: "Vous devez accepter les conditions pour créer un compte.",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Les mots de passe ne correspondent pas",

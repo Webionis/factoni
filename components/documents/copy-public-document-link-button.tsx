@@ -4,6 +4,8 @@ import { Link2 } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
 
+import { useHasFeature } from "@/components/billing/subscription-provider";
+import { UpgradePlanPrompt } from "@/components/billing/upgrade-plan-prompt";
 import { getInvoicePublicLinkAction } from "@/lib/actions/invoices";
 import { getQuotePublicLinkAction } from "@/lib/actions/quotes";
 import { Button } from "@/components/ui/button";
@@ -19,6 +21,13 @@ export function CopyPublicDocumentLinkButton({
   documentKind,
 }: CopyPublicDocumentLinkButtonProps) {
   const [isPending, startTransition] = useTransition();
+  const hasAccess = useHasFeature("advancedTracking");
+
+  if (!hasAccess) {
+    return (
+      <UpgradePlanPrompt feature="advancedTracking" compact className="w-full" />
+    );
+  }
 
   function handleCopy() {
     if (isPending) return;

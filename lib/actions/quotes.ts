@@ -8,6 +8,7 @@ import {
   type ActionResult,
 } from "@/lib/actions/errors";
 import { requireAuthenticatedUser } from "@/lib/actions/utils";
+import { requireFeatureForUser } from "@/lib/billing/feature-guard";
 import { DEFAULT_INVOICE_PAYMENT_TERM } from "@/lib/constants/payment-terms";
 import { getCompanyForUser } from "@/lib/auth/profile";
 import { getClientById } from "@/lib/data/clients";
@@ -403,6 +404,13 @@ export async function getQuotePublicLinkAction(
   const auth = await requireAuthenticatedUser();
   if (auth.error !== null) return { error: auth.error };
   const { supabase, user } = auth;
+
+  const featureCheck = await requireFeatureForUser(
+    supabase,
+    user.id,
+    "advancedTracking",
+  );
+  if (!featureCheck.ok) return { error: featureCheck.error };
 
   const existing = await getQuoteById(supabase, quoteId);
   if (!existing || existing.user_id !== user.id) {

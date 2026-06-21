@@ -29,9 +29,14 @@ import { cn } from "@/lib/utils";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { signupSchema, type SignupFormValues } from "@/lib/validations/auth";
+import { LEGAL_ROUTES } from "@/lib/legal/urls";
 import { createClient } from "@/lib/supabase/client";
 
-export function SignupForm() {
+interface SignupFormProps {
+  promoHint?: string;
+}
+
+export function SignupForm({ promoHint }: SignupFormProps) {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -47,6 +52,7 @@ export function SignupForm() {
       email: "",
       password: "",
       confirmPassword: "",
+      acceptTerms: false,
     },
   });
 
@@ -84,9 +90,9 @@ export function SignupForm() {
     <Card className={authCardClassName}>
       <CardHeader className={authCardHeaderClassName}>
         <CardTitle className={authCardTitleClassName}>Créer un compte</CardTitle>
-        <p className={betaBadgeHintClassName}>
-          Offre de lancement — Plan Pro offert aux membres fondateurs.
-        </p>
+        {promoHint ? (
+          <p className={betaBadgeHintClassName}>{promoHint}</p>
+        ) : null}
         <CardDescription className={authCardDescriptionClassName}>
           Commencez à facturer en quelques minutes.
         </CardDescription>
@@ -165,6 +171,48 @@ export function SignupForm() {
               {...register("confirmPassword")}
             />
           </FormField>
+          <div className="space-y-2">
+            <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-[#64748b]">
+              <input
+                type="checkbox"
+                className="mt-0.5 size-4 shrink-0 rounded border-border"
+                aria-invalid={!!errors.acceptTerms}
+                {...register("acceptTerms")}
+              />
+              <span>
+                J&apos;accepte les{" "}
+                <Link
+                  href={LEGAL_ROUTES.cgu}
+                  className="font-medium text-[#2563eb] hover:underline"
+                  target="_blank"
+                >
+                  CGU
+                </Link>
+                , les{" "}
+                <Link
+                  href={LEGAL_ROUTES.cgv}
+                  className="font-medium text-[#2563eb] hover:underline"
+                  target="_blank"
+                >
+                  CGV
+                </Link>{" "}
+                et la{" "}
+                <Link
+                  href={LEGAL_ROUTES.confidentialite}
+                  className="font-medium text-[#2563eb] hover:underline"
+                  target="_blank"
+                >
+                  politique de confidentialité
+                </Link>
+                .
+              </span>
+            </label>
+            {errors.acceptTerms ? (
+              <p className="text-sm text-destructive" role="alert">
+                {errors.acceptTerms.message}
+              </p>
+            ) : null}
+          </div>
         </CardContent>
         <CardFooter className={authCardFooterClassName}>
           <Button

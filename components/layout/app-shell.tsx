@@ -39,7 +39,7 @@ export function AppShell({
           <MobileHeader />
 
           {title ? (
-            <header className="sticky top-0 z-30 hidden h-14 shrink-0 items-center border-b border-[rgba(15,23,42,0.06)] bg-white/90 px-4 backdrop-blur-sm dark:border-[rgba(148,163,184,0.12)] dark:bg-[rgba(15,23,42,0.85)] md:flex md:px-8">
+            <header className="sticky top-0 z-30 hidden h-14 shrink-0 items-center border-b border-[rgba(15,23,42,0.06)] bg-white px-4 dark:border-[rgba(148,163,184,0.12)] dark:bg-[#0f172a] md:flex md:px-8">
               <h1 className="text-base font-semibold tracking-tight text-[#0f172a] dark:text-[#f8fafc]">
                 {title}
               </h1>

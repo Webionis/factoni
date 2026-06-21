@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { AgendaView } from "@/components/agenda/agenda-view";
+import { UpgradePlanPrompt } from "@/components/billing/upgrade-plan-prompt";
 import { PageHeader } from "@/components/layout/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { listClientsForUser } from "@/lib/data/clients";
@@ -13,7 +14,9 @@ import {
   toIsoDate,
 } from "@/lib/dates/calendar-range";
 import { agendaCopy } from "@/lib/agenda/copy";
+import { hasFeature } from "@/lib/billing/access";
 import { pageMetadata } from "@/lib/metadata";
+import { getSubscriptionForUser } from "@/lib/data/subscriptions";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
@@ -43,10 +46,13 @@ export default async function AgendaPage({ searchParams }: AgendaPageProps) {
   const from = toIsoDate(weekStart);
   const to = toIsoDate(weekEnd);
 
-  const [clients, initialJobs] = await Promise.all([
+  const [clients, initialJobs, subscription] = await Promise.all([
     listClientsForUser(supabase, user.id),
     listScheduledJobsForRange(supabase, user.id, from, to),
+    getSubscriptionForUser(supabase, user.id),
   ]);
+
+  const hasAgendaAccess = hasFeature(subscription, "agendaScheduling");
 
   return (
     <div className="min-w-0 space-y-6 pb-8">
@@ -54,23 +60,29 @@ export default async function AgendaPage({ searchParams }: AgendaPageProps) {
         title="Agenda"
         description={agendaCopy.pageDescription}
         action={
-          <Link
-            href="/agenda?create=1"
-            className={cn(buttonVariants(), "h-11 gap-1.5")}
-          >
-            <Plus className="size-4" aria-hidden />
-            <span className="hidden sm:inline">{agendaCopy.plan}</span>
-            <span className="sm:hidden">Planifier</span>
-          </Link>
+          hasAgendaAccess ? (
+            <Link
+              href="/agenda?create=1"
+              className={cn(buttonVariants(), "h-11 gap-1.5")}
+            >
+              <Plus className="size-4" aria-hidden />
+              <span className="hidden sm:inline">{agendaCopy.plan}</span>
+              <span className="sm:hidden">Planifier</span>
+            </Link>
+          ) : undefined
         }
       />
 
-      <AgendaView
-        clients={clients}
-        initialJobs={initialJobs}
-        initialRange={{ from, to }}
-        initialOpenCreate={create === "1"}
-      />
+      {hasAgendaAccess ? (
+        <AgendaView
+          clients={clients}
+          initialJobs={initialJobs}
+          initialRange={{ from, to }}
+          initialOpenCreate={create === "1"}
+        />
+      ) : (
+        <UpgradePlanPrompt feature="agendaScheduling" />
+      )}
     </div>
   );
 }

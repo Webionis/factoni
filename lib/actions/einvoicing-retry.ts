@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { type ActionResult } from "@/lib/actions/errors";
 import { requireAuthenticatedUser } from "@/lib/actions/utils";
+import { requireFeatureForUser } from "@/lib/billing/feature-guard";
 import { getInvoiceById } from "@/lib/data/invoices";
 import { autoTransmitInvoiceOnSend } from "@/lib/e-invoicing/auto-transmit-on-send";
 
@@ -14,6 +15,13 @@ export async function retryInvoiceEinvoicingTransmissionAction(
   if (auth.error !== null) {
     return { error: auth.error };
   }
+
+  const featureCheck = await requireFeatureForUser(
+    auth.supabase,
+    auth.user.id,
+    "automation",
+  );
+  if (!featureCheck.ok) return { error: featureCheck.error };
 
   const invoice = await getInvoiceById(auth.supabase, invoiceId);
   if (!invoice || invoice.user_id !== auth.user.id) {

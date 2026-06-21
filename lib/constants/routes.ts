@@ -6,6 +6,8 @@ export const PUBLIC_ROUTES = [
   "/forgot-password",
   "/mentions-legales",
   "/confidentialite",
+  "/cgu",
+  "/cgv",
 ] as const;
 
 /** Routes auth : rediriger si déjà connecté */

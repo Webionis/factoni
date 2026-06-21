@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { hasFeatureForUser } from "@/lib/billing/feature-guard";
 import { getClientById } from "@/lib/data/clients";
 import { getInvoiceById } from "@/lib/data/invoices";
 import {
@@ -43,6 +44,18 @@ export async function autoTransmitInvoiceOnSend(params: {
     return {
       status: "skipped",
       reason: "Plateforme Agréée Factoni non activée.",
+    };
+  }
+
+  const hasAutomation = await hasFeatureForUser(
+    params.supabase,
+    params.userId,
+    "automation",
+  );
+  if (!hasAutomation) {
+    return {
+      status: "skipped",
+      reason: "Transmission e-facturation non incluse dans votre offre.",
     };
   }
 

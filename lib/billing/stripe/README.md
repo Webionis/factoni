@@ -60,5 +60,12 @@ Le portail **Gérer l'abonnement** sert surtout à mettre à jour la carte banca
 
 ## Quotas features
 
-`LIMITS_ENFORCED` dans `lib/billing/access.ts` reste à `false` par défaut.
-Passer à `true` quand vous voulez bloquer les quotas du plan gratuit.
+En production, le gating Starter/Pro et les quotas plan gratuit s'activent
+automatiquement lorsque le billing Stripe est configuré (`isBillingStripeConfigured()`).
+
+Variables optionnelles :
+- `FACTONI_PRODUCTION_LAUNCH=true|false` — force ou désactive le mode lancement
+- `BILLING_LIMITS_ENFORCED=true|false` — quotas plan gratuit (10 factures / 5 clients)
+
+Les comptes **beta** existants conservent l'accès fondateur. Les **nouveaux** comptes
+sont créés en plan **free** (migration `20250630100000_launch_default_free_plan.sql`).

@@ -1,8 +1,7 @@
 import type { FeatureKey, SubscriptionPlan } from "@/lib/billing/types";
 
 /**
- * Limites quantitatives futures — non appliquées pendant la bêta.
- * Activer via LIMITS_ENFORCED dans access.ts au lancement des offres payantes.
+ * Limites quantitatives plan gratuit — actives si isLimitsEnforced() (mode lancement).
  */
 
 export interface PlanLimits {

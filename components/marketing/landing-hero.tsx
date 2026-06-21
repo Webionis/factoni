@@ -23,12 +23,13 @@ import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 const HIGHLIGHTS_MOBILE = [
-  "Numéro légal à l'envoi",
+  "Devis & factures illimités",
+  "Agenda & rendez-vous",
   "PDF pro · mentions conformes",
-  "Hébergement Europe",
 ] as const;
 
 const HIGHLIGHTS_DESKTOP = [
+  "Devis, factures & agenda dans un seul outil",
   "Numéro légal FF-YYYY-NNNNNN à l'envoi",
   "PDF pro avec logo et mentions conformes",
   "Prêt pour la réforme facturation électronique 2026",

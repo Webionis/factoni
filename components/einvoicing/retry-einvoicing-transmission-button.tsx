@@ -5,6 +5,8 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 
 import { retryInvoiceEinvoicingTransmissionAction } from "@/lib/actions/einvoicing-retry";
+import { useHasFeature } from "@/components/billing/subscription-provider";
+import { UpgradePlanPrompt } from "@/components/billing/upgrade-plan-prompt";
 import { runServerAction } from "@/lib/client/action-feedback";
 import { Button } from "@/components/ui/button";
 import type { InvoiceEinvoicingTransmission } from "@/lib/data/einvoicing";
@@ -20,9 +22,14 @@ export function RetryEinvoicingTransmissionButton({
 }: RetryEinvoicingTransmissionButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const hasAccess = useHasFeature("automation");
 
   if (!latestTransmission || latestTransmission.status !== "failed") {
     return null;
+  }
+
+  if (!hasAccess) {
+    return <UpgradePlanPrompt feature="automation" compact />;
   }
 
   function handleRetry() {

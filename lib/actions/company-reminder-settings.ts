@@ -6,6 +6,7 @@ import { z } from "zod";
 import { actionErrorFromSupabase, type ActionResult } from "@/lib/actions/errors";
 import { requireAuthenticatedUser } from "@/lib/actions/utils";
 import { getCompanyForUser } from "@/lib/auth/profile";
+import { requireFeatureForUser } from "@/lib/billing/feature-guard";
 import { sanitizeOptionalText } from "@/lib/sanitize";
 
 const reminderSettingsSchema = z.object({
@@ -32,6 +33,15 @@ export async function updateCompanyReminderSettingsAction(
   const auth = await requireAuthenticatedUser();
   if (auth.error !== null) return { error: auth.error };
   const { supabase, user } = auth;
+
+  if (parsed.data.auto_reminders_enabled) {
+    const featureCheck = await requireFeatureForUser(
+      supabase,
+      user.id,
+      "automaticReminders",
+    );
+    if (!featureCheck.ok) return { error: featureCheck.error };
+  }
 
   const company = await getCompanyForUser(supabase, user.id);
   if (!company) {

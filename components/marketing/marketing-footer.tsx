@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { LandingSignatureBeam } from "@/components/marketing/landing-signature";
+import { LEGAL_ROUTES } from "@/lib/legal/urls";
 import {
   landingMobileSectionLightClassName,
   landingSectionXClassName,
@@ -13,13 +14,15 @@ import { cn } from "@/lib/utils";
 const FOOTER_LINKS = [
   { href: "/login", label: "Connexion" },
   { href: "/signup", label: "Créer un compte" },
-  { href: "/mentions-legales", label: "Mentions légales" },
-  { href: "/confidentialite", label: "Confidentialité" },
+  { href: LEGAL_ROUTES.mentionsLegales, label: "Mentions légales" },
+  { href: LEGAL_ROUTES.cgu, label: "CGU" },
+  { href: LEGAL_ROUTES.cgv, label: "CGV" },
+  { href: LEGAL_ROUTES.confidentialite, label: "Confidentialité" },
 ] as const;
 
 const TRUST_MARKS = [
-  "Hébergement EU",
-  "Facturation 2026",
+  "Devis & factures",
+  "Agenda intégré",
   "Export comptable",
   "Mentions conformes",
 ] as const;

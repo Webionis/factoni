@@ -29,6 +29,9 @@ const REQUIRED_ENV = [
   "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
   "STRIPE_SECRET_KEY",
   "STRIPE_WEBHOOK_SECRET",
+  "STRIPE_BILLING_WEBHOOK_SECRET",
+  "STRIPE_PRICE_STARTER_MONTHLY",
+  "STRIPE_PRICE_PRO_MONTHLY",
   "RESEND_API_KEY",
   "EMAIL_FROM",
   "CRON_SECRET",
@@ -354,8 +357,63 @@ function checkVercelCron() {
   }
 }
 
+function checkStripeBilling(env) {
+  console.log("\n── Stripe Billing (abonnement SaaS) ──");
+
+  const billingEnabled = env.STRIPE_BILLING_ENABLED?.trim();
+  if (billingEnabled === "false") {
+    warn(
+      "STRIPE_BILLING_ENABLED",
+      "false — billing désactivé explicitement (auto si price IDs présents)",
+    );
+  } else {
+    ok("Stripe Billing", billingEnabled === "true" ? "activé" : "auto si price IDs");
+  }
+
+  const starterPrice = env.STRIPE_PRICE_STARTER_MONTHLY?.trim();
+  const proPrice = env.STRIPE_PRICE_PRO_MONTHLY?.trim();
+  if (starterPrice?.startsWith("price_")) {
+    ok("STRIPE_PRICE_STARTER_MONTHLY", maskValue(starterPrice));
+  } else {
+    fail("STRIPE_PRICE_STARTER_MONTHLY", "Format price_… requis");
+  }
+
+  if (proPrice?.startsWith("price_")) {
+    ok("STRIPE_PRICE_PRO_MONTHLY", maskValue(proPrice));
+  } else {
+    fail("STRIPE_PRICE_PRO_MONTHLY", "Format price_… requis");
+  }
+
+  const billingWebhook = env.STRIPE_BILLING_WEBHOOK_SECRET?.trim();
+  if (billingWebhook?.startsWith("whsec_")) {
+    ok("STRIPE_BILLING_WEBHOOK_SECRET", maskValue(billingWebhook));
+  } else {
+    fail(
+      "STRIPE_BILLING_WEBHOOK_SECRET",
+      "Webhook /api/webhooks/stripe — format whsec_…",
+    );
+  }
+
+  ok("Endpoint billing", `${PRODUCTION_APP_URL}/api/webhooks/stripe`);
+}
+
+function checkLaunchMode(env) {
+  console.log("\n── Mode lancement ──");
+  const launch = env.FACTONI_PRODUCTION_LAUNCH?.trim();
+  if (launch === "true") {
+    ok("FACTONI_PRODUCTION_LAUNCH", "forcé actif");
+  } else if (launch === "false") {
+    warn("FACTONI_PRODUCTION_LAUNCH", "désactivé — gating Starter/Pro inactif");
+  } else {
+    ok(
+      "FACTONI_PRODUCTION_LAUNCH",
+      "auto en production si billing Stripe configuré",
+    );
+  }
+}
+
 function checkStripeWebhookRoute() {
-  console.log("\n── Stripe webhook ──");
+  console.log("\n── Stripe Connect webhook ──");
   const webhookRoute = path.join(root, "app/api/stripe/webhook/route.ts");
 
   if (!fs.existsSync(webhookRoute)) {
@@ -406,6 +464,8 @@ function main() {
   checkCriticalRoutes();
   checkMigrations();
   checkVercelCron();
+  checkStripeBilling(env);
+  checkLaunchMode(env);
   checkStripeWebhookRoute();
 
   const passed = checks.filter((c) => c.ok).length;
@@ -421,11 +481,13 @@ function main() {
 
   console.log("\n✅ Pré-déploiement : OK — prêt pour Vercel Production.\n");
   console.log("Prochaines étapes manuelles :");
-  console.log("  1. npx supabase db push --include-all (projet prod)");
+  console.log("  1. npm run db:migrate:prod  (ou npx supabase db push)");
   console.log("  2. Supabase Auth → Site URL + Redirect URLs");
-  console.log("  3. Stripe Dashboard → webhook https://factoni.fr/api/stripe/webhook");
-  console.log("  4. Variables sur Vercel → Production");
-  console.log("  5. Deploy + tests fonctionnels sur https://factoni.fr\n");
+  console.log(
+    "  3. Stripe → webhooks https://factoni.fr/api/stripe/webhook ET /api/webhooks/stripe",
+  );
+  console.log("  4. Variables Vercel Production (voir .env.production.example)");
+  console.log("  5. Deploy + test checkout Starter/Pro sur /settings/billing\n");
 }
 
 main();

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import {
   getPublicDocumentByToken,
 } from "@/lib/data/public-documents";
+import { hasFeatureForUser } from "@/lib/billing/feature-guard";
 import { canAcceptQuote } from "@/lib/quotes/expiry";
 import {
   buildAcceptanceSnapshot,
@@ -110,6 +111,18 @@ export async function POST(request: Request, context: RouteContext) {
 
   const doc = payload.document;
   const quoteStatus = normalizeQuoteStatus(doc.status);
+
+  const hasSignature = await hasFeatureForUser(
+    supabase,
+    doc.user_id,
+    "advancedTracking",
+  );
+  if (!hasSignature) {
+    return NextResponse.json(
+      { error: "La signature en ligne n'est pas disponible pour ce devis." },
+      { status: 403 },
+    );
+  }
 
   if (
     !canAcceptQuote(

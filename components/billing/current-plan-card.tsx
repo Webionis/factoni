@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { ManageBillingButton } from "@/components/billing/manage-billing-button";
 import { PlanBadge } from "@/components/billing/plan-badge";
 import { formatBillingDateLabel } from "@/lib/billing/format-billing-date";
+import { PLAN_LIMITS } from "@/lib/billing/limits";
 import { getScheduledDowngradeMessage } from "@/lib/billing/plan-messaging";
 import { LAUNCH_OFFER, PLAN_DISPLAY_NAMES } from "@/lib/billing/plans";
 import type { SubscriptionPlan } from "@/lib/billing/types";
@@ -48,6 +49,7 @@ export function CurrentPlanCard({
   isBeta,
 }: CurrentPlanCardProps) {
   const isLaunchOffer = isBeta;
+  const isFreePlan = plan === "free";
   const isPaidPlan = plan === "starter" || plan === "pro";
   const hasPendingPlanChange =
     pendingPlan != null &&
@@ -129,6 +131,12 @@ export function CurrentPlanCard({
             <p className={cn("mt-3 max-w-xl text-[15px] leading-relaxed", formSectionDescriptionClassName)}>
               Vous profitez de l&apos;{LAUNCH_OFFER.name.toLowerCase()} avec
               l&apos;ensemble des fonctionnalités Pro.
+            </p>
+          ) : isFreePlan ? (
+            <p className={cn("mt-3 max-w-xl text-[15px] leading-relaxed", formSectionDescriptionClassName)}>
+              Jusqu&apos;à {PLAN_LIMITS.free.maxInvoices} factures et{" "}
+              {PLAN_LIMITS.free.maxClients} clients. Passez à Starter ou Pro ci-dessous
+              pour débloquer relances, paiements en ligne et automatisations.
             </p>
           ) : (
             <p className={cn("mt-3 text-[15px]", formSectionDescriptionClassName)}>

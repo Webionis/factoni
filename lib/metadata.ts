@@ -40,6 +40,8 @@ export const pageTitles = {
   onboarding: "Configuration",
   legalNotice: "Mentions légales",
   privacy: "Confidentialité",
+  termsOfUse: "CGU",
+  termsOfSale: "CGV",
 } as const;
 
 export type PageTitleKey = keyof typeof pageTitles;

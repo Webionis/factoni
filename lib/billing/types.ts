@@ -18,6 +18,7 @@ export const FEATURE_KEYS = [
   "unlimitedInvoices",
   "unlimitedClients",
   "accountingExport",
+  "agendaScheduling",
   "automaticReminders",
   "advancedAnalytics",
   "removeBranding",

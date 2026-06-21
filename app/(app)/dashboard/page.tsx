@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ClientStatsCard } from "@/components/dashboard/client-stats-card";
 import { DashboardActivityScroll } from "@/components/dashboard/dashboard-activity-scroll";
 import { pageMetadata } from "@/lib/metadata";
+import { hasFeature } from "@/lib/billing/access";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { DashboardRevenueColumn } from "@/components/dashboard/dashboard-revenue-column";
 import { DashboardShortcuts } from "@/components/dashboard/dashboard-shortcuts";
@@ -16,6 +17,7 @@ import { getCompanyForUser, isOnboardingCompleted } from "@/lib/auth/profile";
 import { buildHeroInsights, getGreetingName } from "@/lib/dashboard/hero-insights";
 import { buildOnboardingSteps } from "@/lib/dashboard/onboarding-steps";
 import { getDashboardData } from "@/lib/data/dashboard";
+import { getSubscriptionForUser } from "@/lib/data/subscriptions";
 import {
   ACTIVITY_INITIAL_VISIBLE_DESKTOP,
   ACTIVITY_INITIAL_VISIBLE_MOBILE,
@@ -50,14 +52,17 @@ export default async function DashboardPage() {
   const weekStart = toIsoDate(startOfWeek(reference, true));
   const weekEnd = toIsoDate(endOfWeek(reference, true));
 
-  const [data, company, onboardingDone, upcomingJobs, jobsThisWeek] =
+  const [data, company, onboardingDone, upcomingJobs, jobsThisWeek, subscription] =
     await Promise.all([
       getDashboardData(supabase, user.id),
       getCompanyForUser(supabase, user.id),
       isOnboardingCompleted(supabase, user.id),
       listUpcomingScheduledJobs(supabase, user.id, toIsoDate(reference)),
       countScheduledJobsInRange(supabase, user.id, weekStart, weekEnd),
+      getSubscriptionForUser(supabase, user.id),
     ]);
+
+  const showAdvancedAnalytics = hasFeature(subscription, "advancedAnalytics");
 
   const onboardingSteps = buildOnboardingSteps({
     companyConfigured: onboardingDone && !!company?.trade_name?.trim(),
@@ -145,14 +150,14 @@ export default async function DashboardPage() {
 
         <DashboardShortcuts />
 
-        {showQuoteStats ? (
+        {showAdvancedAnalytics && showQuoteStats ? (
           <div className="grid min-w-0 gap-6 lg:grid-cols-2 lg:items-start">
             <DashboardQuoteStats stats={data.quoteStats} />
             <ClientStatsCard clientCount={data.stats.clientCount} />
           </div>
-        ) : (
+        ) : showAdvancedAnalytics ? (
           <ClientStatsCard clientCount={data.stats.clientCount} />
-        )}
+        ) : null}
 
         {!data.stats.hasRevenueThisMonth && data.stats.totalInvoices > 0 ? (
           <MonthEmptyBanner />

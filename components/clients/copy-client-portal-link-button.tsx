@@ -4,6 +4,8 @@ import { Link2 } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
 
+import { useHasFeature } from "@/components/billing/subscription-provider";
+import { UpgradePlanPrompt } from "@/components/billing/upgrade-plan-prompt";
 import { Button } from "@/components/ui/button";
 import { getClientPortalLinkAction } from "@/lib/client-portal/actions";
 
@@ -17,6 +19,11 @@ export function CopyClientPortalLinkButton({
   disabled = false,
 }: CopyClientPortalLinkButtonProps) {
   const [isPending, startTransition] = useTransition();
+  const hasAccess = useHasFeature("advancedTracking");
+
+  if (!hasAccess) {
+    return <UpgradePlanPrompt feature="advancedTracking" compact />;
+  }
 
   function handleCopy() {
     if (isPending || disabled) return;

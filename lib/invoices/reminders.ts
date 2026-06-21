@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { CompanyRow } from "@/lib/auth/profile";
+import { filterUserIdsWithFeature } from "@/lib/billing/feature-guard";
 import {
   getSentAutoReminderTypes,
   hasReminderBeenSent,
@@ -192,9 +193,17 @@ export async function getInvoicesNeedingReminders(
     (companies ?? []).map((company) => [company.id, company as CompanyReminderSettings & { id: string }]),
   );
 
+  const userIdsWithAutoReminders = await filterUserIdsWithFeature(
+    client,
+    invoices.map((invoice) => invoice.user_id),
+    "automaticReminders",
+  );
+
   const candidates: InvoiceReminderCandidate[] = [];
 
   for (const invoice of invoices) {
+    if (!userIdsWithAutoReminders.has(invoice.user_id)) continue;
+
     const company = companyById.get(invoice.company_id);
     if (!company) continue;
 

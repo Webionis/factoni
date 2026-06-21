@@ -8,8 +8,11 @@ export {
   isBetaPlan,
   isBetaUser,
   isActiveStatus,
-  LIMITS_ENFORCED,
 } from "@/lib/billing/access";
+export {
+  isLimitsEnforced,
+  isProductionLaunchActive,
+} from "@/lib/billing/launch-config";
 export { FEATURE_MIN_PLAN, PLAN_FEATURES, resolvePlanFeatures } from "@/lib/billing/features";
 export {
   checkClientLimit,
@@ -24,6 +27,13 @@ export {
   PUBLIC_PRICING_PLANS,
 } from "@/lib/billing/plans";
 export type { BillingPlanCardConfig } from "@/lib/billing/plans";
+export {
+  getMarketingFeaturesForPlan,
+  MARKETING_CAPABILITY_PLANS,
+  PRO_ONLY_MARKETING_FEATURES,
+  PRO_PLAN_MARKETING_FEATURES,
+  STARTER_PLAN_MARKETING_FEATURES,
+} from "@/lib/billing/plan-features";
 export type {
   FeatureKey,
   PlanFeatures,

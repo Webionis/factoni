@@ -8,6 +8,7 @@ import {
   startStripeConnectOnboardingAction,
   syncStripeConnectStatusAction,
 } from "@/lib/actions/stripe-connect";
+import { FeatureGate } from "@/components/billing/feature-gate";
 import { Button } from "@/components/ui/button";
 import { surfaceCardClassName } from "@/lib/constants/ui";
 import type { StripeConnectProfile } from "@/lib/data/stripe-connect";
@@ -57,7 +58,8 @@ export function StripeConnectCard({
         : "Connecter Stripe";
 
   return (
-    <section className={cn(surfaceCardClassName, "space-y-5 p-6 sm:p-7")}>
+    <FeatureGate feature="automation">
+      <section className={cn(surfaceCardClassName, "space-y-5 p-6 sm:p-7")}>
       <div className="flex items-start gap-3">
         <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[rgba(37,99,235,0.08)] dark:bg-[rgba(59,130,246,0.14)]">
           <CreditCard className="size-5 text-[#2563eb] dark:text-[#93c5fd]" />
@@ -140,5 +142,6 @@ export function StripeConnectCard({
         ) : null}
       </div>
     </section>
+    </FeatureGate>
   );
 }

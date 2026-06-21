@@ -9,7 +9,7 @@ import {
   uploadCompanyLogoAction,
 } from "@/lib/actions/company-logo";
 import { FeaturePlanHint } from "@/components/billing/feature-plan-hint";
-import { useSubscriptionAccess } from "@/components/billing/subscription-provider";
+import { useHasFeature, useSubscriptionAccess } from "@/components/billing/subscription-provider";
 import { applyActionResult, runServerAction } from "@/lib/client/action-feedback";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,6 +36,7 @@ export function CompanyLogoUpload({
   const [uploading, setUploading] = useState(false);
   const [removing, setRemoving] = useState(false);
   const { isBeta } = useSubscriptionAccess();
+  const hasLogoFeature = useHasFeature("customLogo");
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -134,7 +135,7 @@ export function CompanyLogoUpload({
             type="file"
             accept="image/png,image/jpeg,image/webp"
             className="sr-only"
-            disabled={uploading || removing}
+            disabled={uploading || removing || !hasLogoFeature}
             onChange={handleFileChange}
           />
 
@@ -143,7 +144,7 @@ export function CompanyLogoUpload({
               type="button"
               variant="outline"
               className="h-11 w-full gap-2"
-              disabled={uploading || removing}
+              disabled={uploading || removing || !hasLogoFeature}
               onClick={() => inputRef.current?.click()}
             >
               {uploading ? (

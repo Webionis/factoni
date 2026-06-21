@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { actionErrorFromSupabase, type ActionResult } from "@/lib/actions/errors";
 import { logServerError } from "@/lib/logger";
 import { getAuthenticatedUser, requireAuthenticatedUser } from "@/lib/actions/utils";
+import { requireFeatureForUser } from "@/lib/billing/feature-guard";
 import { getCompanyForUser } from "@/lib/auth/profile";
 import {
   buildCompanyLogoPath,
@@ -45,6 +46,13 @@ export async function uploadCompanyLogoAction(
   const auth = await requireAuthenticatedUser();
   if (auth.error !== null) return { error: auth.error };
   const { supabase, user } = auth;
+
+  const featureCheck = await requireFeatureForUser(
+    supabase,
+    user.id,
+    "customLogo",
+  );
+  if (!featureCheck.ok) return { error: featureCheck.error };
 
   const file = formData.get("file");
   if (!(file instanceof File)) {

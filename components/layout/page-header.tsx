@@ -10,6 +10,7 @@ interface PageHeaderProps {
   description?: string;
   descriptionClassName?: string;
   eyebrow?: string;
+  titleAccessory?: React.ReactNode;
   action?: React.ReactNode;
   className?: string;
 }
@@ -19,6 +20,7 @@ export function PageHeader({
   description,
   descriptionClassName,
   eyebrow,
+  titleAccessory,
   action,
   className,
 }: PageHeaderProps) {
@@ -33,7 +35,10 @@ export function PageHeader({
         {eyebrow ? (
           <p className={pageEyebrowClassName}>{eyebrow}</p>
         ) : null}
-        <h1 className={cn(pageTitleClassName, "text-2xl sm:text-3xl")}>{title}</h1>
+        <div className="flex min-w-0 flex-wrap items-center gap-2.5">
+          <h1 className={cn(pageTitleClassName, "text-2xl sm:text-3xl")}>{title}</h1>
+          {titleAccessory}
+        </div>
         {description ? (
           <p className={cn(pageDescriptionClassName, descriptionClassName)}>
             {description}

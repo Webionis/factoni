@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getPublicDocumentByToken } from "@/lib/data/public-documents";
+import { hasFeatureForUser } from "@/lib/billing/feature-guard";
 import { getArtisanStripePaymentStatus } from "@/lib/data/stripe-connect";
 import { logServerError } from "@/lib/logger";
 import { invoiceDisplayNumber, toInvoiceStatus } from "@/lib/invoices/status";
@@ -56,6 +57,18 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Cette facture ne peut pas être payée en ligne." },
       { status: 409 },
+    );
+  }
+
+  const hasPayments = await hasFeatureForUser(
+    supabase,
+    doc.user_id,
+    "automation",
+  );
+  if (!hasPayments) {
+    return NextResponse.json(
+      { error: "Les paiements en ligne ne sont pas activés pour ce professionnel." },
+      { status: 403 },
     );
   }
 

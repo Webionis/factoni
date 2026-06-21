@@ -1,4 +1,5 @@
 import { resolvePlanFeatures } from "@/lib/billing/features";
+import { getDefaultSubscriptionPlan, isLimitsEnforced } from "@/lib/billing/launch-config";
 import type {
   FeatureKey,
   PlanFeatures,
@@ -8,11 +9,8 @@ import type {
   SubscriptionStatus,
 } from "@/lib/billing/types";
 
-/**
- * Passer à true au lancement des offres payantes pour activer quotas & restrictions.
- * Pendant la bêta : toujours false — aucun blocage.
- */
-export const LIMITS_ENFORCED = false;
+/** @deprecated Utiliser isLimitsEnforced() depuis launch-config */
+export { isLimitsEnforced as LIMITS_ENFORCED } from "@/lib/billing/launch-config";
 
 const ACTIVE_STATUSES: SubscriptionStatus[] = ["active", "trialing"];
 
@@ -27,7 +25,7 @@ export function isBetaPlan(plan: SubscriptionPlan): boolean {
 export function getCurrentPlan(
   subscription: SubscriptionRow | null | undefined,
 ): SubscriptionPlan {
-  return subscription?.plan ?? "beta";
+  return subscription?.plan ?? getDefaultSubscriptionPlan();
 }
 
 export function getCurrentStatus(
@@ -90,6 +88,6 @@ export function buildSubscriptionAccess(
     features: getFeaturesForSubscription(subscription),
     isBeta: isBetaPlan(plan),
     isActive: hasActiveSubscription(subscription),
-    limitsEnforced: LIMITS_ENFORCED,
+    limitsEnforced: isLimitsEnforced(),
   };
 }

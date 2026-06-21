@@ -5,6 +5,7 @@ import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Banknote, Download, Percent } from "lucide-react";
 
+import { FeatureGate } from "@/components/billing/feature-gate";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -149,7 +150,8 @@ export function QuoteDepositSection({ quote }: QuoteDepositSectionProps) {
   if (!canRequest) return null;
 
   return (
-    <Card>
+    <FeatureGate feature="automation">
+      <Card>
       <CardHeader className="px-5 pb-3 pt-5 sm:px-6">
         <CardTitle className="flex items-center gap-2 text-base font-semibold">
           <Banknote className="size-4 text-primary" aria-hidden />
@@ -240,5 +242,6 @@ export function QuoteDepositSection({ quote }: QuoteDepositSectionProps) {
         ) : null}
       </CardContent>
     </Card>
+    </FeatureGate>
   );
 }

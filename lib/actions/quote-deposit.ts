@@ -7,6 +7,7 @@ import {
   type ActionResult,
 } from "@/lib/actions/errors";
 import { requireAuthenticatedUser } from "@/lib/actions/utils";
+import { requireFeatureForUser } from "@/lib/billing/feature-guard";
 import {
   clientNameFromInvoice,
   clientNameFromSnapshot,
@@ -36,6 +37,13 @@ export async function requestQuoteDepositAction(
   const auth = await requireAuthenticatedUser();
   if (auth.error !== null) return { error: auth.error };
   const { supabase, user } = auth;
+
+  const featureCheck = await requireFeatureForUser(
+    supabase,
+    user.id,
+    "automation",
+  );
+  if (!featureCheck.ok) return { error: featureCheck.error };
 
   const quote = await getQuoteById(supabase, quoteId);
   if (!quote || quote.user_id !== user.id) {

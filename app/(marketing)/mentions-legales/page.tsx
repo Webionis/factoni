@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { LegalCrossLinks } from "@/components/marketing/legal-cross-links";
 import { LegalHostingDetails } from "@/components/marketing/legal-hosting-details";
 import {
   LegalPublicationDirector,
@@ -15,6 +16,7 @@ import {
   SITE_HOSTING,
 } from "@/lib/legal/hosting";
 import { getLegalPublisher } from "@/lib/legal/publisher";
+import { LEGAL_ROUTES } from "@/lib/legal/urls";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata = pageMetadata("legalNotice", {
@@ -40,9 +42,17 @@ export default function MentionsLegalesPage() {
         </p>
         <p>
           L&apos;accès au service suppose l&apos;acceptation des présentes mentions
-          légales et de la{" "}
+          légales, des{" "}
+          <Link href={LEGAL_ROUTES.cgu} className="font-medium text-[#2563eb] hover:underline">
+            conditions générales d&apos;utilisation (CGU)
+          </Link>
+          , des{" "}
+          <Link href={LEGAL_ROUTES.cgv} className="font-medium text-[#2563eb] hover:underline">
+            conditions générales de vente (CGV)
+          </Link>{" "}
+          le cas échéant, et de la{" "}
           <Link
-            href="/confidentialite"
+            href={LEGAL_ROUTES.confidentialite}
             className="font-medium text-[#2563eb] hover:underline"
           >
             politique de confidentialité
@@ -149,7 +159,7 @@ export default function MentionsLegalesPage() {
           Pour connaître les modalités de collecte et de traitement de vos données
           personnelles, consultez notre{" "}
           <Link
-            href="/confidentialite"
+            href={LEGAL_ROUTES.confidentialite}
             className="font-medium text-[#2563eb] hover:underline"
           >
             politique de confidentialité
@@ -194,13 +204,7 @@ export default function MentionsLegalesPage() {
         </p>
       </LegalSection>
 
-      <p className="text-[13px] leading-relaxed text-[#94a3b8]">
-        Voir aussi la{" "}
-        <Link href="/confidentialite" className="text-[#2563eb] hover:underline">
-          politique de confidentialité
-        </Link>
-        .
-      </p>
+      <LegalCrossLinks current={LEGAL_ROUTES.mentionsLegales} />
     </LegalPageShell>
   );
 }

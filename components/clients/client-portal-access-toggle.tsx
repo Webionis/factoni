@@ -4,6 +4,8 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import { useHasFeature } from "@/components/billing/subscription-provider";
+import { UpgradePlanPrompt } from "@/components/billing/upgrade-plan-prompt";
 import { toggleClientPortalAccessAction } from "@/lib/client-portal/actions";
 
 interface ClientPortalAccessToggleProps {
@@ -17,6 +19,11 @@ export function ClientPortalAccessToggle({
 }: ClientPortalAccessToggleProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const hasAccess = useHasFeature("advancedTracking");
+
+  if (!hasAccess) {
+    return <UpgradePlanPrompt feature="advancedTracking" compact />;
+  }
 
   function handleToggle() {
     startTransition(async () => {

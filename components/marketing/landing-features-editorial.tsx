@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2, Shield, Smartphone } from "lucide-react";
+import { CalendarDays, CheckCircle2, Shield, Smartphone } from "lucide-react";
 
 import { LandingInvoiceListMock } from "@/components/marketing/landing-invoice-list-mock";
 import {
@@ -15,6 +15,7 @@ import {
   landingMobileSectionCompactClassName,
   landingMobileSectionLightClassName,
   landingMobileStackGapClassName,
+  landingMobileCardTitleClassName,
   landingMotionClassName,
   landingMobileTitleClassName,
   landingSectionDividerClassName,
@@ -195,15 +196,54 @@ export function LandingFeaturesEditorial() {
       <EditorialBlock
         id="factures"
         surface={landingSurface.white}
-        title="Créez et suivez vos factures en quelques secondes"
+        title="Devis et factures en quelques secondes"
         description="Clients, lignes, TVA et totaux dans un flux unique. Passez du brouillon à l'envoi avec numérotation légale automatique."
         bullets={[
+          "Devis illimités convertibles en facture",
           "Statuts clairs : brouillon, envoyée, payée, en retard",
           "Recherche par client, numéro ou notes",
           "Archivage propre pour garder un historique net",
         ]}
         mobilePreview={<LandingInvoicesMobilePreview />}
         visualDesktop={<LandingInvoiceListMock className="w-full" />}
+      />
+
+      <EditorialBlock
+        id="agenda"
+        reverse
+        surface={landingSurface.soft}
+        title="Agenda pour organiser vos rendez-vous"
+        description="Planifiez vos créneaux, visualisez la semaine à venir et gardez une vue claire depuis le tableau de bord — inclus dans Starter."
+        bullets={[
+          "Rendez-vous liés à vos clients",
+          "Vue semaine et liste des prochains créneaux",
+          "Raccourci depuis le tableau de bord",
+          "Accessible sur mobile depuis la barre de navigation",
+        ]}
+        mobilePreview={
+          <div className={cn(landingMobileCardTitleClassName, "rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-5")}>
+            <div className="flex items-center gap-2 text-[#2563eb]">
+              <CalendarDays className="size-5" aria-hidden />
+              <p className="text-sm font-semibold text-[#0f172a]">Agenda Factoni</p>
+            </div>
+            <p className="mt-3 text-[15px] leading-relaxed text-[#64748b]">
+              Vos prochains rendez-vous, visibles en un coup d&apos;œil.
+            </p>
+          </div>
+        }
+        visualDesktop={
+          <div className="w-full min-w-0 rounded-2xl border border-[rgba(15,23,42,0.08)] bg-white p-6">
+            <div className="flex items-center gap-2 text-[#2563eb]">
+              <CalendarDays className="size-5" aria-hidden />
+              <p className="font-semibold text-[#0f172a]">Semaine en cours</p>
+            </div>
+            <ul className="mt-4 space-y-3 text-sm text-[#64748b]">
+              <li className="rounded-xl bg-[#f8fafc] px-3 py-2">Lun. · 09:00 — Intervention client</li>
+              <li className="rounded-xl bg-[#f8fafc] px-3 py-2">Mer. · 14:30 — Devis sur site</li>
+              <li className="rounded-xl bg-[#f8fafc] px-3 py-2">Ven. · 11:00 — Suivi chantier</li>
+            </ul>
+          </div>
+        }
       />
 
       <EditorialBlock

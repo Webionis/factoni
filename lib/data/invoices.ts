@@ -231,4 +231,22 @@ export function clientNameFromSnapshot(
   return null;
 }
 
+export async function countInvoicesForUser(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+): Promise<number> {
+  const { count, error } = await supabase
+    .from("invoices")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .eq("document_type", "invoice");
+
+  if (error) {
+    logServerError("countInvoicesForUser", error, { userId });
+    return 0;
+  }
+
+  return count ?? 0;
+}
+
 export type InvoiceStatusFilter = InvoiceStatus | "all";

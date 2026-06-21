@@ -48,7 +48,15 @@ const TESTIMONIALS = [
 const FAQ = [
   {
     q: "Quels sont les tarifs ?",
-    a: "Starter à 19 €/mois et Pro à 39 €/mois. Pendant l'offre de lancement, le plan Pro est offert aux membres fondateurs — accès anticipé, sans carte bancaire.",
+    a: "Starter à 19 €/mois (devis, factures, clients, agenda, exports) et Pro à 39 €/mois (relances auto, signatures, paiements en ligne, analytics). Pendant l'offre de lancement, le plan Pro est offert aux membres fondateurs — accès anticipé, sans carte bancaire.",
+  },
+  {
+    q: "L'agenda est-il inclus ?",
+    a: "Oui, dès l'offre Starter. Planifiez vos rendez-vous, consultez votre semaine et retrouvez vos prochains créneaux depuis le tableau de bord.",
+  },
+  {
+    q: "Puis-je créer des devis ?",
+    a: "Oui, les devis sont illimités dès Starter : création, PDF, envoi et conversion en facture. La signature en ligne et le portail client sont réservés au plan Pro.",
   },
   {
     q: "Factoni est-il prêt pour la facturation électronique 2026 ?",
@@ -68,7 +76,11 @@ const FAQ = [
   },
   {
     q: "Puis-je exporter mes factures pour mon comptable ?",
-    a: "Oui. Export CSV de vos factures disponible depuis les réglages, pour faciliter le suivi comptable.",
+    a: "Oui, dès Starter. Export CSV de vos factures (et données associées) depuis les réglages, pour faciliter le suivi comptable.",
+  },
+  {
+    q: "Quelles fonctionnalités sont dans le plan Pro ?",
+    a: "Relances automatiques, analytics avancés, signature de devis en ligne, portail client, paiements Stripe (acomptes & factures), automatisations et préparation à la facturation électronique.",
   },
 ];
 

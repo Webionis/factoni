@@ -8,6 +8,7 @@ import { FormatSelector } from "@/components/exports/format-selector";
 import { PeriodPresetsBar } from "@/components/exports/period-presets-bar";
 import { useExportDownload } from "@/components/exports/use-export-download";
 import { FeaturePlanHint } from "@/components/billing/feature-plan-hint";
+import { useHasFeature, useSubscriptionAccess } from "@/components/billing/subscription-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,6 +53,8 @@ function buildParams(filters: Record<string, string | boolean | undefined>) {
 }
 
 export function InvoiceExportSection() {
+  const { isBeta } = useSubscriptionAccess();
+  const hasExportAccess = useHasFeature("accountingExport");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [activePreset, setActivePreset] = useState<PeriodPresetId | null>(null);
@@ -132,10 +135,16 @@ export function InvoiceExportSection() {
             expert-comptable.
           </p>
         </div>
-        <span className={betaBadgeClassName}>Inclus — offre de lancement</span>
+        <span className={betaBadgeClassName}>
+          {isBeta ? "Inclus — offre de lancement" : "Starter et Pro"}
+        </span>
       </div>
 
-      <FeaturePlanHint feature="accountingExport" variant="beta-offered" className="mt-3" />
+      <FeaturePlanHint
+        feature="accountingExport"
+        variant={isBeta ? "beta-offered" : "future-plan"}
+        className="mt-3"
+      />
 
       <div className="mt-6 space-y-3">
         <Label>Période rapide</Label>
@@ -234,7 +243,7 @@ export function InvoiceExportSection() {
         type="button"
         className="mt-6 h-11 gap-2 px-6"
         onClick={() => void download(downloadUrl, "Export factures téléchargé")}
-        disabled={downloading}
+        disabled={downloading || !hasExportAccess}
       >
         {downloading ? (
           <Loader2 className="size-4 animate-spin" aria-hidden />

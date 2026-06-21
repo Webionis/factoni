@@ -1,9 +1,27 @@
 /**
- * Abonnement SaaS Factoni — activable via STRIPE_BILLING_ENABLED=true
+ * Abonnement SaaS Factoni.
+ * STRIPE_BILLING_ENABLED=true|false — sinon auto si price IDs + clé secrète configurés.
  */
 
-export const STRIPE_BILLING_ENABLED =
-  process.env.STRIPE_BILLING_ENABLED === "true";
+function readBillingEnabledFlag(): boolean | null {
+  const value = process.env.STRIPE_BILLING_ENABLED?.trim().toLowerCase();
+  if (value === "true" || value === "1") return true;
+  if (value === "false" || value === "0") return false;
+  return null;
+}
+
+function hasBillingPriceIds(): boolean {
+  return Boolean(
+    process.env.STRIPE_PRICE_STARTER_MONTHLY?.trim() &&
+      process.env.STRIPE_PRICE_PRO_MONTHLY?.trim(),
+  );
+}
+
+export const STRIPE_BILLING_ENABLED = (() => {
+  const explicit = readBillingEnabledFlag();
+  if (explicit !== null) return explicit;
+  return Boolean(process.env.STRIPE_SECRET_KEY?.trim() && hasBillingPriceIds());
+})();
 
 /** Alias historique */
 export const STRIPE_ENABLED = STRIPE_BILLING_ENABLED;

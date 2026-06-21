@@ -5,6 +5,7 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
 import { requireAuthenticatedUser } from "@/lib/actions/utils";
+import { requireFeatureForUser } from "@/lib/billing/feature-guard";
 import { getProfile } from "@/lib/auth/profile";
 import {
   getStripeConnectProfile,
@@ -35,6 +36,13 @@ export async function startStripeConnectOnboardingAction(): Promise<{
   }
 
   const { supabase, user } = auth;
+
+  const featureCheck = await requireFeatureForUser(
+    supabase,
+    user.id,
+    "automation",
+  );
+  if (!featureCheck.ok) return { error: featureCheck.error };
 
   // Relecture fraîche — source de vérité pour éviter toute recréation.
   const profile = await getProfile(supabase, user.id);

@@ -128,7 +128,7 @@ export function LandingDarkShowcase() {
                 Votre activité, lisible en un regard
               </h2>
               <p className="mt-3 text-[15px] leading-relaxed text-[#94a3b8]">
-                CA mensuel, statuts, relances et dernières factures — le tableau de
+                CA mensuel, statuts, relances (Pro) et dernières factures — le tableau de
                 bord conçu pour les pros sur le terrain.
               </p>
             </div>

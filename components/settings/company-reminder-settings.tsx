@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
+import { FeatureGate } from "@/components/billing/feature-gate";
 import { Button } from "@/components/ui/button";
 import { mobileStickyFooterClassName } from "@/lib/constants/mobile";
 import { FormField } from "@/components/ui/form-field";
@@ -55,7 +56,8 @@ export function CompanyReminderSettings({
   }
 
   return (
-    <section className={formPanelClassName} aria-labelledby="reminders-heading">
+    <FeatureGate feature="automaticReminders">
+      <section className={formPanelClassName} aria-labelledby="reminders-heading">
       <div className={formPanelSectionClassName}>
         <div>
           <h2
@@ -197,5 +199,6 @@ export function CompanyReminderSettings({
         </Button>
       </div>
     </section>
+    </FeatureGate>
   );
 }

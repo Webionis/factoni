@@ -8,6 +8,8 @@ import {
   type ActionResult,
 } from "@/lib/actions/errors";
 import { requireAuthenticatedUser } from "@/lib/actions/utils";
+import { requireFeatureForUser } from "@/lib/billing/feature-guard";
+import { requireInvoiceQuota } from "@/lib/billing/plan-limits-guard";
 import { DEFAULT_INVOICE_PAYMENT_TERM } from "@/lib/constants/payment-terms";
 import { invoiceToDuplicateFormValues } from "@/lib/invoices/duplicate";
 import { sanitizeOptionalText, sanitizeText } from "@/lib/sanitize";
@@ -91,6 +93,9 @@ export async function createInvoiceAction(
   if (auth.error !== null) return { error: auth.error };
   const { supabase, user } = auth;
 
+  const quotaCheck = await requireInvoiceQuota(supabase, user.id);
+  if (!quotaCheck.ok) return { error: quotaCheck.error };
+
   const company = await requireCompany(supabase, user.id);
   if (!company) {
     return { error: "Complétez votre profil entreprise avant de facturer." };
@@ -159,6 +164,9 @@ export async function duplicateInvoiceAction(
   const auth = await requireAuthenticatedUser();
   if (auth.error !== null) return { error: auth.error };
   const { supabase, user } = auth;
+
+  const quotaCheck = await requireInvoiceQuota(supabase, user.id);
+  if (!quotaCheck.ok) return { error: quotaCheck.error };
 
   const source = await getInvoiceById(supabase, sourceInvoiceId);
   if (!source || source.user_id !== user.id) {
@@ -557,6 +565,13 @@ export async function getInvoicePublicLinkAction(
   const auth = await requireAuthenticatedUser();
   if (auth.error !== null) return { error: auth.error };
   const { supabase, user } = auth;
+
+  const featureCheck = await requireFeatureForUser(
+    supabase,
+    user.id,
+    "advancedTracking",
+  );
+  if (!featureCheck.ok) return { error: featureCheck.error };
 
   const existing = await getInvoiceById(supabase, invoiceId);
   if (!existing || existing.user_id !== user.id) {

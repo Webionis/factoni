@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { actionErrorFromSupabase, type ActionResult } from "@/lib/actions/errors";
 import { requireAuthenticatedUser } from "@/lib/actions/utils";
+import { requireClientQuota } from "@/lib/billing/plan-limits-guard";
 import { ensureClientPortalToken } from "@/lib/client-portal/tokens";
 import { getClientById } from "@/lib/data/clients";
 import {
@@ -24,6 +25,9 @@ export async function createClientAction(
   const auth = await requireAuthenticatedUser();
   if (auth.error !== null) return { error: auth.error };
   const { supabase, user } = auth;
+
+  const quotaCheck = await requireClientQuota(supabase, user.id);
+  if (!quotaCheck.ok) return { error: quotaCheck.error };
 
   const payload = formValuesToClientPayload(parsed.data, user.id);
   const { data, error } = await supabase

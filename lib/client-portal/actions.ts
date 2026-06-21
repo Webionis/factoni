@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { type ActionResult } from "@/lib/actions/errors";
 import { requireAuthenticatedUser } from "@/lib/actions/utils";
+import { requireFeatureForUser } from "@/lib/billing/feature-guard";
 import { getClientById } from "@/lib/data/clients";
 import {
   buildClientPortalUrl,
@@ -16,6 +17,13 @@ export async function getClientPortalLinkAction(
   const auth = await requireAuthenticatedUser();
   if (auth.error !== null) return { error: auth.error };
   const { supabase, user } = auth;
+
+  const featureCheck = await requireFeatureForUser(
+    supabase,
+    user.id,
+    "advancedTracking",
+  );
+  if (!featureCheck.ok) return { error: featureCheck.error };
 
   const client = await getClientById(supabase, clientId);
   if (!client || client.user_id !== user.id) {
@@ -41,6 +49,15 @@ export async function toggleClientPortalAccessAction(
   const auth = await requireAuthenticatedUser();
   if (auth.error !== null) return { error: auth.error };
   const { supabase, user } = auth;
+
+  if (enabled) {
+    const featureCheck = await requireFeatureForUser(
+      supabase,
+      user.id,
+      "advancedTracking",
+    );
+    if (!featureCheck.ok) return { error: featureCheck.error };
+  }
 
   const { error } = await supabase
     .from("clients")
