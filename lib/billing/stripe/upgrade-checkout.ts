@@ -10,6 +10,7 @@ import {
   STRIPE_CHECKOUT_MIN_CENTS,
 } from "@/lib/billing/stripe/upgrade-amount";
 import { getAppBaseUrl, getStripeClient } from "@/lib/stripe/client";
+import { getCheckoutPaymentIntentDescriptorData } from "@/lib/stripe/statement-descriptor";
 
 export class UpgradeRequiresPaymentError extends Error {
   readonly amountDueCents: number;
@@ -126,6 +127,7 @@ export async function createUpgradePaymentCheckoutSession(
       target_price_id: targetPriceId,
       charged_amount_cents: String(chargeCents),
     },
+    payment_intent_data: getCheckoutPaymentIntentDescriptorData(),
   });
 }
 

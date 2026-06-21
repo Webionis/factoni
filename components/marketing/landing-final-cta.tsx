@@ -5,6 +5,12 @@ import { LandingScrollReveal } from "@/components/marketing/landing-scroll-revea
 import { LandingSignatureBackdrop } from "@/components/marketing/landing-signature";
 import { buttonVariants } from "@/components/ui/button";
 import {
+  getLandingFinalCtaFootnote,
+  getLandingFinalCtaPills,
+  getLandingFinalCtaTrustPointsDesktop,
+  getLandingFinalCtaTrustPointsMobile,
+} from "@/lib/billing/plans";
+import {
   landingMobileBodyClassName,
   landingMobileCtaCardClassName,
   landingMobileCtaPrimaryClassName,
@@ -16,20 +22,13 @@ import {
 import { marketingEyebrowClassName, marketingTrustPillClassName } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 
-const TRUST_POINTS_MOBILE = [
-  "Offre de lancement — sans carte",
-  "Mentions légales conformes",
-  "Export comptable CSV",
-] as const;
-
-const TRUST_POINTS_DESKTOP = [
-  "Configuration en moins d'une minute",
-  "Offre de lancement — sans carte bancaire",
-  "Numérotation légale automatique à l'envoi",
-  "Hébergement Europe · sauvegardes automatiques",
-] as const;
+const TRUST_POINTS_MOBILE = getLandingFinalCtaTrustPointsMobile();
+const TRUST_POINTS_DESKTOP = getLandingFinalCtaTrustPointsDesktop();
+const TRUST_PILLS = getLandingFinalCtaPills();
 
 export function LandingFinalCta() {
+  const footnote = getLandingFinalCtaFootnote();
+
   return (
     <section
       className={cn(
@@ -112,14 +111,14 @@ export function LandingFinalCta() {
               </div>
 
               <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-                {["Sans carte", "Export CSV", "Mentions légales"].map((pill) => (
+                {TRUST_PILLS.map((pill) => (
                   <span key={pill} className={marketingTrustPillClassName}>
                     {pill}
                   </span>
                 ))}
               </div>
               <p className="mt-4 text-[12px] font-medium text-[#94a3b8] md:text-sm">
-                Déjà utilisé par des artisans, consultants et TPE en accès anticipé
+                {footnote}
               </p>
             </div>
           </div>

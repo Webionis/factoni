@@ -30,6 +30,7 @@ import {
   transitionPremiumClassName,
 } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
+import { getLandingFeaturesCtaEyebrow } from "@/lib/billing/plans";
 
 const QUICK_BENEFITS = [
   { icon: Smartphone, title: "Mobile-first", desc: "Facturez sur chantier en quelques taps." },
@@ -269,6 +270,8 @@ export function LandingFeaturesEditorial() {
 }
 
 export function LandingFeaturesCta() {
+  const eyebrow = getLandingFeaturesCtaEyebrow();
+
   return (
     <section
       className={cn(
@@ -280,7 +283,7 @@ export function LandingFeaturesCta() {
     >
       <LandingScrollReveal>
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-4 px-0 text-center">
-          <p className={marketingEyebrowClassName}>Offre de lancement</p>
+          <p className={marketingEyebrowClassName}>{eyebrow}</p>
           <p className="max-w-md text-[15px] leading-[1.65] text-[#64748b] md:text-[15px]">
             Rejoignez les premiers professionnels qui structurent leur facturation
             avec Factoni.

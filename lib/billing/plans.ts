@@ -101,6 +101,121 @@ export function getPublicPricingPlans(): PlanMarketingInfo[] {
   }));
 }
 
+export interface LandingFaqItem {
+  q: string;
+  a: string;
+}
+
+const LANDING_FAQ_TAIL: LandingFaqItem[] = [
+  {
+    q: "L'agenda est-il inclus ?",
+    a: "Oui, dès l'offre Starter. Planifiez vos rendez-vous, consultez votre semaine et retrouvez vos prochains créneaux depuis le tableau de bord.",
+  },
+  {
+    q: "Puis-je créer des devis ?",
+    a: "Oui, les devis sont illimités dès Starter : création, PDF, envoi et conversion en facture. La signature en ligne et le portail client sont réservés au plan Pro.",
+  },
+  {
+    q: "Factoni est-il prêt pour la facturation électronique 2026 ?",
+    a: "Factoni structure vos factures avec numérotation légale, mentions conformes et export comptable — les briques essentielles pour accompagner la réforme. Les évolutions réglementaires seront intégrées au fil de la mise en conformité.",
+  },
+  {
+    q: "Puis-je facturer depuis mon téléphone ?",
+    a: "Oui. L'interface est pensée mobile-first : clients, lignes, TVA et PDF en quelques taps, même sur chantier.",
+  },
+  {
+    q: "Quand obtient-on le numéro de facture légal ?",
+    a: "Au passage au statut « Envoyée ». En brouillon, la facture n'a pas de numéro FF-YYYY-NNNNNN.",
+  },
+  {
+    q: "Où sont hébergées mes données ?",
+    a: "En Europe, via une infrastructure cloud sécurisée. Chaque compte est isolé : authentification Supabase, RLS sur chaque table, logos en bucket privé.",
+  },
+  {
+    q: "Puis-je exporter mes factures pour mon comptable ?",
+    a: "Oui, dès Starter. Export CSV de vos factures (et données associées) depuis les réglages, pour faciliter le suivi comptable.",
+  },
+  {
+    q: "Quelles fonctionnalités sont dans le plan Pro ?",
+    a: "Relances automatiques, analytics avancés, signature de devis en ligne, portail client, paiements Stripe (acomptes & factures), automatisations et préparation à la facturation électronique.",
+  },
+];
+
+export function getLandingFaq(): LandingFaqItem[] {
+  const pricingAnswer = isProductionLaunchActive()
+    ? "Starter à 19 €/mois (devis, factures, clients, agenda, exports) et Pro à 39 €/mois (relances auto, signatures, paiements en ligne, analytics). Commencez gratuitement (10 factures et 5 clients), puis souscrivez à Starter ou Pro depuis votre espace."
+    : "Starter à 19 €/mois (devis, factures, clients, agenda, exports) et Pro à 39 €/mois (relances auto, signatures, paiements en ligne, analytics). Pendant l'offre de lancement, le plan Pro est offert aux membres fondateurs — accès anticipé, sans carte bancaire.";
+
+  return [
+    { q: "Quels sont les tarifs ?", a: pricingAnswer },
+    ...LANDING_FAQ_TAIL,
+  ];
+}
+
+export function getLandingTestimonialsLead(): string {
+  return isProductionLaunchActive()
+    ? "Artisans et indépendants qui simplifient leur facturation — noms modifiés."
+    : "Artisans et indépendants en accès anticipé — noms modifiés.";
+}
+
+export function getLandingHeroTrustPills(): readonly string[] {
+  return isProductionLaunchActive()
+    ? (["Gratuit pour débuter", "Hébergement EU", "PDF conforme"] as const)
+    : (["Sans carte", "Hébergement EU", "PDF conforme"] as const);
+}
+
+export function getLandingHeroFootnote(): string {
+  return isProductionLaunchActive()
+    ? "Offre gratuite · Passez à Starter ou Pro quand vous voulez"
+    : "Offre de lancement · Accès anticipé";
+}
+
+export function getLandingFinalCtaTrustPointsMobile(): readonly string[] {
+  return isProductionLaunchActive()
+    ? (["Gratuit pour débuter", "Mentions légales conformes", "Export comptable CSV"] as const)
+    : (["Offre de lancement — sans carte", "Mentions légales conformes", "Export comptable CSV"] as const);
+}
+
+export function getLandingFinalCtaTrustPointsDesktop(): readonly string[] {
+  return isProductionLaunchActive()
+    ? ([
+        "Configuration en moins d'une minute",
+        "Offre gratuite · upgrade Starter ou Pro à tout moment",
+        "Numérotation légale automatique à l'envoi",
+        "Hébergement Europe · sauvegardes automatiques",
+      ] as const)
+    : ([
+        "Configuration en moins d'une minute",
+        "Offre de lancement — sans carte bancaire",
+        "Numérotation légale automatique à l'envoi",
+        "Hébergement Europe · sauvegardes automatiques",
+      ] as const);
+}
+
+export function getLandingFinalCtaPills(): readonly string[] {
+  return isProductionLaunchActive()
+    ? (["Gratuit pour débuter", "Export CSV", "Mentions légales"] as const)
+    : (["Sans carte", "Export CSV", "Mentions légales"] as const);
+}
+
+export function getLandingFinalCtaFootnote(): string {
+  return isProductionLaunchActive()
+    ? "Utilisé par des artisans, consultants et TPE en France"
+    : "Déjà utilisé par des artisans, consultants et TPE en accès anticipé";
+}
+
+export function getLandingFeaturesCtaEyebrow(): string {
+  return isProductionLaunchActive()
+    ? "Commencez gratuitement"
+    : "Offre de lancement";
+}
+
+export function getMarketingFooterBadge(): string {
+  return isProductionLaunchActive()
+    ? "Gratuit pour débuter · Starter & Pro disponibles"
+    : "Offre de lancement · Accès anticipé";
+}
+
 export const PLAN_DISPLAY_NAMES: Record<SubscriptionPlan, string> = {
   beta: LAUNCH_OFFER.name,
   free: "Gratuit",

@@ -482,7 +482,9 @@ export function CompanyForm({ mode, initialValues }: CompanyFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {alerts}
       {fields}
-      <div className={mobileStickyFooterClassName}>{submitButton}</div>
+      <div className={cn(mobileStickyFooterClassName, "flex justify-center")}>
+        {submitButton}
+      </div>
     </form>
   );
 }

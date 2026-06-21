@@ -9,6 +9,10 @@ import {
 } from "@/components/marketing/landing-signature";
 import { buttonVariants } from "@/components/ui/button";
 import {
+  getLandingHeroFootnote,
+  getLandingHeroTrustPills,
+} from "@/lib/billing/plans";
+import {
   landingHeroMeshClassName,
   landingMobileHeroTitleClassName,
   landingMobileCtaPrimaryClassName,
@@ -37,6 +41,9 @@ const HIGHLIGHTS_DESKTOP = [
 ] as const;
 
 export function LandingHero() {
+  const trustPills = getLandingHeroTrustPills();
+  const footnote = getLandingHeroFootnote();
+
   return (
     <section
       className={cn(
@@ -129,14 +136,14 @@ export function LandingHero() {
               </Link>
             </div>
             <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 md:mt-4 md:justify-start">
-              {["Sans carte", "Hébergement EU", "PDF conforme"].map((pill) => (
+              {trustPills.map((pill) => (
                 <span key={pill} className={marketingTrustPillClassName}>
                   {pill}
                 </span>
               ))}
             </div>
             <p className="mt-3 text-center text-[12px] font-medium text-[#94a3b8] md:text-left md:text-xs">
-              Offre de lancement · Accès anticipé
+              {footnote}
             </p>
           </div>
         </LandingScrollReveal>

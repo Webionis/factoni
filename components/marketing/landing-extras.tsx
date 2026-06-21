@@ -3,6 +3,7 @@
 import { ChevronDown } from "lucide-react";
 
 import { LandingScrollReveal } from "@/components/marketing/landing-scroll-reveal";
+import type { LandingFaqItem } from "@/lib/billing/plans";
 import {
   landingMobileBodyClassName,
   landingMobileSectionLightClassName,
@@ -45,44 +46,13 @@ const TESTIMONIALS = [
   },
 ];
 
-const FAQ = [
-  {
-    q: "Quels sont les tarifs ?",
-    a: "Starter à 19 €/mois (devis, factures, clients, agenda, exports) et Pro à 39 €/mois (relances auto, signatures, paiements en ligne, analytics). Pendant l'offre de lancement, le plan Pro est offert aux membres fondateurs — accès anticipé, sans carte bancaire.",
-  },
-  {
-    q: "L'agenda est-il inclus ?",
-    a: "Oui, dès l'offre Starter. Planifiez vos rendez-vous, consultez votre semaine et retrouvez vos prochains créneaux depuis le tableau de bord.",
-  },
-  {
-    q: "Puis-je créer des devis ?",
-    a: "Oui, les devis sont illimités dès Starter : création, PDF, envoi et conversion en facture. La signature en ligne et le portail client sont réservés au plan Pro.",
-  },
-  {
-    q: "Factoni est-il prêt pour la facturation électronique 2026 ?",
-    a: "Factoni structure vos factures avec numérotation légale, mentions conformes et export comptable — les briques essentielles pour accompagner la réforme. Les évolutions réglementaires seront intégrées au fil de la mise en conformité.",
-  },
-  {
-    q: "Puis-je facturer depuis mon téléphone ?",
-    a: "Oui. L'interface est pensée mobile-first : clients, lignes, TVA et PDF en quelques taps, même sur chantier.",
-  },
-  {
-    q: "Quand obtient-on le numéro de facture légal ?",
-    a: "Au passage au statut « Envoyée ». En brouillon, la facture n'a pas de numéro FF-YYYY-NNNNNN.",
-  },
-  {
-    q: "Où sont hébergées mes données ?",
-    a: "En Europe, via une infrastructure cloud sécurisée. Chaque compte est isolé : authentification Supabase, RLS sur chaque table, logos en bucket privé.",
-  },
-  {
-    q: "Puis-je exporter mes factures pour mon comptable ?",
-    a: "Oui, dès Starter. Export CSV de vos factures (et données associées) depuis les réglages, pour faciliter le suivi comptable.",
-  },
-  {
-    q: "Quelles fonctionnalités sont dans le plan Pro ?",
-    a: "Relances automatiques, analytics avancés, signature de devis en ligne, portail client, paiements Stripe (acomptes & factures), automatisations et préparation à la facturation électronique.",
-  },
-];
+interface LandingTestimonialsProps {
+  lead: string;
+}
+
+interface LandingFaqProps {
+  items: LandingFaqItem[];
+}
 
 function TestimonialAvatar({ initials }: { initials: string }) {
   return (
@@ -95,7 +65,7 @@ function TestimonialAvatar({ initials }: { initials: string }) {
   );
 }
 
-export function LandingTestimonials() {
+export function LandingTestimonials({ lead }: LandingTestimonialsProps) {
   return (
     <section
       className={cn(landingSurface.muted, landingMobileSectionLightClassName, landingSectionXClassName)}
@@ -113,7 +83,7 @@ export function LandingTestimonials() {
             Ils facturent déjà avec Factoni
           </h2>
           <p className={cn(marketingSectionLeadClassName, "text-[15px] md:text-base")}>
-            Artisans et indépendants en accès anticipé — noms modifiés.
+            {lead}
           </p>
         </LandingScrollReveal>
         <ul className="mt-7 flex w-full flex-col gap-3.5 md:mt-12 md:grid md:grid-cols-3 md:gap-4">
@@ -150,7 +120,7 @@ export function LandingTestimonials() {
   );
 }
 
-export function LandingFaq() {
+export function LandingFaq({ items }: LandingFaqProps) {
   return (
     <section
       className={cn(landingSurface.white, landingMobileSectionLightClassName, landingSectionXClassName)}
@@ -169,7 +139,7 @@ export function LandingFaq() {
           </h2>
         </LandingScrollReveal>
         <div className="mt-7 w-full space-y-2.5 md:mt-10 md:space-y-3" role="list">
-          {FAQ.map((item, i) => (
+          {items.map((item, i) => (
             <LandingScrollReveal key={item.q} delayMs={i * 30} className="w-full">
               <details
                 className={cn(

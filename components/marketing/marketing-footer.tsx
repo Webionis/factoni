@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { LandingSignatureBeam } from "@/components/marketing/landing-signature";
 import { LEGAL_ROUTES } from "@/lib/legal/urls";
+import { getMarketingFooterBadge } from "@/lib/billing/plans";
 import {
   landingMobileSectionLightClassName,
   landingSectionXClassName,
@@ -28,6 +29,8 @@ const TRUST_MARKS = [
 ] as const;
 
 export function MarketingFooter() {
+  const badge = getMarketingFooterBadge();
+
   return (
     <footer
       className={cn(
@@ -70,7 +73,7 @@ export function MarketingFooter() {
               Pensé pour artisans, indépendants et petites entreprises en France.
             </p>
             <p className="mt-4 inline-flex rounded-full border border-[rgba(37,99,235,0.12)] bg-[rgba(37,99,235,0.05)] px-3.5 py-1.5 text-[15px] font-medium text-[#2563eb]">
-              Offre de lancement · Accès anticipé
+              {badge}
             </p>
           </div>
 

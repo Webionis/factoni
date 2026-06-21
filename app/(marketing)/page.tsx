@@ -13,6 +13,10 @@ import { LandingFinalCta } from "@/components/marketing/landing-final-cta";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { LandingPricing } from "@/components/marketing/landing-pricing";
 import { LandingTrustStrip } from "@/components/marketing/landing-trust-strip";
+import {
+  getLandingFaq,
+  getLandingTestimonialsLead,
+} from "@/lib/billing/plans";
 import { landingPageClassName } from "@/lib/constants/marketing-landing";
 
 export const metadata = pageMetadata("home");
@@ -26,9 +30,9 @@ export default function HomePage() {
       <LandingDarkShowcase />
       <LandingFeaturesEditorial />
       <LandingFeaturesCta />
-      <LandingTestimonials />
+      <LandingTestimonials lead={getLandingTestimonialsLead()} />
       <LandingPricing />
-      <LandingFaq />
+      <LandingFaq items={getLandingFaq()} />
       <LandingFinalCta />
     </div>
   );
