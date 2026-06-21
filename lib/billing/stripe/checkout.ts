@@ -5,7 +5,6 @@ import {
   getStripePriceIdForPlan,
 } from "@/lib/billing/stripe/config";
 import { getAppBaseUrl, getStripeClient } from "@/lib/stripe/client";
-import { getCheckoutPaymentIntentDescriptorData } from "@/lib/stripe/statement-descriptor";
 
 interface CreateSubscriptionCheckoutParams {
   userId: string;
@@ -60,7 +59,6 @@ export async function createSubscriptionCheckoutSession(
         plan: params.plan,
       },
     },
-    payment_intent_data: getCheckoutPaymentIntentDescriptorData(),
     allow_promotion_codes: true,
   });
 }
