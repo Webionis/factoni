@@ -143,7 +143,7 @@ export const surfaceInfoBannerClassName = cn(
 );
 
 const inputBaseClassName = cn(
-  "block h-11 w-full min-w-0 max-w-full rounded-xl border border-[rgba(15,23,42,0.08)] bg-white px-3.5 text-[15px] text-[#0f172a] outline-none md:text-sm",
+  "block h-11 w-full min-w-0 max-w-full rounded-xl border border-[rgba(15,23,42,0.08)] bg-white px-3.5 text-base text-[#0f172a] outline-none md:text-sm",
   "dark:border-[rgba(148,163,184,0.18)] dark:bg-[rgba(15,23,42,0.75)] dark:text-[#f8fafc]",
   transitionPremiumClassName,
 );

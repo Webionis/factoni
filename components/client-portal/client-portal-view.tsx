@@ -105,8 +105,8 @@ export function ClientPortalView({ payload }: ClientPortalViewProps) {
             : payload.documents;
 
   return (
-    <div className="min-h-dvh overflow-x-hidden bg-[#f8fafc] px-4 py-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] dark:bg-background sm:py-8 sm:pt-8">
-      <div className="mx-auto w-full max-w-3xl space-y-5 sm:space-y-6">
+    <div className="min-h-dvh overflow-x-hidden overscroll-x-none touch-pan-y bg-[#f8fafc] px-4 py-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] dark:bg-background sm:py-8 sm:pt-8">
+      <div className="mx-auto w-full max-w-3xl min-w-0 space-y-5 sm:space-y-6">
         <header className="space-y-4 text-center">
           <p className="text-sm font-medium text-muted-foreground">
             {siteConfig.name}
@@ -143,7 +143,7 @@ export function ClientPortalView({ payload }: ClientPortalViewProps) {
         />
 
         <nav
-          className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-0.5 sm:flex-wrap sm:overflow-visible"
+          className="flex flex-wrap gap-1.5"
           aria-label="Catégories de documents"
         >
           {TABS.map((item) => {

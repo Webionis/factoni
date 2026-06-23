@@ -78,7 +78,7 @@ export function ClientsList({ clients }: ClientsListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-4 overflow-x-hidden overscroll-x-none touch-pan-y">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative min-w-0 flex-1">
           <Search

@@ -135,6 +135,20 @@
   }
   html {
     @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  @media (max-width: 767px) {
+    html {
+      touch-action: manipulation;
+    }
+
+    input,
+    textarea,
+    select {
+      font-size: 16px;
+    }
   }
   h1,
   h2,

@@ -222,7 +222,7 @@ export default async function PublicDocumentPage({
     : "";
 
   return (
-    <div className="min-h-dvh overflow-x-hidden bg-[#f8fafc] px-4 py-5 pt-[max(1.25rem,env(safe-area-inset-top))] dark:bg-background sm:py-8 sm:pt-8">
+    <div className="min-h-dvh overflow-x-hidden overscroll-x-none touch-pan-y bg-[#f8fafc] px-4 py-5 pt-[max(1.25rem,env(safe-area-inset-top))] dark:bg-background sm:py-8 sm:pt-8">
       {showPaymentSideEffectsConfirm && checkoutSessionId ? (
         <ConfirmInvoicePaymentSideEffects sessionId={checkoutSessionId} />
       ) : null}

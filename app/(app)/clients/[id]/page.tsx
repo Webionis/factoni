@@ -105,7 +105,7 @@ export default async function ClientDetailPage({ params }: ClientDetailPageProps
     client.client_type === "company" ? "Client professionnel" : "Client particulier";
 
   return (
-    <div className="w-full space-y-6 md:space-y-8">
+    <div className="min-w-0 space-y-6 md:space-y-8 overflow-x-hidden overscroll-x-none touch-pan-y">
       <Link
         href="/clients"
         className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"

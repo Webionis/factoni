@@ -10,10 +10,10 @@ import {
   type ClientRow,
 } from "@/lib/validations/client";
 import {
-  dataTableElementClassName,
+  dataTableContainedElementClassName,
+  dataTableContainedWrapperClassName,
   dataTableHeadClassName,
   dataTableRowClassName,
-  dataTableScrollWrapperClassName,
   interactiveRowClassName,
 } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
@@ -28,11 +28,13 @@ export function ClientsTable({ clients }: ClientsTableProps) {
   }
 
   return (
-    <div className={dataTableScrollWrapperClassName}>
-      <table className={cn(dataTableElementClassName, "md:min-w-[38rem]")}>
+    <div className={dataTableContainedWrapperClassName}>
+      <table className={dataTableContainedElementClassName}>
         <thead>
           <tr>
-            <th className={cn(dataTableHeadClassName, "px-5 py-3")}>Client</th>
+            <th className={cn(dataTableHeadClassName, "px-4 py-3 sm:px-5")}>
+              Client
+            </th>
             <th className={cn(dataTableHeadClassName, "hidden px-4 py-3 lg:table-cell")}>
               Contact
             </th>
@@ -45,7 +47,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
             <th
               className={cn(
                 dataTableHeadClassName,
-                "px-4 py-3 max-md:w-[18%] max-md:whitespace-nowrap max-md:px-2 max-md:pr-4",
+                "w-[22%] px-2 py-3 sm:w-[14%] sm:px-4",
               )}
             >
               Type
@@ -76,12 +78,12 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                   "cursor-pointer",
                 )}
               >
-                <td className="px-5 py-3.5">
+                <td className="px-4 py-3.5 sm:px-5">
                   <Link
                     href={`/clients/${client.id}`}
                     className="block min-w-0"
                   >
-                    <span className="font-semibold tracking-tight text-[#0f172a] hover:text-[#2563eb] dark:text-[#f8fafc] dark:hover:text-[#93c5fd]">
+                    <span className="block truncate font-semibold tracking-tight text-[#0f172a] hover:text-[#2563eb] dark:text-[#f8fafc] dark:hover:text-[#93c5fd]">
                       {clientDisplayName(client)}
                     </span>
                     {subtitle ? (
@@ -115,7 +117,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                 <td className="hidden px-4 py-3.5 tabular-nums text-[#64748b] xl:table-cell dark:text-[#94a3b8]">
                   {client.phone ?? "—"}
                 </td>
-                <td className="px-4 py-3.5 max-md:whitespace-nowrap max-md:px-2 max-md:pr-4">
+                <td className="px-2 py-3.5 sm:px-4">
                   <ClientTypeBadge type={client.client_type} short />
                 </td>
                 <td className="hidden px-3 py-3.5 sm:table-cell">
