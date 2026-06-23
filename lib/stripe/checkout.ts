@@ -1,6 +1,8 @@
 import type Stripe from "stripe";
 
 import { getAppBaseUrl, getStripeClient } from "@/lib/stripe/client";
+import { getCheckoutPaymentIntentDescriptorData } from "@/lib/stripe/statement-descriptor";
+import { ensureStripePaymentDescriptors } from "@/lib/stripe/ensure-payment-descriptor";
 
 export interface CreateInvoiceCheckoutParams {
   invoiceId: string;
@@ -25,6 +27,8 @@ export async function createInvoiceCheckoutSession(
 
   const description = `Facture ${params.invoiceNumber} — ${params.companyName}`;
 
+  await ensureStripePaymentDescriptors();
+
   return stripe.checkout.sessions.create(
     {
       mode: "payment",
@@ -44,6 +48,7 @@ export async function createInvoiceCheckoutSession(
         },
       ],
       payment_intent_data: {
+        ...getCheckoutPaymentIntentDescriptorData(),
         transfer_data: {
           destination: params.connectedAccountId,
         },
@@ -90,6 +95,8 @@ export async function createQuoteDepositCheckoutSession(
 
   const description = `Acompte devis ${params.quoteNumber} — ${params.companyName}`;
 
+  await ensureStripePaymentDescriptors();
+
   return stripe.checkout.sessions.create(
     {
       mode: "payment",
@@ -109,6 +116,7 @@ export async function createQuoteDepositCheckoutSession(
         },
       ],
       payment_intent_data: {
+        ...getCheckoutPaymentIntentDescriptorData(),
         transfer_data: {
           destination: params.connectedAccountId,
         },

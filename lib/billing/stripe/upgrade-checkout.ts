@@ -11,6 +11,7 @@ import {
 } from "@/lib/billing/stripe/upgrade-amount";
 import { getAppBaseUrl, getStripeClient } from "@/lib/stripe/client";
 import { getCheckoutPaymentIntentDescriptorData } from "@/lib/stripe/statement-descriptor";
+import { ensureStripePaymentDescriptors } from "@/lib/stripe/ensure-payment-descriptor";
 
 export class UpgradeRequiresPaymentError extends Error {
   readonly amountDueCents: number;
@@ -94,6 +95,8 @@ export async function createUpgradePaymentCheckoutSession(
   const chargeCents = enforceStripeCheckoutMinimum(params.amountDueCents);
   const stripe = getStripeClient();
   const baseUrl = getAppBaseUrl();
+
+  await ensureStripePaymentDescriptors(targetPriceId);
 
   return stripe.checkout.sessions.create({
     mode: "payment",

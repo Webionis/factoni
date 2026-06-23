@@ -5,6 +5,7 @@ import {
   getStripePriceIdForPlan,
 } from "@/lib/billing/stripe/config";
 import { getAppBaseUrl, getStripeClient } from "@/lib/stripe/client";
+import { ensureStripePaymentDescriptors } from "@/lib/stripe/ensure-payment-descriptor";
 
 interface CreateSubscriptionCheckoutParams {
   userId: string;
@@ -40,6 +41,8 @@ export async function createSubscriptionCheckoutSession(
   const stripe = getStripeClient();
   const customerId = await getOrCreateStripeCustomer(params);
   const baseUrl = getAppBaseUrl();
+
+  await ensureStripePaymentDescriptors(priceId);
 
   return stripe.checkout.sessions.create({
     mode: "subscription",

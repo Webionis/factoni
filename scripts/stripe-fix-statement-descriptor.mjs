@@ -85,10 +85,14 @@ async function main() {
   }
   for (const product of products.data) {
     const desc = product.statement_descriptor ?? "(non défini → hérite du compte)";
-    const marker = desc.includes("ELITE") || desc.includes("TRADING") ? " ⚠️" : desc === DESCRIPTOR ? " ✅" : "";
+    const marker = desc.includes("ELITE") || desc.includes("TRADING") ? " ⚠️" : desc === DESCRIPTOR ? " ✅" : desc.includes("non défini") ? " ℹ️" : "";
     console.log(`• ${product.name} [${product.id}]`);
     console.log(`  Descripteur produit : ${desc}${marker}`);
   }
+
+  console.log(`\n── Profil entreprise ──`);
+  console.log(`URL site    : ${account.business_profile?.url ?? "—"}`);
+  console.log(`Nom public  : ${account.business_profile?.name ?? "—"}`);
 
   if (inspectOnly) {
     console.log(
@@ -153,6 +157,20 @@ async function main() {
     }
   }
 
+  const businessName = account.business_profile?.name ?? "";
+  if (
+    businessName &&
+    (businessName.toUpperCase().includes("ELITE") ||
+      businessName.toUpperCase().includes("TRADING"))
+  ) {
+    console.log(
+      `\n⚠️  Nom entreprise Stripe : "${businessName}" — vérifiez dans Dashboard → Paramètres → Informations entreprise`,
+    );
+  }
+
+  console.log(
+    `\n💡 Mode ${mode} : les réglages TEST et LIVE sont séparés. Lancez ce script avec sk_live_ pour corriger la production.`,
+  );
   console.log("\n✅ Terminé. Refaites un paiement test (navigation privée).\n");
 }
 
