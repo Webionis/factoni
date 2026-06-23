@@ -14,6 +14,8 @@
     "generate:pwa": "node scripts/generate-favicons.mjs",
     "stripe:check": "node scripts/stripe-local-check.mjs",
     "stripe:diagnose": "node scripts/diagnose-stripe-connect.mjs",
+    "stripe:fix-descriptor": "node scripts/stripe-fix-statement-descriptor.mjs",
+    "stripe:inspect-descriptor": "node scripts/stripe-fix-statement-descriptor.mjs -- --inspect",
     "stripe:migrate": "node scripts/apply-stripe-migrations.mjs",
     "quotes:fix-numbers": "node scripts/apply-quote-number-fix.mjs",
     "quotes:check-lists": "node scripts/check-document-lists.mjs",

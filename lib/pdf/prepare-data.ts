@@ -16,6 +16,7 @@ import {
 } from "@/lib/pdf/parse-snapshots";
 import type { InvoicePdfData, PdfInvoiceLine, PdfVatBreakdownRow } from "@/lib/pdf/types";
 import { buildInvoicePdfFilename } from "@/lib/pdf/filenames";
+import { resolvePdfBankDetails } from "@/lib/pdf/bank-details";
 import {
   formatDepositTypeLabel,
   normalizeQuoteDepositStatus,
@@ -184,6 +185,7 @@ export async function prepareInvoicePdfData(
   let vatRegime: InvoicePdfData["vatRegime"] = "standard";
   let legalMentions: string | null = null;
   let logoPath: string | null = null;
+  let bankSource: Parameters<typeof resolvePdfBankDetails>[0] = null;
 
   const parsedCompany = parseCompanySnapshot(invoice.company_snapshot);
   const parsedClient = parseClientSnapshot(invoice.client_snapshot);
@@ -194,6 +196,7 @@ export async function prepareInvoicePdfData(
     vatRegime = parsedCompany.vatRegime;
     legalMentions = parsedCompany.legalMentions;
     logoPath = parsedCompany.logoPath;
+    bankSource = parsedCompany;
   } else {
     dataSource = "draft_fallback";
     const company = await getCompanyForUser(supabase, userId);
@@ -210,6 +213,7 @@ export async function prepareInvoicePdfData(
       company.legal_mentions ??
       (vatRegime === "franchise" ? FRANCHISE_MENTION : null);
     logoPath = company.logo_path;
+    bankSource = company;
   }
 
   let interventionLocation: PdfParty | null = null;
@@ -239,6 +243,7 @@ export async function prepareInvoicePdfData(
 
   const isQuote = invoice.document_type === "quote";
   const pdfStatus = resolvePdfDocumentStatus(invoice);
+  const bankDetails = resolvePdfBankDetails(bankSource, invoice.document_type);
   const acceptance =
     isQuote && invoice.accepted_at && invoice.accepted_by_name
       ? {
@@ -294,6 +299,7 @@ export async function prepareInvoicePdfData(
     dueDate: invoice.due_date,
     paymentTerms: invoice.payment_terms,
     notes: invoice.notes,
+    bankDetails,
     emitter,
     client,
     interventionLocation,

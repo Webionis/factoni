@@ -3,12 +3,13 @@ import type { Style } from "@react-pdf/types";
 import type { ReactNode } from "react";
 
 import { pdfStyles } from "@/lib/pdf/styles";
+import { formatPdfBankDetailsBody } from "@/lib/pdf/bank-details";
 import type { InvoicePdfData } from "@/lib/pdf/types";
 
 interface PdfDocumentFooterProps {
   data: Pick<
     InvoicePdfData,
-    "paymentTerms" | "notes" | "legalMentions"
+    "paymentTerms" | "notes" | "legalMentions" | "bankDetails"
   >;
 }
 
@@ -32,6 +33,18 @@ function FooterBlock({
 /** Footer métier sous le récap — pagination naturelle (notes longues peuvent continuer). */
 export function PdfDocumentFooter({ data }: PdfDocumentFooterProps) {
   const blocks: { key: string; node: ReactNode }[] = [];
+
+  if (data.bankDetails) {
+    blocks.push({
+      key: "bank",
+      node: (
+        <FooterBlock
+          title="Coordonnées bancaires"
+          body={formatPdfBankDetailsBody(data.bankDetails)}
+        />
+      ),
+    });
+  }
 
   if (data.paymentTerms) {
     blocks.push({

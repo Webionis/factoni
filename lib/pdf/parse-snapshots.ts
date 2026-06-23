@@ -36,6 +36,12 @@ export function parseCompanySnapshot(json: Json | null): {
   vatRegime: VatRegime;
   legalMentions: string | null;
   logoPath: string | null;
+  bank_account_holder: string | null;
+  bank_name: string | null;
+  bank_iban: string | null;
+  bank_bic: string | null;
+  bank_show_on_invoices: boolean;
+  bank_show_on_quotes: boolean;
 } | null {
   const r = asRecord(json);
   if (!r) return null;
@@ -60,6 +66,12 @@ export function parseCompanySnapshot(json: Json | null): {
       str(r.legal_mentions) ??
       (vatRegime === "franchise" ? FRANCHISE_MENTION : null),
     logoPath: str(r.logo_path),
+    bank_account_holder: str(r.bank_account_holder),
+    bank_name: str(r.bank_name),
+    bank_iban: str(r.bank_iban),
+    bank_bic: str(r.bank_bic),
+    bank_show_on_invoices: r.bank_show_on_invoices !== false,
+    bank_show_on_quotes: r.bank_show_on_quotes === true,
   };
 }
 

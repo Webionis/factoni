@@ -225,12 +225,33 @@
 
   .ff-bottom-nav {
     isolation: isolate;
-    overflow: hidden;
+    overflow: visible;
     border-radius: 9999px;
     background: transparent;
     box-shadow: 0 4px var(--ff-glass-outer-shadow) rgba(15, 23, 42, 0.14);
-    transform: translate3d(0, 0, 0);
-    -webkit-transform: translate3d(0, 0, 0);
+    transform: none;
+    -webkit-transform: none;
+    will-change: auto;
+  }
+
+  @media (max-width: 767px) {
+    .ff-bottom-nav {
+      box-shadow: 0 2px 16px rgba(15, 23, 42, 0.12);
+    }
+
+    .ff-bottom-nav::before {
+      background-color: rgba(255, 255, 255, 0.96);
+      box-shadow: none;
+    }
+
+    .ff-bottom-nav::after {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+
+    .dark .ff-bottom-nav::before {
+      background-color: rgba(15, 23, 42, 0.96);
+    }
   }
 
   .dark .ff-bottom-nav {

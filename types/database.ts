@@ -306,6 +306,12 @@ export type Database = {
           auto_reminder_day_3: boolean
           auto_reminder_day_7: boolean
           auto_reminders_enabled: boolean
+          bank_account_holder: string | null
+          bank_bic: string | null
+          bank_iban: string | null
+          bank_name: string | null
+          bank_show_on_invoices: boolean
+          bank_show_on_quotes: boolean
           city: string
           country: string
           created_at: string
@@ -335,6 +341,12 @@ export type Database = {
           auto_reminder_day_3?: boolean
           auto_reminder_day_7?: boolean
           auto_reminders_enabled?: boolean
+          bank_account_holder?: string | null
+          bank_bic?: string | null
+          bank_iban?: string | null
+          bank_name?: string | null
+          bank_show_on_invoices?: boolean
+          bank_show_on_quotes?: boolean
           city: string
           country?: string
           created_at?: string
@@ -364,6 +376,12 @@ export type Database = {
           auto_reminder_day_3?: boolean
           auto_reminder_day_7?: boolean
           auto_reminders_enabled?: boolean
+          bank_account_holder?: string | null
+          bank_bic?: string | null
+          bank_iban?: string | null
+          bank_name?: string | null
+          bank_show_on_invoices?: boolean
+          bank_show_on_quotes?: boolean
           city?: string
           country?: string
           created_at?: string

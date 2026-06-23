@@ -47,6 +47,12 @@ export const defaultCompanyFormValues: CompanyFormValues = {
   default_vat_rate: 20,
   payment_terms: "Paiement à 30 jours",
   legal_mentions: "",
+  bank_account_holder: "",
+  bank_name: "",
+  bank_iban: "",
+  bank_bic: "",
+  bank_show_on_invoices: true,
+  bank_show_on_quotes: false,
 };
 
 interface CompanyFormProps {
@@ -447,6 +453,89 @@ export function CompanyForm({ mode, initialValues }: CompanyFormProps) {
             {...register("payment_terms")}
           />
         </FormField>
+      </CompanyFormSection>
+
+      <CompanyFormSection
+        mode={mode}
+        title="Coordonnées bancaires"
+        description="RIB affiché sur vos PDF lorsque l'IBAN est renseigné. Par défaut sur les factures uniquement."
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField
+            label="Titulaire du compte"
+            htmlFor="bank_account_holder"
+            error={errors.bank_account_holder?.message}
+            className="sm:col-span-2"
+          >
+            <Input
+              id="bank_account_holder"
+              className={inputClassName}
+              placeholder="Nom de l'entreprise ou du titulaire"
+              aria-invalid={!!errors.bank_account_holder}
+              {...register("bank_account_holder")}
+            />
+          </FormField>
+          <FormField
+            label="Banque"
+            htmlFor="bank_name"
+            error={errors.bank_name?.message}
+          >
+            <Input
+              id="bank_name"
+              className={inputClassName}
+              placeholder="Ex. BNP Paribas"
+              {...register("bank_name")}
+            />
+          </FormField>
+          <FormField
+            label="BIC (optionnel)"
+            htmlFor="bank_bic"
+            error={errors.bank_bic?.message}
+          >
+            <Input
+              id="bank_bic"
+              className={inputClassName}
+              placeholder="BNPAFRPP"
+              autoCapitalize="characters"
+              aria-invalid={!!errors.bank_bic}
+              {...register("bank_bic")}
+            />
+          </FormField>
+          <FormField
+            label="IBAN"
+            htmlFor="bank_iban"
+            error={errors.bank_iban?.message}
+            className="sm:col-span-2"
+            hint="Affiché sur les documents si renseigné"
+          >
+            <Input
+              id="bank_iban"
+              className={inputClassName}
+              placeholder="FR76 1234 5678 9012 3456 7890 123"
+              autoCapitalize="characters"
+              aria-invalid={!!errors.bank_iban}
+              {...register("bank_iban")}
+            />
+          </FormField>
+        </div>
+        <div className="space-y-3 rounded-xl border border-[rgba(15,23,42,0.06)] bg-[#f8fafc] px-4 py-3.5 dark:border-[rgba(148,163,184,0.12)] dark:bg-[rgba(30,41,59,0.35)]">
+          <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-[#64748b] dark:text-[#94a3b8]">
+            <input
+              type="checkbox"
+              className="mt-0.5 size-4 shrink-0 rounded border-border"
+              {...register("bank_show_on_invoices")}
+            />
+            <span>Afficher le RIB sur les factures PDF</span>
+          </label>
+          <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-[#64748b] dark:text-[#94a3b8]">
+            <input
+              type="checkbox"
+              className="mt-0.5 size-4 shrink-0 rounded border-border"
+              {...register("bank_show_on_quotes")}
+            />
+            <span>Afficher le RIB sur les devis PDF</span>
+          </label>
+        </div>
       </CompanyFormSection>
     </>
   );

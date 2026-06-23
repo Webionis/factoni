@@ -42,5 +42,11 @@ export function buildCompanySnapshot(company: CompanyRow): Json {
     legal_mentions: company.legal_mentions,
     payment_terms: company.payment_terms,
     logo_path: company.logo_path,
+    bank_account_holder: company.bank_account_holder,
+    bank_name: company.bank_name,
+    bank_iban: company.bank_iban,
+    bank_bic: company.bank_bic,
+    bank_show_on_invoices: company.bank_show_on_invoices,
+    bank_show_on_quotes: company.bank_show_on_quotes,
   };
 }

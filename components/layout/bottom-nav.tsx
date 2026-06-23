@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 import {
   CalendarDays,
@@ -45,6 +46,11 @@ export function BottomNav() {
   const router = useRouter();
   const { unreadCount } = useUnreadNotifications();
   const [moreOpen, setMoreOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const moreActive = moreOpen || pathname.startsWith("/settings/");
 
@@ -61,12 +67,17 @@ export function BottomNav() {
     router.push("/dashboard", { scroll: true });
   }
 
-  return (
+  if (!mounted) {
+    return null;
+  }
+
+  return createPortal(
     <>
       <nav
         className={cn(
-          "ff-bottom-nav fixed inset-x-4 z-50 md:hidden",
-          "bottom-[max(0.75rem,env(safe-area-inset-bottom))]",
+          "ff-bottom-nav fixed inset-x-0 z-[100] md:hidden",
+          "bottom-0 px-4",
+          "pb-[max(0.75rem,env(safe-area-inset-bottom))]",
         )}
         aria-label="Navigation principale"
       >
@@ -140,6 +151,7 @@ export function BottomNav() {
       </nav>
 
       <MobileMoreMenu open={moreOpen} onClose={() => setMoreOpen(false)} />
-    </>
+    </>,
+    document.body,
   );
 }

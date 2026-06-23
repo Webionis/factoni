@@ -1,4 +1,5 @@
 import type { DocumentType } from "@/lib/documents/types";
+import type { PdfBankDetails } from "@/lib/pdf/bank-details";
 import type { InvoiceLineItemNature } from "@/lib/invoices/item-nature";
 import type { InvoiceStatus } from "@/lib/invoices/status";
 import type { QuoteStatus } from "@/lib/quotes/status";
@@ -43,6 +44,7 @@ export interface InvoicePdfData {
   dueDate: string;
   paymentTerms: string | null;
   notes: string | null;
+  bankDetails: PdfBankDetails | null;
   emitter: PdfParty;
   client: PdfParty;
   interventionLocation?: PdfParty | null;

@@ -6,6 +6,12 @@ import {
   VAT_REGIMES,
 } from "@/lib/constants/vat";
 import { sanitizeOptionalText, sanitizeText } from "@/lib/sanitize";
+import {
+  isValidBic,
+  isValidIban,
+  normalizeBic,
+  normalizeIban,
+} from "@/lib/validations/bank";
 import type { Database } from "@/types/database";
 
 const optionalSiren = z
@@ -41,6 +47,12 @@ export const companyFormSchema = z
       ),
     payment_terms: z.string().optional(),
     legal_mentions: z.string().optional(),
+    bank_account_holder: z.string().optional(),
+    bank_name: z.string().optional(),
+    bank_iban: z.string().optional(),
+    bank_bic: z.string().optional(),
+    bank_show_on_invoices: z.boolean(),
+    bank_show_on_quotes: z.boolean(),
   })
   .superRefine((data, ctx) => {
     if (data.vat_regime === "franchise" && data.default_vat_rate !== 0) {
@@ -60,6 +72,33 @@ export const companyFormSchema = z
         code: "custom",
         message: "Format attendu : FR + 11 caractères (ex. FR12345678901)",
         path: ["vat_number"],
+      });
+    }
+
+    const iban = data.bank_iban?.trim() ?? "";
+    const bic = data.bank_bic?.trim() ?? "";
+
+    if (iban && !isValidIban(iban)) {
+      ctx.addIssue({
+        code: "custom",
+        message: "IBAN invalide (ex. FR76 1234 5678 9012 3456 7890 123)",
+        path: ["bank_iban"],
+      });
+    }
+
+    if (bic && !isValidBic(bic)) {
+      ctx.addIssue({
+        code: "custom",
+        message: "BIC invalide (8 ou 11 caractères)",
+        path: ["bank_bic"],
+      });
+    }
+
+    if (iban && !data.bank_account_holder?.trim()) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Indiquez le titulaire du compte",
+        path: ["bank_account_holder"],
       });
     }
   });
@@ -88,6 +127,12 @@ export function companyRowToFormValues(
     default_vat_rate: Number(company.default_vat_rate),
     payment_terms: company.payment_terms ?? "",
     legal_mentions: company.legal_mentions ?? "",
+    bank_account_holder: company.bank_account_holder ?? "",
+    bank_name: company.bank_name ?? "",
+    bank_iban: company.bank_iban ?? "",
+    bank_bic: company.bank_bic ?? "",
+    bank_show_on_invoices: company.bank_show_on_invoices ?? true,
+    bank_show_on_quotes: company.bank_show_on_quotes ?? false,
   };
 }
 
@@ -119,5 +164,13 @@ export function formValuesToCompanyPayload(
       vatRegime === "franchise"
         ? sanitizeOptionalText(values.legal_mentions, 2000) || FRANCHISE_MENTION
         : sanitizeOptionalText(values.legal_mentions, 2000),
+    bank_account_holder: sanitizeOptionalText(values.bank_account_holder, 200),
+    bank_name: sanitizeOptionalText(values.bank_name, 120),
+    bank_iban: values.bank_iban?.trim()
+      ? normalizeIban(values.bank_iban)
+      : null,
+    bank_bic: values.bank_bic?.trim() ? normalizeBic(values.bank_bic) : null,
+    bank_show_on_invoices: values.bank_show_on_invoices,
+    bank_show_on_quotes: values.bank_show_on_quotes,
   };
 }

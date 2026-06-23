@@ -35,12 +35,12 @@ export const touchTargetClassName =
 
 /** Padding bas du contenu principal (bottom nav + FAB). */
 export const mobileMainPaddingBottomClassName =
-  "pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-10";
+  "pb-[calc(6.25rem+env(safe-area-inset-bottom))] md:pb-10";
 
 /** Position sticky des barres d'action formulaire au-dessus de la bottom nav. */
 export const mobileStickyFooterClassName = cn(
   "sticky z-30 -mx-4 border-t bg-background/95 px-4 py-3 backdrop-blur-md",
-  "bottom-[calc(3.25rem+env(safe-area-inset-bottom))]",
+  "bottom-[calc(5.5rem+env(safe-area-inset-bottom))]",
   "md:static md:mx-0 md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none",
 );
 
