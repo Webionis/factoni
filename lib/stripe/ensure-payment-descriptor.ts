@@ -9,26 +9,36 @@ const LEGACY_DESCRIPTOR_MARKERS = ["ELITE", "TRADING", "ELITETRADING"];
 let lastEnsuredAt = 0;
 const ENSURE_TTL_MS = 10 * 60 * 1000;
 
-function needsDescriptorUpdate(descriptor: string | null | undefined): boolean {
+export function needsStripeDescriptorUpdate(
+  descriptor: string | null | undefined,
+): boolean {
   if (!descriptor?.trim()) return true;
   const normalized = descriptor.trim().toUpperCase();
   if (normalized === STRIPE_STATEMENT_SUFFIX) return false;
   return LEGACY_DESCRIPTOR_MARKERS.some((marker) => normalized.includes(marker));
 }
 
-async function ensureAccountDescriptor(stripe: Stripe): Promise<void> {
+/**
+ * Sur un compte Stripe Standard, le descripteur compte se modifie via le Dashboard
+ * (l'API accounts.update ne fonctionne que pour les comptes Connect).
+ */
+async function tryEnsureAccountDescriptor(stripe: Stripe): Promise<void> {
   const account = await stripe.accounts.retrieve(null);
   const current = account.settings?.payments?.statement_descriptor;
 
-  if (!needsDescriptorUpdate(current)) return;
+  if (!needsStripeDescriptorUpdate(current)) return;
 
-  await stripe.accounts.update(account.id, {
-    settings: {
-      payments: {
-        statement_descriptor: STRIPE_STATEMENT_SUFFIX,
+  try {
+    await stripe.accounts.update(account.id, {
+      settings: {
+        payments: {
+          statement_descriptor: STRIPE_STATEMENT_SUFFIX,
+        },
       },
-    },
-  });
+    });
+  } catch {
+    // Compte Standard : mise à jour produits suffit pour les abonnements (Revolut).
+  }
 }
 
 async function ensureProductDescriptor(
@@ -38,7 +48,7 @@ async function ensureProductDescriptor(
   const product = await stripe.products.retrieve(productId);
   if (product.deleted) return;
 
-  if (!needsDescriptorUpdate(product.statement_descriptor)) return;
+  if (!needsStripeDescriptorUpdate(product.statement_descriptor)) return;
 
   await stripe.products.update(product.id, {
     statement_descriptor: STRIPE_STATEMENT_SUFFIX,
@@ -58,7 +68,7 @@ export async function ensureStripePaymentDescriptors(
 
   const stripe = getStripeClient();
 
-  await ensureAccountDescriptor(stripe);
+  await tryEnsureAccountDescriptor(stripe);
 
   const productIds = new Set<string>();
 

@@ -5,6 +5,7 @@
  * Usage :
  *   node scripts/stripe-fix-statement-descriptor.mjs
  *   node scripts/stripe-fix-statement-descriptor.mjs --dry-run
+ *   STRIPE_SECRET_KEY=sk_live_... npm run stripe:fix-descriptor
  *
  * Lit STRIPE_SECRET_KEY + price IDs depuis .env.production ou .env.local
  */
@@ -16,6 +17,7 @@ import Stripe from "stripe";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 const DESCRIPTOR = "FACTONI";
+const LEGACY_MARKERS = ["ELITE", "TRADING", "ELITETRADING"];
 
 function loadEnvFile(filePath) {
   if (!fs.existsSync(filePath)) return {};
@@ -48,6 +50,26 @@ function loadEnv() {
   return { ...process.env, loadedFrom: null };
 }
 
+function needsUpdate(descriptor) {
+  if (!descriptor?.trim()) return true;
+  const normalized = descriptor.trim().toUpperCase();
+  if (normalized === DESCRIPTOR) return false;
+  return LEGACY_MARKERS.some((marker) => normalized.includes(marker));
+}
+
+function printDashboardAccountHint(mode) {
+  const base =
+    mode === "LIVE"
+      ? "https://dashboard.stripe.com/settings/public"
+      : "https://dashboard.stripe.com/test/settings/public";
+  console.log("\n── Descripteur compte (Dashboard Stripe) ──");
+  console.log(
+    "Sur un compte Standard, le descripteur compte se modifie manuellement :",
+  );
+  console.log(`  ${base}`);
+  console.log(`  → Descripteur de relevé bancaire : ${DESCRIPTOR}`);
+}
+
 async function main() {
   const dryRun = process.argv.includes("--dry-run");
   const inspectOnly = process.argv.includes("--inspect");
@@ -67,7 +89,7 @@ async function main() {
   if (dryRun) console.log("Mode : dry-run");
   if (inspectOnly) console.log("Mode : inspect (aucune modification)");
 
-  const account = await stripe.accounts.retrieve();
+  const account = await stripe.accounts.retrieve(null);
   console.log(`Compte Stripe : ${account.id}`);
 
   const payments = account.settings?.payments;
@@ -85,7 +107,14 @@ async function main() {
   }
   for (const product of products.data) {
     const desc = product.statement_descriptor ?? "(non défini → hérite du compte)";
-    const marker = desc.includes("ELITE") || desc.includes("TRADING") ? " ⚠️" : desc === DESCRIPTOR ? " ✅" : desc.includes("non défini") ? " ℹ️" : "";
+    const marker =
+      desc.includes("ELITE") || desc.includes("TRADING")
+        ? " ⚠️"
+        : desc === DESCRIPTOR
+          ? " ✅"
+          : desc.includes("non défini")
+            ? " ℹ️"
+            : "";
     console.log(`• ${product.name} [${product.id}]`);
     console.log(`  Descripteur produit : ${desc}${marker}`);
   }
@@ -98,22 +127,32 @@ async function main() {
     console.log(
       "\n💡 Revolut affiche le descripteur du PRODUIT en priorité pour les abonnements.",
     );
-    console.log("   Si un produit affiche encore ELITETRADING…, corrigez-le ci-dessus.\n");
+    if (needsUpdate(currentDescriptor)) {
+      printDashboardAccountHint(mode);
+    }
+    console.log("");
     return;
   }
 
-  if (currentDescriptor !== DESCRIPTOR) {
+  if (needsUpdate(currentDescriptor)) {
     if (dryRun) {
-      console.log(`\n→ Mettrait à jour le descripteur compte → ${DESCRIPTOR}`);
+      console.log(`\n→ Descripteur compte : mise à jour Dashboard recommandée → ${DESCRIPTOR}`);
     } else {
-      await stripe.accounts.update(account.id, {
-        settings: {
-          payments: {
-            statement_descriptor: DESCRIPTOR,
+      try {
+        await stripe.accounts.update(account.id, {
+          settings: {
+            payments: {
+              statement_descriptor: DESCRIPTOR,
+            },
           },
-        },
-      });
-      console.log(`\n✅ Descripteur compte → ${DESCRIPTOR}`);
+        });
+        console.log(`\n✅ Descripteur compte → ${DESCRIPTOR}`);
+      } catch (error) {
+        console.log(
+          `\n⚠️  Descripteur compte non modifiable via API (${error.message})`,
+        );
+        printDashboardAccountHint(mode);
+      }
     }
   } else {
     console.log("\n✅ Descripteur compte déjà OK");
@@ -135,15 +174,20 @@ async function main() {
     }
   }
 
+  console.log("\n── Mise à jour des produits (API) ──");
+  let productsUpdated = 0;
+
   for (const productId of productIdsToUpdate) {
     const product = await stripe.products.retrieve(productId);
     if (product.deleted) continue;
 
-    const productDescriptor = product.statement_descriptor ?? "(non défini)";
+    const productDescriptor = product.statement_descriptor;
     console.log(`\nProduit ${product.name} (${product.id})`);
-    console.log(`  Descripteur : ${productDescriptor}`);
+    console.log(
+      `  Descripteur : ${productDescriptor ?? "(non défini → hérite du compte)"}`,
+    );
 
-    if (productDescriptor !== DESCRIPTOR) {
+    if (needsUpdate(productDescriptor)) {
       if (dryRun) {
         console.log(`  → Mettrait à jour → ${DESCRIPTOR}`);
       } else {
@@ -151,25 +195,21 @@ async function main() {
           statement_descriptor: DESCRIPTOR,
         });
         console.log(`  ✅ Mis à jour → ${DESCRIPTOR}`);
+        productsUpdated++;
       }
     } else {
       console.log("  ✅ Déjà OK");
     }
   }
 
-  const businessName = account.business_profile?.name ?? "";
-  if (
-    businessName &&
-    (businessName.toUpperCase().includes("ELITE") ||
-      businessName.toUpperCase().includes("TRADING"))
-  ) {
+  if (!dryRun && productsUpdated > 0) {
     console.log(
-      `\n⚠️  Nom entreprise Stripe : "${businessName}" — vérifiez dans Dashboard → Paramètres → Informations entreprise`,
+      `\n✅ ${productsUpdated} produit(s) mis à jour — Revolut devrait afficher ${DESCRIPTOR} pour les abonnements.`,
     );
   }
 
   console.log(
-    `\n💡 Mode ${mode} : les réglages TEST et LIVE sont séparés. Lancez ce script avec sk_live_ pour corriger la production.`,
+    `\n💡 Mode ${mode} : les réglages TEST et LIVE sont séparés.`,
   );
   console.log("\n✅ Terminé. Refaites un paiement test (navigation privée).\n");
 }
