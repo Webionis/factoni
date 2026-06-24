@@ -57,8 +57,8 @@ export const pdfStyles = StyleSheet.create({
     alignItems: "flex-end",
   },
   logoWrap: {
-    marginBottom: 6,
-    padding: 4,
+    marginBottom: 8,
+    padding: 6,
     backgroundColor: pdfColors.surface,
     borderWidth: 1,
     borderColor: pdfColors.border,
@@ -66,8 +66,8 @@ export const pdfStyles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   logo: {
-    maxWidth: 108,
-    maxHeight: 40,
+    maxWidth: 160,
+    maxHeight: 56,
     objectFit: "contain",
   },
   headerCompanyName: {

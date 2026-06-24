@@ -62,12 +62,15 @@ function printDashboardAccountHint(mode) {
     mode === "LIVE"
       ? "https://dashboard.stripe.com/settings/public"
       : "https://dashboard.stripe.com/test/settings/public";
-  console.log("\n── Descripteur compte (Dashboard Stripe) ──");
+  console.log("\n── Descripteur compte (Dashboard Stripe — OBLIGATOIRE si promo 0 €) ──");
   console.log(
-    "Sur un compte Standard, le descripteur compte se modifie manuellement :",
+    "Avec un code promo 100 % (BIENVENUE), Revolut affiche le descripteur COMPTE, pas le produit.",
   );
-  console.log(`  ${base}`);
-  console.log(`  → Descripteur de relevé bancaire : ${DESCRIPTOR}`);
+  console.log("1. Basculez en mode LIVE (interrupteur en haut à droite du Dashboard)");
+  console.log(`2. Ouvrez : ${base}`);
+  console.log(`3. Descripteur de relevé bancaire → ${DESCRIPTOR} (max 22 caractères)`);
+  console.log(`4. Nom public / DBA → Factoni`);
+  console.log("5. Enregistrez, attendez 2–3 min, retestez en navigation privée");
 }
 
 async function main() {
@@ -93,12 +96,16 @@ async function main() {
   console.log(`Compte Stripe : ${account.id}`);
 
   const payments = account.settings?.payments;
+  const cardPayments = account.settings?.card_payments;
   const currentDescriptor = payments?.statement_descriptor ?? "(non défini)";
+  const prefixDescriptor =
+    cardPayments?.statement_descriptor_prefix ?? "(non défini)";
 
   console.log(`\n── Compte ──`);
   console.log(`Nom dashboard   : ${account.settings?.dashboard?.display_name ?? "—"}`);
   console.log(`Business profile: ${account.business_profile?.name ?? "—"}`);
   console.log(`Descripteur     : ${currentDescriptor}`);
+  console.log(`Préfixe carte   : ${prefixDescriptor}`);
 
   console.log(`\n── Tous les produits actifs ──`);
   const products = await stripe.products.list({ active: true, limit: 100 });
@@ -204,8 +211,15 @@ async function main() {
 
   if (!dryRun && productsUpdated > 0) {
     console.log(
-      `\n✅ ${productsUpdated} produit(s) mis à jour — Revolut devrait afficher ${DESCRIPTOR} pour les abonnements.`,
+      `\n✅ ${productsUpdated} produit(s) mis à jour — utile pour les paiements > 0 €.`,
     );
+  }
+
+  if (
+    needsUpdate(currentDescriptor) ||
+    needsUpdate(cardPayments?.statement_descriptor_prefix)
+  ) {
+    printDashboardAccountHint(mode);
   }
 
   console.log(

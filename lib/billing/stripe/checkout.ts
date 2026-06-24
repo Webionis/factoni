@@ -62,6 +62,13 @@ export async function createSubscriptionCheckoutSession(
         plan: params.plan,
       },
     },
+    // Paiement 0 € (promo 100 %) → SetupIntent : Revolut affiche le descripteur COMPTE.
+    setup_intent_data: {
+      description: "Abonnement Factoni",
+      metadata: {
+        brand: "Factoni",
+      },
+    },
     allow_promotion_codes: true,
   });
 }
